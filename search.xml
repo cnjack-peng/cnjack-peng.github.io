@@ -1,13 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<search>
-  <entry>
-    <title><![CDATA[HEXO Tutorial]]></title>
-    <url>%2F2017%2F11%2F29%2Fhexo-tutorial%2F</url>
-    <content type="text"><![CDATA[HEXO是一个静态BLOG APPS。 安装配置安装1cnpm install hexo-cli -g 启动1hexo server 配置语言配置1language: zh-Hans 部署12hexo cleanhexo generate NEXT主题打开侧边栏12sidebar: display: always 高级功能搜索12cnpm install hexo-generator-search --savecnpm install hexo-generator-searchdb --save 在站点配置中加入：12345search: path: search.xml field: post format: html limit: 10000 在NEXT主题配置文件中开启：12local_search: enable: true 关于我页面1hexo new page about 在NEXT主题中开启关于我页面即可 写作阅读全文在适当的位置加入如下标签即可：1&lt;!--more--&gt;]]></content>
-  </entry>
-  <entry>
-    <title><![CDATA[开发者的网络安全技术]]></title>
-    <url>%2F2017%2F11%2F29%2Fnetsafe-technology%2F</url>
-    <content type="text"><![CDATA[本文主要对软件开发者相关的系统安全问题进行总结。 攻击类型XSSCreate a new postCSRF重放攻击]]></content>
-  </entry>
+<search> 
+  
+    
+    <entry>
+      <title><![CDATA[HEXO Tutorial]]></title>
+      <url>/2017/11/29/hexo-tutorial/</url>
+      <content type="html"><![CDATA[<p>HEXO是一个静态BLOG APPS。</p>
+<h2 id="安装配置"><a href="#安装配置" class="headerlink" title="安装配置"></a>安装配置</h2><h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cnpm install hexo-cli -g</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<h3 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo server</span><br></pre></td></tr></table></figure>
+<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>语言配置<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">language: zh-Hans</span><br></pre></td></tr></table></figure></p>
+<h3 id="部署"><a href="#部署" class="headerlink" title="部署"></a>部署</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hexo clean</span><br><span class="line">hexo generate</span><br></pre></td></tr></table></figure>
+<h2 id="NEXT主题"><a href="#NEXT主题" class="headerlink" title="NEXT主题"></a>NEXT主题</h2><h3 id="打开侧边栏"><a href="#打开侧边栏" class="headerlink" title="打开侧边栏"></a>打开侧边栏</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sidebar:</span><br><span class="line">  display: always</span><br></pre></td></tr></table></figure>
+<h2 id="高级功能"><a href="#高级功能" class="headerlink" title="高级功能"></a>高级功能</h2><h3 id="搜索"><a href="#搜索" class="headerlink" title="搜索"></a>搜索</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cnpm install hexo-generator-search --save</span><br><span class="line">cnpm install hexo-generator-searchdb --save</span><br></pre></td></tr></table></figure>
+<p>在站点配置中加入：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">search:</span><br><span class="line">  path: search.xml</span><br><span class="line">  field: post</span><br><span class="line">  format: html</span><br><span class="line">  <span class="built_in">limit</span>: 10000</span><br></pre></td></tr></table></figure></p>
+<p>在NEXT主题配置文件中开启：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">local_search:</span><br><span class="line">  <span class="built_in">enable</span>: <span class="literal">true</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="关于我页面"><a href="#关于我页面" class="headerlink" title="关于我页面"></a>关于我页面</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hexo new page about</span><br></pre></td></tr></table></figure>
+<p>在NEXT主题中开启关于我页面即可</p>
+<h2 id="写作"><a href="#写作" class="headerlink" title="写作"></a>写作</h2><h3 id="阅读全文"><a href="#阅读全文" class="headerlink" title="阅读全文"></a>阅读全文</h3><p>在适当的位置加入如下标签即可：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;!--more--&gt;</span><br></pre></td></tr></table></figure></p>
+]]></content>
+      
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[开发者的网络安全技术]]></title>
+      <url>/2017/11/29/netsafe-technology/</url>
+      <content type="html"><![CDATA[<p>本文主要对软件开发者相关的系统安全问题进行总结。</p>
+<h2 id="攻击类型"><a href="#攻击类型" class="headerlink" title="攻击类型"></a>攻击类型</h2><h3 id="XSS"><a href="#XSS" class="headerlink" title="XSS"></a>XSS</h3><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><h3 id="CSRF"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</h3><h3 id="重放攻击"><a href="#重放攻击" class="headerlink" title="重放攻击"></a>重放攻击</h3>]]></content>
+      
+        
+    </entry>
+    
+  
+  
 </search>
