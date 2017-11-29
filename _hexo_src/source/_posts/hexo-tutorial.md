@@ -1,5 +1,9 @@
 ---
 title: HEXO Tutorial
+year: 2017
+month: 11
+day: 20
+categories: 小技巧
 ---
 HEXO是一个静态BLOG APPS。
 

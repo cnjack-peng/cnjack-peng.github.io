@@ -4,6 +4,9 @@
     <title><![CDATA[HEXO Tutorial]]></title>
     <url>%2F2017%2F11%2F29%2Fhexo-tutorial%2F</url>
     <content type="text"><![CDATA[HEXO是一个静态BLOG APPS。 安装配置安装1cnpm install hexo-cli -g 启动1hexo server 配置语言配置1language: zh-Hans 部署12hexo cleanhexo generate NEXT主题打开侧边栏12sidebar: display: always 高级功能搜索12cnpm install hexo-generator-search --savecnpm install hexo-generator-searchdb --save 在站点配置中加入：12345search: path: search.xml field: post format: html limit: 10000 在NEXT主题配置文件中开启：12local_search: enable: true 关于我页面1hexo new page about 在NEXT主题中开启关于我页面即可 写作阅读全文在适当的位置加入如下标签即可：1&lt;!--more--&gt; 创建文章12hexo new [layout] &lt;title&gt;hexo new MyPage]]></content>
+      <categories>
+        <category>小技巧</category>
+      </categories>
   </entry>
   <entry>
     <title><![CDATA[开发者的网络安全技术]]></title>
