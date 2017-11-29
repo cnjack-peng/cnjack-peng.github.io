@@ -78,5 +78,9 @@ hexo new page about
 ```bash
 <!--more-->
 ```
-
+### 创建文章
+```base
+hexo new [layout] <title>
+hexo new MyPage
+```
 
