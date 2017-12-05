@@ -86,3 +86,10 @@ hexo new [layout] <title>
 hexo new MyPage
 ```
 
+### 插入图片
+
+修改`_config.yml`配置文件`post_asset_folder`项为`true`。创建文章使用命令如下：
+```bash
+hexo new 'article title'
+```
+使用完命令之后，在source/_post文件夹里面就会出现一个“article title.md”的文件和一个“article title”的文件夹。
