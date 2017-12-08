@@ -31,7 +31,7 @@ total 0
 
  find+xargs 真的很强大. 然而:
 
- ```bash
+```bash
 [bash-4.1.5] ; ls -l
 total 0
 -rw-r--r-- 1 root root 0 2010-08-02 18:12 file 1.log
@@ -44,7 +44,7 @@ rm: cannot remove `./file': No such file or directory
 rm: cannot remove `1.log': No such file or directory
 rm: cannot remove `./file': No such file or directory
 rm: cannot remove `2.log': No such file or directory
- ```
+```
 
  原因其实很简单, xargs 默认是以空白字符 (空格, TAB, 换行符) 来分割记录的, 因此文件名 ./file 1.log 被解释成了两个记录 ./file 和 1.log, 不幸的是 rm 找不到这两个文件.
  
@@ -110,4 +110,10 @@ find . -name "*.txt" -print0 | xargs -0 sed -i 's/aaa/bbb/g'
 xargs结合grep：
 ```bash
 find . -name '*.txt' -type f -print0 |xargs -0 grep -n 'aaa'    #“-n”输出行号
+```
+
+
+用rm删除太多的文件时候，可能得到一个错误信息：`/bin/rm Argument list too long`. 用xargs去避免这个问题(xargs -0将\0作为定界符)：
+```bash
+find . -type f -name "*.log" -print0 | xargs -0 rm -f
 ```
