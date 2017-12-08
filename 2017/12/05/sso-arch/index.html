@@ -83,10 +83,10 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="单点登录解决方案">
 <meta property="og:url" content="http://keaimo.com/2017/12/05/sso-arch/index.html">
-<meta property="og:site_name" content="大叶宝宝">
+<meta property="og:site_name" content="笑傲江湖└JP┐">
 <meta property="og:description" content="什么是SSOWeb应用系统的演化总是从简单到复杂，从单功能到多功能模块再到多子系统方向发展。当前的大中型Web互联网应用基本都是多系统组成的应用群，由多个web系统协同为用户提供服务。多系统应用群，必然意味着各系统间既相对独立，又保持着某种联系。独立，意味着给用户提供一个相对完整的功能服务，比如C2C商城，比如B2C商城。联系，意味着从用户角度看，不管企业提供的服务如何多样化、系列化，在用户看来，">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-12-05T03:30:50.071Z">
+<meta property="og:updated_time" content="2017-12-05T03:46:00.350Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="单点登录解决方案">
 <meta name="twitter:description" content="什么是SSOWeb应用系统的演化总是从简单到复杂，从单功能到多功能模块再到多子系统方向发展。当前的大中型Web互联网应用基本都是多系统组成的应用群，由多个web系统协同为用户提供服务。多系统应用群，必然意味着各系统间既相对独立，又保持着某种联系。独立，意味着给用户提供一个相对完整的功能服务，比如C2C商城，比如B2C商城。联系，意味着从用户角度看，不管企业提供的服务如何多样化、系列化，在用户看来，">
@@ -125,7 +125,7 @@
 
 
 
-  <title>单点登录解决方案 | 大叶宝宝</title>
+  <title>单点登录解决方案 | 笑傲江湖└JP┐</title>
   
 
 
@@ -155,7 +155,7 @@
     <div class="custom-logo-site-title">
       <a href="/"  class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">大叶宝宝</span>
+        <span class="site-title">笑傲江湖└JP┐</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
@@ -285,7 +285,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="大叶宝宝">
+      <meta itemprop="name" content="笑傲江湖└JP┐">
     </span>
 
     
@@ -414,6 +414,7 @@
 <h4 id="SSO-Client接口"><a href="#SSO-Client接口" class="headerlink" title="SSO Client接口"></a>SSO Client接口</h4><p><strong>接口一：</strong> <code>/auth/check</code>。接收来自认证中心携带临时令牌token的重定向，向认证中心/auth/verify接口去验证此token的有效性，如有效，即建立本地会话，根据returnURL返回浏览器用户的实际请求。如验证失败，再重定向到认证中心登录页面。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">接口名称：/auth/check</span><br><span class="line">入参： token[*登录token]</span><br><span class="line">返回： 成功重定向returnURL，失败重定向到登录页面;</span><br></pre></td></tr></table></figure></p>
 <p><strong>接口二：</strong> <code>/auth/logout</code>。处理两种情况，一种是浏览器向本应用接口发出的直接登出请求，应用会消除本地会话，调用认证服务器/auth/logout接口，通知认证中心删除全局会话和其它已登录应用的本地会话。 如果是从认证中心来的登出请求，此时带有localId参数，接口实现会直接删除本地会话，返回字符串”ok”。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">接口名称：/auth/<span class="built_in">logout</span></span><br><span class="line">入参： localid[本地会话id,可选]</span><br><span class="line">返回： 1.首页; 2.<span class="string">'ok'</span>字符串;</span><br></pre></td></tr></table></figure></p>
 <h2 id="CAS"><a href="#CAS" class="headerlink" title="CAS"></a>CAS</h2><p>CAS是中央认证服务Central Authentication Service的简称。最初由耶鲁大学的Shawn Bayern 开发，后由Jasig社区维护，经过十多年发展，目前已成为影响最大、广泛使用的、基于Java实现的、开源SSO解决方案。<br>2012年，Jasig和另一个有影响的组织Sakai Foundation合并，组成Apereo。Apereo是一个由高等学术教育机构发起组织的联盟，旨在为学术教育机构提供高质量软件，当然很多软件也被大量应用于商业环境，譬如CAS。目前CAS由Apereo社区维护。<br>CAS的官方网址是： <a href="https://www.apereo.org/projects/cas" target="_blank" rel="noopener">https://www.apereo.org/projects/cas</a><br>工程代码网址：<a href="https://github.com/Jasig/cas" target="_blank" rel="noopener">https://github.com/Jasig/cas</a></p>
+<p>CAS也提供了一个认证中心，叫CAS Server，参与登录的应用系统都会引导到CAS Server进行登录。各应用系统与CAS Server交互通信的登录组件叫CAS Client。如CAS Client，已经提供了包括Java、.net、php、ruby、perl等多种语言的实现，非常适合异构系统的单点登录使用场景。再比如认证方式，除了常见的基于数据库认证，还提供LDAP使用场景,同时支持各种常见认证协议，如spnego、OpenId、X509等等。对于全局会话，CAS基于Cookie使用了自己的实现方式，而服务端的会话存储，除了缺省基于内存模式，还提供了基于ehcache、memcached等多种实现，同时提供了灵活接口便于自己定制扩展，这非常适合某些高可用性、高性能的应用场景。因此，在一般场景下，我们不需要重新发明轮子，直接在成熟技术框架基础上开发使用即可。这也是CAS在很多互联网和企业应用中广泛使用的原因。当然，对于某些场景，如安全性因素、更特殊更高效的应用场景，在技术实力许可的情况下，通常都自己实现SSO。</p>
 
       
     </div>
@@ -447,6 +448,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/12/08/linux-find-xargs/" rel="prev" title="find命令-print0和xargs中-0的奥妙">
+                find命令-print0和xargs中-0的奥妙 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -527,7 +532,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -538,7 +543,7 @@
               
               <div class="site-state-item site-state-categories">
                 
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">分类</span>
                 
               </div>

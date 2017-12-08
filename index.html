@@ -81,13 +81,13 @@
 
 <meta name="description" content="自知者明，自强者胜。">
 <meta property="og:type" content="website">
-<meta property="og:title" content="大叶宝宝">
+<meta property="og:title" content="笑傲江湖└JP┐">
 <meta property="og:url" content="http://keaimo.com/index.html">
-<meta property="og:site_name" content="大叶宝宝">
+<meta property="og:site_name" content="笑傲江湖└JP┐">
 <meta property="og:description" content="自知者明，自强者胜。">
 <meta property="og:locale" content="zh-Hans">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="大叶宝宝">
+<meta name="twitter:title" content="笑傲江湖└JP┐">
 <meta name="twitter:description" content="自知者明，自强者胜。">
 
 
@@ -124,7 +124,7 @@
 
 
 
-  <title>大叶宝宝</title>
+  <title>笑傲江湖└JP┐</title>
   
 
 
@@ -155,7 +155,7 @@
     <div class="custom-logo-site-title">
       <a href="/"  class="brand" rel="start">
         <span class="logo-line-before"><i></i></span>
-        <span class="site-title">大叶宝宝</span>
+        <span class="site-title">笑傲江湖└JP┐</span>
         <span class="logo-line-after"><i></i></span>
       </a>
     </div>
@@ -276,6 +276,163 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/12/08/linux-find-xargs/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jack Peng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="笑傲江湖└JP┐">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/12/08/linux-find-xargs/" itemprop="url">find命令-print0和xargs中-0的奥妙</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-08T10:30:56+08:00">
+                2017-12-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Linux命令/" itemprop="url" rel="index">
+                    <span itemprop="name">Linux命令</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="print0"><a href="#print0" class="headerlink" title="-print0"></a>-print0</h2><p>默认情况下, find 每输出一个文件名, 后面都会接着输出一个换行符 (‘\n’), 因此我们看到的 find 的输出都是一行一行的:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[bash-4.1.5] ; ls -l</span><br><span class="line">total 0</span><br><span class="line">-rw-r--r-- 1 root root 0 2010-08-02 18:09 file1.log</span><br><span class="line">-rw-r--r-- 1 root root 0 2010-08-02 18:09 file2.log</span><br><span class="line"></span><br><span class="line">[bash-4.1.5] ; find -name <span class="string">'*.log'</span></span><br><span class="line">./file2.log</span><br><span class="line">./file1.log</span><br></pre></td></tr></table></figure>
+<p>比如我想把所有的 .log 文件删掉, 可以这样配合 xargs 一起用:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[bash-4.1.5] ; find -name <span class="string">'*.log'</span></span><br><span class="line">./file2.log</span><br><span class="line">./file1.log</span><br><span class="line">[bash-4.1.5] ; find -name <span class="string">'*.log'</span> | xargs rm</span><br><span class="line">[bash-4.1.5] ; find -name <span class="string">'*.log'</span></span><br></pre></td></tr></table></figure></p>
+<p> find+xargs 真的很强大. 然而:</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">[bash-4.1.5] ; ls -l</span><br><span class="line">total 0</span><br><span class="line">-rw-r--r-- 1 root root 0 2010-08-02 18:12 file 1.log</span><br><span class="line">-rw-r--r-- 1 root root 0 2010-08-02 18:12 file 2.log</span><br><span class="line">[bash-4.1.5] ; find -name <span class="string">'*.log'</span></span><br><span class="line">./file 1.log</span><br><span class="line">./file 2.log</span><br><span class="line">[bash-4.1.5] ; find -name <span class="string">'*.log'</span> | xargs rm</span><br><span class="line">rm: cannot remove `./file<span class="string">': No such file or directory</span></span><br><span class="line"><span class="string">rm: cannot remove `1.log'</span>: No such file or directory</span><br><span class="line">rm: cannot remove `./file<span class="string">': No such file or directory</span></span><br><span class="line"><span class="string">rm: cannot remove `2.log'</span>: No such file or directory</span><br></pre></td></tr></table></figure>
+<p> 原因其实很简单, xargs 默认是以空白字符 (空格, TAB, 换行符) 来分割记录的, 因此文件名 ./file 1.log 被解释成了两个记录 ./file 和 1.log, 不幸的是 rm 找不到这两个文件.</p>
+<p>为了解决此类问题, 聪明的人想出了一个办法, 让 find 在打印出一个文件名之后接着输出一个 NULL 字符 (‘\0’) 而不是换行符, 然后再告诉 xargs 也用 NULL 字符来作为记录的分隔符. 这就是 find 的 -print0 和 xargs 的 -0 的来历吧.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[bash-4.1.5] ; ls -l</span><br><span class="line">total 0</span><br><span class="line">-rw-r--r-- 1 root root 0 2010-08-02 18:12 file 1.log</span><br><span class="line">-rw-r--r-- 1 root root 0 2010-08-02 18:12 file 2.log</span><br><span class="line">[bash-4.1.5] ; find -name <span class="string">'*.log'</span> -print0 | hd</span><br><span class="line">           0  1  2  3   4  5  6  7   8  9  A  B   C  D  E  F  |0123456789ABCDEF|</span><br><span class="line">--------+--+--+--+--+---+--+--+--+---+--+--+--+---+--+--+--+--+----------------|</span><br><span class="line">00000000: 2e 2f 66 69  6c 65 20 31  2e 6c 6f 67  00 2e 2f 66  |./file 1.log../f|</span><br><span class="line">00000010: 69 6c 65 20  32 2e 6c 6f  67 00                     |ile 2.log.      |</span><br><span class="line">[bash-4.1.5] ; find -name <span class="string">'*.log'</span> -print0 | xargs -0 rm</span><br><span class="line">[bash-4.1.5] ; find -name <span class="string">'*.log'</span></span><br></pre></td></tr></table></figure>
+<p>你可能要问了, 为什么要选 ‘\0’ 而不是其他字符做分隔符呢? 这个也容易理解: 一般的编程语言中都用 ‘\0’ 来作为字符串的结束标志, 文件的路径名中不可能包含 ‘\0’ 字符.</p>
+<h2 id="find-xargs实例"><a href="#find-xargs实例" class="headerlink" title="find|xargs实例"></a>find|xargs实例</h2><p>查找当前目录大文件并按大小排序：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">find . -<span class="built_in">type</span> f -size +800M</span><br><span class="line">find . -<span class="built_in">type</span> f -size +800M  -print0 | xargs -0 ls -l</span><br><span class="line">find . -<span class="built_in">type</span> f -size +800M  -print0 | xargs -0 du -h</span><br><span class="line">find . -<span class="built_in">type</span> f -size +800M  -print0 | xargs -0 du -h | sort -nr</span><br></pre></td></tr></table></figure></p>
+<p>查找Linux下大目录：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">du -h --max-depth=1</span><br><span class="line">du -h --max-depth=2 | sort -n</span><br><span class="line">du -hm --max-depth=2 | sort -n</span><br><span class="line">du -hm --max-depth=2 | sort -nr | head -12</span><br></pre></td></tr></table></figure></p>
+<p>删除以html结尾的10天前的文件，包括带空格的文件：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">find /usr/local/backups -name &quot;*.html&quot; -mtime +10 -print0 |xargs -0 rm -rfv</span><br><span class="line">find /usr/local/backups -mtime +10 -name &quot;*.html&quot; -exec rm -rf &#123;&#125; \;</span><br></pre></td></tr></table></figure></p>
+<p>当前目录下文件从大到小排序（包括隐藏文件），文件名不为”.”：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">find . -maxdepth 1 ! -name &quot;.&quot; -print0 | xargs -0 du -b | sort -nr | head -10 | nl</span><br><span class="line">nl：可以为输出列加上编号,与cat -n相似，但空行不编号</span><br></pre></td></tr></table></figure></p>
+<p>以下功能同上，但不包括隐藏文件：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> file <span class="keyword">in</span> *; <span class="keyword">do</span> du -b <span class="string">"<span class="variable">$file</span>"</span>; <span class="keyword">done</span>|sort -nr|head -10|nl</span><br></pre></td></tr></table></figure></p>
+<p>xargs结合sed替换：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find . -name <span class="string">"*.txt"</span> -print0 | xargs -0 sed -i <span class="string">'s/aaa/bbb/g'</span></span><br></pre></td></tr></table></figure></p>
+<p>xargs结合grep：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">find . -name <span class="string">'*.txt'</span> -<span class="built_in">type</span> f -print0 |xargs -0 grep -n <span class="string">'aaa'</span>    <span class="comment">#“-n”输出行号</span></span><br></pre></td></tr></table></figure></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/12/05/sso-arch/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -285,7 +442,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="大叶宝宝">
+      <meta itemprop="name" content="笑傲江湖└JP┐">
     </span>
 
     
@@ -418,6 +575,7 @@
 <h4 id="SSO-Client接口"><a href="#SSO-Client接口" class="headerlink" title="SSO Client接口"></a>SSO Client接口</h4><p><strong>接口一：</strong> <code>/auth/check</code>。接收来自认证中心携带临时令牌token的重定向，向认证中心/auth/verify接口去验证此token的有效性，如有效，即建立本地会话，根据returnURL返回浏览器用户的实际请求。如验证失败，再重定向到认证中心登录页面。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">接口名称：/auth/check</span><br><span class="line">入参： token[*登录token]</span><br><span class="line">返回： 成功重定向returnURL，失败重定向到登录页面;</span><br></pre></td></tr></table></figure></p>
 <p><strong>接口二：</strong> <code>/auth/logout</code>。处理两种情况，一种是浏览器向本应用接口发出的直接登出请求，应用会消除本地会话，调用认证服务器/auth/logout接口，通知认证中心删除全局会话和其它已登录应用的本地会话。 如果是从认证中心来的登出请求，此时带有localId参数，接口实现会直接删除本地会话，返回字符串”ok”。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">接口名称：/auth/<span class="built_in">logout</span></span><br><span class="line">入参： localid[本地会话id,可选]</span><br><span class="line">返回： 1.首页; 2.<span class="string">'ok'</span>字符串;</span><br></pre></td></tr></table></figure></p>
 <h2 id="CAS"><a href="#CAS" class="headerlink" title="CAS"></a>CAS</h2><p>CAS是中央认证服务Central Authentication Service的简称。最初由耶鲁大学的Shawn Bayern 开发，后由Jasig社区维护，经过十多年发展，目前已成为影响最大、广泛使用的、基于Java实现的、开源SSO解决方案。<br>2012年，Jasig和另一个有影响的组织Sakai Foundation合并，组成Apereo。Apereo是一个由高等学术教育机构发起组织的联盟，旨在为学术教育机构提供高质量软件，当然很多软件也被大量应用于商业环境，譬如CAS。目前CAS由Apereo社区维护。<br>CAS的官方网址是： <a href="https://www.apereo.org/projects/cas" target="_blank" rel="noopener">https://www.apereo.org/projects/cas</a><br>工程代码网址：<a href="https://github.com/Jasig/cas" target="_blank" rel="noopener">https://github.com/Jasig/cas</a></p>
+<p>CAS也提供了一个认证中心，叫CAS Server，参与登录的应用系统都会引导到CAS Server进行登录。各应用系统与CAS Server交互通信的登录组件叫CAS Client。如CAS Client，已经提供了包括Java、.net、php、ruby、perl等多种语言的实现，非常适合异构系统的单点登录使用场景。再比如认证方式，除了常见的基于数据库认证，还提供LDAP使用场景,同时支持各种常见认证协议，如spnego、OpenId、X509等等。对于全局会话，CAS基于Cookie使用了自己的实现方式，而服务端的会话存储，除了缺省基于内存模式，还提供了基于ehcache、memcached等多种实现，同时提供了灵活接口便于自己定制扩展，这非常适合某些高可用性、高性能的应用场景。因此，在一般场景下，我们不需要重新发明轮子，直接在成熟技术框架基础上开发使用即可。这也是CAS在很多互联网和企业应用中广泛使用的原因。当然，对于某些场景，如安全性因素、更特殊更高效的应用场景，在技术实力许可的情况下，通常都自己实现SSO。</p>
 
           
         
@@ -475,7 +633,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="大叶宝宝">
+      <meta itemprop="name" content="笑傲江湖└JP┐">
     </span>
 
     
@@ -653,7 +811,7 @@
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="大叶宝宝">
+      <meta itemprop="name" content="笑傲江湖└JP┐">
     </span>
 
     
@@ -828,7 +986,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -839,7 +997,7 @@
               
               <div class="site-state-item site-state-categories">
                 
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">分类</span>
                 
               </div>

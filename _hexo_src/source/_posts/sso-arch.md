@@ -222,3 +222,6 @@ CAS是中央认证服务Central Authentication Service的简称。最初由耶�
 2012年，Jasig和另一个有影响的组织Sakai Foundation合并，组成Apereo。Apereo是一个由高等学术教育机构发起组织的联盟，旨在为学术教育机构提供高质量软件，当然很多软件也被大量应用于商业环境，譬如CAS。目前CAS由Apereo社区维护。
 CAS的官方网址是： https://www.apereo.org/projects/cas
 工程代码网址：https://github.com/Jasig/cas
+
+CAS也提供了一个认证中心，叫CAS Server，参与登录的应用系统都会引导到CAS Server进行登录。各应用系统与CAS Server交互通信的登录组件叫CAS Client。如CAS Client，已经提供了包括Java、.net、php、ruby、perl等多种语言的实现，非常适合异构系统的单点登录使用场景。再比如认证方式，除了常见的基于数据库认证，还提供LDAP使用场景,同时支持各种常见认证协议，如spnego、OpenId、X509等等。对于全局会话，CAS基于Cookie使用了自己的实现方式，而服务端的会话存储，除了缺省基于内存模式，还提供了基于ehcache、memcached等多种实现，同时提供了灵活接口便于自己定制扩展，这非常适合某些高可用性、高性能的应用场景。因此，在一般场景下，我们不需要重新发明轮子，直接在成熟技术框架基础上开发使用即可。这也是CAS在很多互联网和企业应用中广泛使用的原因。当然，对于某些场景，如安全性因素、更特殊更高效的应用场景，在技术实力许可的情况下，通常都自己实现SSO。
+
