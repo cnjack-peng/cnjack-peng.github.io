@@ -276,6 +276,137 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/12/08/web-upfile-iframe/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jack Peng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="笑傲江湖└JP┐">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/12/08/web-upfile-iframe/" itemprop="url">iframe无刷新跨域上传文件并获取返回值</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-08T14:32:02+08:00">
+                2017-12-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>通常我们会有一个统一的上传接口，这个接口会被其他的服务调用。如果出现不同域，还需要无刷新上传文件，并且获取返回值，这就有点麻烦了。比如，新浪微博启用了新域名www.weibo.com，但接口还是使用原来的域：picupload.t.sina.com.cn。</p>
+<p>研究了一下新浪微博的处理方法，这里大概演示一下。</p>
+<p>首先是一个正常的上传页面 upload.html</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="undefined">	// 这个函数将来会被iframe用到</span></span><br><span class="line"><span class="undefined">	function getIframeVal(val)</span></span><br><span class="line"><span class="undefined">	&#123;</span></span><br><span class="line"><span class="undefined">		alert(val);</span></span><br><span class="line"><span class="undefined">	&#125;</span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 我把upload.com指向了127.0.0.1 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">method</span>=<span class="string">"post"</span> <span class="attr">target</span>=<span class="string">"if"</span> <span class="attr">enctype</span>=<span class="string">"multipart/form-data"</span> </span></span><br><span class="line"><span class="tag"><span class="attr">action</span>=<span class="string">"http://upload.com/playground/js/deal.php?cb=http://localhost/playground/js/deal_cd.html"</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"file"</span> <span class="attr">name</span>=<span class="string">"file"</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"SUBMIT"</span> <span class="attr">value</span>=<span class="string">"upload"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">IFRAME</span> <span class="attr">id</span>=<span class="string">"if"</span> <span class="attr">name</span>=<span class="string">"if"</span> <span class="attr">src</span>=<span class="string">"about:blank"</span> <span class="attr">frameborder</span>=<span class="string">'0'</span>&gt;</span><span class="tag">&lt;/<span class="name">IFRAME</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这里有一个关键点是form的target要指向iframe，同时把iframe隐藏起来，这样上传的处理结果就会显示在该iframe里。action里的cb(callback)参数表示处理完成后要跳转的url，因为我们的目标是iframe，所以只会把跳转的页面输出到iframe，而不会让当前页面跳转。</p>
+<p>还有一点，callback url要和当前页面同域。跨域的iframe无法调用父页面的内容。</p>
+<p>再来看看deal.php，也就是form的action</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">// deal upload file</span><br><span class="line">// and get file id, you can pass other params either</span><br><span class="line">header('location:'.$_GET['cb'].'?file_id=123');</span><br></pre></td></tr></table></figure>
+<p>这里可以处理文件，然后入库。操作完成后，把文件的id及其他信息都放在url里，最后跳转到这个url。</p>
+<p>最后来看看deal_cd.html，也就是刚刚deal.php跳转到的url，这个文件的内容会填充到页面的iframe里。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="undefined">	var rs = window.location.search.split('?').slice(1);</span></span><br><span class="line"><span class="undefined">	window.parent.getIframeVal(rs.toString().split('=').slice(1));</span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这里调用了父窗口的getIframeVal方法，这样父页面就获得了文件的id。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/12/08/linux-find-xargs/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -986,7 +1117,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -1003,6 +1134,15 @@
               </div>
             
 
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
             
 
           </nav>
