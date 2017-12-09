@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="查看文件(夹)所在分区(挂载点)1234df /pathcat /etc/mtabmountfdisk -l TOP查看系统运行情况：  输入大写P，结果按CPU占用降序排序； 输入大写M，结果按内存占用降序排序；">
+<meta name="description" content="磁盘管理查看文件(夹)所在分区(挂载点)1234df /pathcat /etc/mtabmountfdisk -l 运行状态TOP查看系统运行情况：  输入大写P，结果按CPU占用降序排序； 输入大写M，结果按内存占用降序排序；  网络安全当VPS暴露在外网中，就会有人不断暴力破解你的SSH登录。于是就有必要使用SSH密钥来登录。并关闭密码登录。用以下命令可以查看别人暴力破解你SSH密码登录的大">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux运维基础">
 <meta property="og:url" content="http://keaimo.com/2017/12/08/linux-ops-base/index.html">
 <meta property="og:site_name" content="笑傲江湖└JP┐">
-<meta property="og:description" content="查看文件(夹)所在分区(挂载点)1234df /pathcat /etc/mtabmountfdisk -l TOP查看系统运行情况：  输入大写P，结果按CPU占用降序排序； 输入大写M，结果按内存占用降序排序；">
+<meta property="og:description" content="磁盘管理查看文件(夹)所在分区(挂载点)1234df /pathcat /etc/mtabmountfdisk -l 运行状态TOP查看系统运行情况：  输入大写P，结果按CPU占用降序排序； 输入大写M，结果按内存占用降序排序；  网络安全当VPS暴露在外网中，就会有人不断暴力破解你的SSH登录。于是就有必要使用SSH密钥来登录。并关闭密码登录。用以下命令可以查看别人暴力破解你SSH密码登录的大">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-12-08T07:06:24.144Z">
+<meta property="og:updated_time" content="2017-12-09T06:43:00.494Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux运维基础">
-<meta name="twitter:description" content="查看文件(夹)所在分区(挂载点)1234df /pathcat /etc/mtabmountfdisk -l TOP查看系统运行情况：  输入大写P，结果按CPU占用降序排序； 输入大写M，结果按内存占用降序排序；">
+<meta name="twitter:description" content="磁盘管理查看文件(夹)所在分区(挂载点)1234df /pathcat /etc/mtabmountfdisk -l 运行状态TOP查看系统运行情况：  输入大写P，结果按CPU占用降序排序； 输入大写M，结果按内存占用降序排序；  网络安全当VPS暴露在外网中，就会有人不断暴力破解你的SSH登录。于是就有必要使用SSH密钥来登录。并关闭密码登录。用以下命令可以查看别人暴力破解你SSH密码登录的大">
 
 
 
@@ -365,12 +365,14 @@
       
 
       
-        <p>查看文件(夹)所在分区(挂载点)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">df /path</span><br><span class="line">cat /etc/mtab</span><br><span class="line">mount</span><br><span class="line">fdisk -l</span><br></pre></td></tr></table></figure></p>
-<p>TOP查看系统运行情况：</p>
+        <h2 id="磁盘管理"><a href="#磁盘管理" class="headerlink" title="磁盘管理"></a>磁盘管理</h2><p>查看文件(夹)所在分区(挂载点)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">df /path</span><br><span class="line">cat /etc/mtab</span><br><span class="line">mount</span><br><span class="line">fdisk -l</span><br></pre></td></tr></table></figure></p>
+<h2 id="运行状态"><a href="#运行状态" class="headerlink" title="运行状态"></a>运行状态</h2><p>TOP查看系统运行情况：</p>
 <ul>
 <li>输入大写P，结果按CPU占用降序排序；</li>
 <li>输入大写M，结果按内存占用降序排序；</li>
 </ul>
+<h2 id="网络安全"><a href="#网络安全" class="headerlink" title="网络安全"></a>网络安全</h2><p>当VPS暴露在外网中，就会有人不断暴力破解你的SSH登录。于是就有必要使用SSH密钥来登录。并关闭密码登录。用以下命令可以查看别人暴力破解你SSH密码登录的大概情况：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep <span class="string">"Failed password for invalid user"</span> /var/<span class="built_in">log</span>/secure | awk <span class="string">'&#123;print $13&#125;'</span> | sort | uniq -c | sort -nr | more</span><br></pre></td></tr></table></figure></p>
+<p>这时可以使用SSH秘钥登录来防止暴力破解。</p>
 
       
     </div>
@@ -455,8 +457,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -542,6 +553,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#磁盘管理"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x78C1;&#x76D8;&#x7BA1;&#x7406;" class="headerlink" title="&#x78C1;&#x76D8;&#x7BA1;&#x7406;"></a>&#x78C1;&#x76D8;&#x7BA1;&#x7406;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#运行状态"><span class="nav-number">2.</span> <span class="nav-text"><a href="#&#x8FD0;&#x884C;&#x72B6;&#x6001;" class="headerlink" title="&#x8FD0;&#x884C;&#x72B6;&#x6001;"></a>&#x8FD0;&#x884C;&#x72B6;&#x6001;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络安全"><span class="nav-number">3.</span> <span class="nav-text"><a href="#&#x7F51;&#x7EDC;&#x5B89;&#x5168;" class="headerlink" title="&#x7F51;&#x7EDC;&#x5B89;&#x5168;"></a>&#x7F51;&#x7EDC;&#x5B89;&#x5168;</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
