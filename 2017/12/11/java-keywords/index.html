@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="Double Check在 Effecitve Java 一书的第 48 条中提到了双重检查模式，并指出这种模式在 Java 中通常并不适用。该模式的结构如下所示：12345678910public Resource getResource() &amp;#123;  if (resource == null) &am">
+<meta name="description" content="strictfpstrictfp的意思是FP-strict，也就是说精确浮点的意思。在Java虚拟机进行浮点运算时，如果没有指定strictfp关键字时，Java的编译器以及运行环境在对浮点运算的表达式是采取一种近似于我行我素的行为来完成这些操作，以致于得到的结果往往无法令你满意。而一旦使用了strictfp来声明一个">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java多线程常识">
-<meta property="og:url" content="http://keaimo.com/2017/12/09/java-multithreading-common-sense/index.html">
+<meta property="og:title" content="Java关键字通识">
+<meta property="og:url" content="http://keaimo.com/2017/12/11/java-keywords/index.html">
 <meta property="og:site_name" content="笑傲江湖└JP┐">
-<meta property="og:description" content="Double Check在 Effecitve Java 一书的第 48 条中提到了双重检查模式，并指出这种模式在 Java 中通常并不适用。该模式的结构如下所示：12345678910public Resource getResource() &amp;#123;  if (resource == null) &amp;#123;     synchronized(this)&amp;#123;       if (r">
+<meta property="og:description" content="strictfpstrictfp的意思是FP-strict，也就是说精确浮点的意思。在Java虚拟机进行浮点运算时，如果没有指定strictfp关键字时，Java的编译器以及运行环境在对浮点运算的表达式是采取一种近似于我行我素的行为来完成这些操作，以致于得到的结果往往无法令你满意。而一旦使用了strictfp来声明一个类、接口或者方法时，那么所声明的范围内Java的编译器以及运行环境会完全依照浮点">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-12-12T01:36:53.004Z">
+<meta property="og:updated_time" content="2017-12-11T07:12:48.101Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Java多线程常识">
-<meta name="twitter:description" content="Double Check在 Effecitve Java 一书的第 48 条中提到了双重检查模式，并指出这种模式在 Java 中通常并不适用。该模式的结构如下所示：12345678910public Resource getResource() &amp;#123;  if (resource == null) &amp;#123;     synchronized(this)&amp;#123;       if (r">
+<meta name="twitter:title" content="Java关键字通识">
+<meta name="twitter:description" content="strictfpstrictfp的意思是FP-strict，也就是说精确浮点的意思。在Java虚拟机进行浮点运算时，如果没有指定strictfp关键字时，Java的编译器以及运行环境在对浮点运算的表达式是采取一种近似于我行我素的行为来完成这些操作，以致于得到的结果往往无法令你满意。而一旦使用了strictfp来声明一个类、接口或者方法时，那么所声明的范围内Java的编译器以及运行环境会完全依照浮点">
 
 
 
@@ -119,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://keaimo.com/2017/12/09/java-multithreading-common-sense/"/>
+  <link rel="canonical" href="http://keaimo.com/2017/12/11/java-keywords/"/>
 
 
 
 
 
-  <title>Java多线程常识 | 笑傲江湖└JP┐</title>
+  <title>Java关键字通识 | 笑傲江湖└JP┐</title>
   
 
 
@@ -276,7 +276,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/12/09/java-multithreading-common-sense/">
+    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/12/11/java-keywords/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jack Peng">
@@ -293,7 +293,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Java多线程常识</h1>
+          <h1 class="post-title" itemprop="name headline">Java关键字通识</h1>
         
 
         <div class="post-meta">
@@ -305,8 +305,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-09T23:34:25+08:00">
-                2017-12-09
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-11T14:32:40+08:00">
+                2017-12-11
               </time>
             
 
@@ -315,28 +315,6 @@
             
           </span>
 
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/软件开发/" itemprop="url" rel="index">
-                    <span itemprop="name">软件开发</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
           
 
           
@@ -365,13 +343,14 @@
       
 
       
-        <h2 id="Double-Check"><a href="#Double-Check" class="headerlink" title="Double Check"></a>Double Check</h2><p>在 Effecitve Java 一书的第 48 条中提到了双重检查模式，并指出这种模式在 Java 中通常并不适用。该模式的结构如下所示：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Resource <span class="title">getResource</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (resource == <span class="keyword">null</span>) &#123; </span><br><span class="line">    <span class="keyword">synchronized</span>(<span class="keyword">this</span>)&#123; </span><br><span class="line">      <span class="keyword">if</span> (resource==<span class="keyword">null</span>) &#123;</span><br><span class="line">        resource = <span class="keyword">new</span> Resource();  </span><br><span class="line">      &#125;   </span><br><span class="line">    &#125;  </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> resource;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>该模式是对下面的代码改进：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> Resource <span class="title">getResource</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (resource == <span class="keyword">null</span>)&#123; </span><br><span class="line">        resource = <span class="keyword">new</span> Resource();  </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> resource;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>这段代码的目的是对 resource 延迟初始化。但是每次访问的时候都需要同步。为了减少同步的开销，于是有了双重检查模式。在 Java 中双重检查模式无效的原因是在不同步的情况下引用类型不是线程安全的。对于除了 long 和 double 的基本类型，双重检查模式是适用 的。比如下面这段代码就是正确的：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> count;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getCount</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (count == <span class="number">0</span>)&#123; </span><br><span class="line">    <span class="keyword">synchronized</span>(<span class="keyword">this</span>)&#123; </span><br><span class="line">      <span class="keyword">if</span> (count == <span class="number">0</span>)&#123;</span><br><span class="line">        count = computeCount();  <span class="comment">//一个耗时的计算</span></span><br><span class="line">      &#125;   </span><br><span class="line">    &#125;  </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> count;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>上面就是关于java中双重检查模式（double-check idiom）的一般结论。但是事情还没有结束，因为java的内存模式也在改进中。Doug Lea 在他的文章中写道：“根据最新的 JSR133 的 Java 内存模型，如果将引用类型声明为 volatile，双重检查模式就可以工作了”，参见 <a href="http://gee.cs.oswego.edu/dl/cpj/updates.html" target="_blank" rel="noopener">http://gee.cs.oswego.edu/dl/cpj/updates.html</a> 。所以以后要在 Java 中使用双重检查模式，可以使用下面的代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> Resource resource;</span><br><span class="line"><span class="function"><span class="keyword">public</span> Resource <span class="title">getResource</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (resource == <span class="keyword">null</span>)&#123; </span><br><span class="line">    <span class="keyword">synchronized</span>(<span class="keyword">this</span>)&#123; </span><br><span class="line">      <span class="keyword">if</span> (resource==<span class="keyword">null</span>)&#123;</span><br><span class="line">        resource = <span class="keyword">new</span> Resource();  </span><br><span class="line">      &#125;   </span><br><span class="line">    &#125;  </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> resource;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>当然了，得是在遵循 JSR133 规范的 Java 中。所以，double-check 在 J2SE 1.4 或早期版本在多线程或者 JVM 调优时由于 out-of-order writes，是不可用的。 这个问题在 J2SE 5.0 中已经被修复，可以使用 volatile 关键字来保证多线程下的单例。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> Singleton instance = <span class="keyword">null</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (instance == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span>(<span class="keyword">this</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (instance == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    instance = <span class="keyword">new</span> Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>推荐方法 是Initialization on Demand Holder（IODH），详见 <a href="http://en.wikipedia.org/wiki/Initialization_on_demand_holder_idiom" target="_blank" rel="noopener">http://en.wikipedia.org/wiki/Initialization_on_demand_holder_idiom</a><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">static</span> Singleton instance = <span class="keyword">new</span> Singleton();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> SingletonHolder.instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>编译并运行上述代码，运行结果为：true，即创建的单例对象s1和s2为同一对象。由于静态单例对象没有作为Singleton的成员变量直接实例化，因此类加载时不会实例化Singleton，第一次调用getInstance()时将加载内部类HolderClass，在该内部类中定义了一个static类型的变量instance，此时会首先初始化这个成员变量，由Java虚拟机来保证其线程安全性，确保该成员变量只能初始化一次。由于getInstance()方法没有任何线程锁定，因此其性能不会造成任何影响。通过使用IoDH，我们既可以实现延迟加载，又可以保证线程安全，不影响系统性能，不失为一种最好的Java语言单例模式实现方式（其缺点是与编程语言本身的特性相关，很多面向对象语言不支持IoDH）。</p>
+        <h2 id="strictfp"><a href="#strictfp" class="headerlink" title="strictfp"></a>strictfp</h2><p>strictfp的意思是FP-strict，也就是说精确浮点的意思。在Java虚拟机进行浮点运算时，如果没有指定strictfp关键字时，Java的编译器以及运行环境在对浮点运算的表达式是采取一种近似于我行我素的行为来完成这些操作，以致于得到的结果往往无法令你满意。而一旦使用了strictfp来声明一个类、接口或者方法时，那么所声明的范围内Java的编译器以及运行环境会完全依照浮点规范IEEE-754来执行。因此如果你想让你的浮点运算更加精确，而且不会因为不同的硬件平台所执行的结果不一致的话，那就请用关键字strictfp。</p>
+<p>strictfp不能解决所谓”精确“问题，是用来保证可移植性的。如果没有加strictfp关键字，在不同的平台下面，可能会得到不同的结果。使用strictfp关键字的目的，是保证平台移植之后，浮点运算结果是一致的。如果要进行精确的金额计算，还是需要使用BigDecimal。</p>
+<h2 id="transient"><a href="#transient" class="headerlink" title="transient"></a>transient</h2><p>变量修饰符(只能修饰字段)。标记为transient的变量，在对象存储时，这些变量状态不会被持久化。当对象序列化的保存在存储器上时，不希望有些字段数据被保存，为了保证安全性，可以把这些字段声明为transient。</p>
+<h2 id="volatile"><a href="#volatile" class="headerlink" title="volatile"></a>volatile</h2><p>volatile修饰变量。在每次被线程访问时，都强迫从共享内存中重读该成员变量的值。而且，当成员变量发生变化时，强迫线程将变化值回写到共享内存。这样在任何时刻，两个不同的线程总是看到某个成员变量的同一个值。</p>
+<p>Java内存模型规定了所有变量都存储在主内存中，每条线程都有自己的工作内存，线程的工作内存保存了被该线程使用到变量的主内存副本拷贝，线程对变量的所有操作(读取,赋值等)都必须在工作内存中进行，而不能直接读写主内存中的变量。不同线程也不能直接访问对方工作内存中的变量，线程间变量值的传递均需要通过主内存来完成。</p>
+<p>当一个变量定义成volatile之后, 保证了此变量对所有线程的可见性,也就是说当一条线程修改了这个变量的值,新的值对于其它线程来说是可以立即得知的.此时,该变量的读写操作直接在主内存中完成。Volatile 变量具有 synchronized 的可见性特性，但是不具备原子特性。虽然增量操作（x++）看上去类似一个单独操作，实际上它是一个由读取－修改－写入操作序列组成的组合操作，必须以原子方式执行，而 volatile 不能提供必须的原子特性。 在多线程并发的环境下, 各个线程的读/写操作可能有重叠现象, 在这个时候, volatile并不能保证数据同步。</p>
+<p>volatile适用于简单的标志量的场景中。如：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CheesyCounter</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">int</span> value;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getValue</span><span class="params">()</span> </span>&#123; <span class="keyword">return</span> value; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">int</span> <span class="title">increment</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> value++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="synchronized"><a href="#synchronized" class="headerlink" title="synchronized"></a>synchronized</h2><p>通过 synchronized 关键字来实现，所有加上synchronized 和 块语句，在多线程访问的时候，同一时刻只能有一个线程能够用。synchronized用来修饰方法或者代码块。</p>
 
       
     </div>
@@ -396,8 +375,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/12/08/java-memory-analysis/" rel="next" title="Java内存分析">
-                <i class="fa fa-chevron-left"></i> Java内存分析
+              <a href="/2017/12/09/java-multithreading-common-sense/" rel="next" title="Java多线程常识">
+                <i class="fa fa-chevron-left"></i> Java多线程常识
               </a>
             
           </div>
@@ -405,10 +384,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/12/11/java-keywords/" rel="prev" title="Java关键字通识">
-                Java关键字通识 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -566,7 +541,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Double-Check"><span class="nav-number">1.</span> <span class="nav-text">Double Check</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#strictfp"><span class="nav-number">1.</span> <span class="nav-text">strictfp</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#transient"><span class="nav-number">2.</span> <span class="nav-text">transient</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#volatile"><span class="nav-number">3.</span> <span class="nav-text">volatile</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#synchronized"><span class="nav-number">4.</span> <span class="nav-text">synchronized</span></a></li></ol></div>
             
 
           </div>

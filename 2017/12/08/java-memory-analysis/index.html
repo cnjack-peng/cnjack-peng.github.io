@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="Double Check在 Effecitve Java 一书的第 48 条中提到了双重检查模式，并指出这种模式在 Java 中通常并不适用。该模式的结构如下所示：12345678910public Resource getResource() &amp;#123;  if (resource == null) &am">
+<meta name="description" content="内存分析通过top命令定位占用大内存的应用，通过jps命令找到应用进程号。打印出某个java进程（使用pid）内存内的，所有‘对象’的情况（如：产生那些对象，及其数量）。 jmapjmap命令(Java Memory Map)  jmap -heap [pid] 查看整个JVM内存状态; 123456789101112">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java多线程常识">
-<meta property="og:url" content="http://keaimo.com/2017/12/09/java-multithreading-common-sense/index.html">
+<meta property="og:title" content="Java内存分析">
+<meta property="og:url" content="http://keaimo.com/2017/12/08/java-memory-analysis/index.html">
 <meta property="og:site_name" content="笑傲江湖└JP┐">
-<meta property="og:description" content="Double Check在 Effecitve Java 一书的第 48 条中提到了双重检查模式，并指出这种模式在 Java 中通常并不适用。该模式的结构如下所示：12345678910public Resource getResource() &amp;#123;  if (resource == null) &amp;#123;     synchronized(this)&amp;#123;       if (r">
+<meta property="og:description" content="内存分析通过top命令定位占用大内存的应用，通过jps命令找到应用进程号。打印出某个java进程（使用pid）内存内的，所有‘对象’的情况（如：产生那些对象，及其数量）。 jmapjmap命令(Java Memory Map)  jmap -heap [pid] 查看整个JVM内存状态; 1234567891011121314151617181920212223242526272829303132">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-12-12T01:36:53.004Z">
+<meta property="og:updated_time" content="2017-12-08T09:58:17.342Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Java多线程常识">
-<meta name="twitter:description" content="Double Check在 Effecitve Java 一书的第 48 条中提到了双重检查模式，并指出这种模式在 Java 中通常并不适用。该模式的结构如下所示：12345678910public Resource getResource() &amp;#123;  if (resource == null) &amp;#123;     synchronized(this)&amp;#123;       if (r">
+<meta name="twitter:title" content="Java内存分析">
+<meta name="twitter:description" content="内存分析通过top命令定位占用大内存的应用，通过jps命令找到应用进程号。打印出某个java进程（使用pid）内存内的，所有‘对象’的情况（如：产生那些对象，及其数量）。 jmapjmap命令(Java Memory Map)  jmap -heap [pid] 查看整个JVM内存状态; 1234567891011121314151617181920212223242526272829303132">
 
 
 
@@ -119,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://keaimo.com/2017/12/09/java-multithreading-common-sense/"/>
+  <link rel="canonical" href="http://keaimo.com/2017/12/08/java-memory-analysis/"/>
 
 
 
 
 
-  <title>Java多线程常识 | 笑傲江湖└JP┐</title>
+  <title>Java内存分析 | 笑傲江湖└JP┐</title>
   
 
 
@@ -276,7 +276,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/12/09/java-multithreading-common-sense/">
+    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/12/08/java-memory-analysis/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jack Peng">
@@ -293,7 +293,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Java多线程常识</h1>
+          <h1 class="post-title" itemprop="name headline">Java内存分析</h1>
         
 
         <div class="post-meta">
@@ -305,8 +305,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-09T23:34:25+08:00">
-                2017-12-09
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-08T17:29:15+08:00">
+                2017-12-08
               </time>
             
 
@@ -365,13 +365,23 @@
       
 
       
-        <h2 id="Double-Check"><a href="#Double-Check" class="headerlink" title="Double Check"></a>Double Check</h2><p>在 Effecitve Java 一书的第 48 条中提到了双重检查模式，并指出这种模式在 Java 中通常并不适用。该模式的结构如下所示：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Resource <span class="title">getResource</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (resource == <span class="keyword">null</span>) &#123; </span><br><span class="line">    <span class="keyword">synchronized</span>(<span class="keyword">this</span>)&#123; </span><br><span class="line">      <span class="keyword">if</span> (resource==<span class="keyword">null</span>) &#123;</span><br><span class="line">        resource = <span class="keyword">new</span> Resource();  </span><br><span class="line">      &#125;   </span><br><span class="line">    &#125;  </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> resource;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>该模式是对下面的代码改进：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> Resource <span class="title">getResource</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (resource == <span class="keyword">null</span>)&#123; </span><br><span class="line">        resource = <span class="keyword">new</span> Resource();  </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> resource;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>这段代码的目的是对 resource 延迟初始化。但是每次访问的时候都需要同步。为了减少同步的开销，于是有了双重检查模式。在 Java 中双重检查模式无效的原因是在不同步的情况下引用类型不是线程安全的。对于除了 long 和 double 的基本类型，双重检查模式是适用 的。比如下面这段代码就是正确的：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> count;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getCount</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (count == <span class="number">0</span>)&#123; </span><br><span class="line">    <span class="keyword">synchronized</span>(<span class="keyword">this</span>)&#123; </span><br><span class="line">      <span class="keyword">if</span> (count == <span class="number">0</span>)&#123;</span><br><span class="line">        count = computeCount();  <span class="comment">//一个耗时的计算</span></span><br><span class="line">      &#125;   </span><br><span class="line">    &#125;  </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> count;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>上面就是关于java中双重检查模式（double-check idiom）的一般结论。但是事情还没有结束，因为java的内存模式也在改进中。Doug Lea 在他的文章中写道：“根据最新的 JSR133 的 Java 内存模型，如果将引用类型声明为 volatile，双重检查模式就可以工作了”，参见 <a href="http://gee.cs.oswego.edu/dl/cpj/updates.html" target="_blank" rel="noopener">http://gee.cs.oswego.edu/dl/cpj/updates.html</a> 。所以以后要在 Java 中使用双重检查模式，可以使用下面的代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> Resource resource;</span><br><span class="line"><span class="function"><span class="keyword">public</span> Resource <span class="title">getResource</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (resource == <span class="keyword">null</span>)&#123; </span><br><span class="line">    <span class="keyword">synchronized</span>(<span class="keyword">this</span>)&#123; </span><br><span class="line">      <span class="keyword">if</span> (resource==<span class="keyword">null</span>)&#123;</span><br><span class="line">        resource = <span class="keyword">new</span> Resource();  </span><br><span class="line">      &#125;   </span><br><span class="line">    &#125;  </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> resource;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>当然了，得是在遵循 JSR133 规范的 Java 中。所以，double-check 在 J2SE 1.4 或早期版本在多线程或者 JVM 调优时由于 out-of-order writes，是不可用的。 这个问题在 J2SE 5.0 中已经被修复，可以使用 volatile 关键字来保证多线程下的单例。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> Singleton instance = <span class="keyword">null</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (instance == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span>(<span class="keyword">this</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (instance == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    instance = <span class="keyword">new</span> Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>推荐方法 是Initialization on Demand Holder（IODH），详见 <a href="http://en.wikipedia.org/wiki/Initialization_on_demand_holder_idiom" target="_blank" rel="noopener">http://en.wikipedia.org/wiki/Initialization_on_demand_holder_idiom</a><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">static</span> Singleton instance = <span class="keyword">new</span> Singleton();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> SingletonHolder.instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>编译并运行上述代码，运行结果为：true，即创建的单例对象s1和s2为同一对象。由于静态单例对象没有作为Singleton的成员变量直接实例化，因此类加载时不会实例化Singleton，第一次调用getInstance()时将加载内部类HolderClass，在该内部类中定义了一个static类型的变量instance，此时会首先初始化这个成员变量，由Java虚拟机来保证其线程安全性，确保该成员变量只能初始化一次。由于getInstance()方法没有任何线程锁定，因此其性能不会造成任何影响。通过使用IoDH，我们既可以实现延迟加载，又可以保证线程安全，不影响系统性能，不失为一种最好的Java语言单例模式实现方式（其缺点是与编程语言本身的特性相关，很多面向对象语言不支持IoDH）。</p>
+        <h2 id="内存分析"><a href="#内存分析" class="headerlink" title="内存分析"></a>内存分析</h2><p>通过<code>top</code>命令定位占用大内存的应用，通过<code>jps</code>命令找到应用进程号。打印出某个java进程（使用pid）内存内的，所有‘对象’的情况（如：产生那些对象，及其数量）。</p>
+<h3 id="jmap"><a href="#jmap" class="headerlink" title="jmap"></a>jmap</h3><p>jmap命令(Java Memory Map)</p>
+<ul>
+<li><p><code>jmap -heap [pid]</code> 查看整个JVM内存状态;</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">Attaching to process ID 22999, please <span class="built_in">wait</span>...</span><br><span class="line">Debugger attached successfully.</span><br><span class="line">Server compiler detected.</span><br><span class="line">JVM version is 24.80-b11</span><br><span class="line"></span><br><span class="line">using thread-local object allocation.</span><br><span class="line">Parallel GC with 4 thread(s)</span><br><span class="line"></span><br><span class="line">Heap Configuration:</span><br><span class="line">   MinHeapFreeRatio = 0</span><br><span class="line">   MaxHeapFreeRatio = 100</span><br><span class="line">   MaxHeapSize      = 2065694720 (1970.0MB)</span><br><span class="line">   NewSize          = 1310720 (1.25MB)</span><br><span class="line">   MaxNewSize       = 17592186044415 MB</span><br><span class="line">   OldSize          = 5439488 (5.1875MB)</span><br><span class="line">   NewRatio         = 2</span><br><span class="line">   SurvivorRatio    = 8</span><br><span class="line">   PermSize         = 21757952 (20.75MB)</span><br><span class="line">   MaxPermSize      = 85983232 (82.0MB)</span><br><span class="line">   G1HeapRegionSize = 0 (0.0MB)</span><br><span class="line"></span><br><span class="line">Heap Usage:</span><br><span class="line">PS Young Generation</span><br><span class="line">Eden Space:</span><br><span class="line">   capacity = 24117248 (23.0MB)</span><br><span class="line">   used     = 8397088 (8.008087158203125MB)</span><br><span class="line">   free     = 15720160 (14.991912841796875MB)</span><br><span class="line">   34.81777025305706% used</span><br><span class="line">From Space:</span><br><span class="line">   capacity = 524288 (0.5MB)</span><br><span class="line">   used     = 98304 (0.09375MB)</span><br><span class="line">   free     = 425984 (0.40625MB)</span><br><span class="line">   18.75% used</span><br><span class="line">To Space:</span><br><span class="line">   capacity = 524288 (0.5MB)</span><br><span class="line">   used     = 0 (0.0MB)</span><br><span class="line">   free     = 524288 (0.5MB)</span><br><span class="line">   0.0% used</span><br><span class="line">PS Old Generation</span><br><span class="line">   capacity = 85983232 (82.0MB)</span><br><span class="line">   used     = 44148184 (42.102989196777344MB)</span><br><span class="line">   free     = 41835048 (39.897010803222656MB)</span><br><span class="line">   51.34510877655774% used</span><br><span class="line">PS Perm Generation</span><br><span class="line">   capacity = 39321600 (37.5MB)</span><br><span class="line">   used     = 39033120 (37.224884033203125MB)</span><br><span class="line">   free     = 288480 (0.275115966796875MB)</span><br><span class="line">   99.266357421875% used</span><br><span class="line"></span><br><span class="line">19166 interned Strings occupying 1688912 bytes.</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>jmap -histo [pid]</code> 查看JVM堆中对象详细占用情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">num     <span class="comment">#instances         #bytes  class name</span></span><br><span class="line">----------------------------------------------</span><br><span class="line"> 1:         10823        3072312  [B</span><br><span class="line"> 2:         16605        2318720  &lt;constMethodKlass&gt;</span><br><span class="line"> 3:         18687        1388088  [C</span><br><span class="line"> 4:         16605        1328608  &lt;methodKlass&gt;</span><br><span class="line"> 5:         27595        1296832  &lt;symbolKlass&gt;</span><br><span class="line"> 6:          1699         940392  &lt;constantPoolKlass&gt;</span><br><span class="line"> 7:          2520         883408  [I</span><br><span class="line"> 8:          1699         724944  &lt;instanceKlassKlass&gt;</span><br><span class="line"> 9:          1472         565136  &lt;constantPoolCacheKlass&gt;</span><br><span class="line">10:           256         561152  [Lnet.sf.ehcache.store.chm.SelectableConcurrentHashMap<span class="variable">$HashEntry</span>;</span><br><span class="line">11:         12148         291552  java.lang.String</span><br><span class="line">12:          4505         288320  net.sf.ehcache.Element</span><br><span class="line">13:          7290         233280  java.lang.ThreadLocal<span class="variable">$ThreadLocalMap</span><span class="variable">$Entry</span></span><br><span class="line">14:          1946         186816  java.lang.Class</span><br><span class="line">15:          4509         180360  net.sf.ehcache.store.chm.SelectableConcurrentHashMap<span class="variable">$HashEntry</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>其中[开头表示数组，[C [I [B 分别是char[] int[] byte[]。constMethodKlass、都实现自sun.jvm.hotspot.oops.Klass，用于在永久代里保存类的信息。</p>
+<ul>
+<li><code>jmap -dump:format=b,file=文件名 [pid]</code> 导出整个JVM 中内存信息,通过<code>jhat</code>启动一个Web Server（端口7000）查看分析结果：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">jmap -dump:file=a.txt 22999</span><br><span class="line">jhat -J-Xmx512m a.txt</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p><code>kill -3 [pid]</code><br>在Linux 上找到Java所在的进程号，然后执行以上命令，线程的相关信息就输出到console。inux的<code>kill -3</code>指令可以帮我们输出当前进程中所有线程的状态，如哪些线程在运行，哪些在等待，因为什么等待，代码哪一行等待。<code>kill -3</code>会将信息输出至控制台，所以使用时，被<code>kill -3</code>的进程最好是nohup启动的。<code>kill -3</code>并不会影响程序运行，不用担心他把程序杀死了。<br>PS: 需要<code>-Xrs JVM</code>选择被使用。</p>
+<h3 id="jstack"><a href="#jstack" class="headerlink" title="jstack"></a>jstack</h3><p>jstack 是sun JDK 自带的工具，通过该工具可以看到JVM 中线程的运行状况，包括锁等待，线程是否在运行。</p>
 
       
     </div>
@@ -396,8 +406,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/12/08/java-memory-analysis/" rel="next" title="Java内存分析">
-                <i class="fa fa-chevron-left"></i> Java内存分析
+              <a href="/2017/12/08/linux-ops-base/" rel="next" title="Linux运维基础">
+                <i class="fa fa-chevron-left"></i> Linux运维基础
               </a>
             
           </div>
@@ -406,8 +416,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/12/11/java-keywords/" rel="prev" title="Java关键字通识">
-                Java关键字通识 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/12/09/java-multithreading-common-sense/" rel="prev" title="Java多线程常识">
+                Java多线程常识 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -566,7 +576,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Double-Check"><span class="nav-number">1.</span> <span class="nav-text">Double Check</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#内存分析"><span class="nav-number">1.</span> <span class="nav-text">内存分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#jmap"><span class="nav-number">1.1.</span> <span class="nav-text">jmap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#jstack"><span class="nav-number">1.2.</span> <span class="nav-text">jstack</span></a></li></ol></li></ol></div>
             
 
           </div>

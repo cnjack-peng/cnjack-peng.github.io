@@ -79,7 +79,7 @@
 
 
 
-<meta name="description" content="本文主要对软件开发者相关的系统安全问题进行总结。 攻击类型XSSCSRF产生原理 想要攻击成功，这三步缺一不可。  第一，登录受害者网站。如果受害者网站是基于 cookie 的用户验证机制，那么当用户登录成功后，浏览器就会保存一份服务端的 SESSIONID。 第二，这时候在同一个浏览器打开攻击者网站，虽然说它无法获取 SESSIONID 是什么（因为设置了 http only 的 cookie">
+<meta name="description" content="本文主要对软件开发者相关的系统安全问题进行总结。 攻击类型XSSCSRF产生原理 想要攻击成功，这三步缺一不可。  第一，登录受害者网站。如果受害者网站是基于 cookie 的用户验证机制，那么当用户登录成功后，浏览器就会保存一份服务端的 SESSIONID。 第二，这时候在同一个浏览器打开攻击者网站，虽然说它无法获取">
 <meta property="og:type" content="article">
 <meta property="og:title" content="开发者的网络安全技术">
 <meta property="og:url" content="http://keaimo.com/2017/11/29/netsafe-technology/index.html">
@@ -88,7 +88,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://keaimo.com/2017/11/29/netsafe-technology/csrf_principle.png">
 <meta property="og:image" content="http://keaimo.com/2017/11/29/netsafe-technology/csrf_header.png">
-<meta property="og:updated_time" content="2017-11-29T14:43:35.581Z">
+<meta property="og:updated_time" content="2017-11-29T07:13:35.131Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="开发者的网络安全技术">
 <meta name="twitter:description" content="本文主要对软件开发者相关的系统安全问题进行总结。 攻击类型XSSCSRF产生原理 想要攻击成功，这三步缺一不可。  第一，登录受害者网站。如果受害者网站是基于 cookie 的用户验证机制，那么当用户登录成功后，浏览器就会保存一份服务端的 SESSIONID。 第二，这时候在同一个浏览器打开攻击者网站，虽然说它无法获取 SESSIONID 是什么（因为设置了 http only 的 cookie">
@@ -522,7 +522,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -599,7 +599,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#攻击类型"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x653B;&#x51FB;&#x7C7B;&#x578B;" class="headerlink" title="&#x653B;&#x51FB;&#x7C7B;&#x578B;"></a>&#x653B;&#x51FB;&#x7C7B;&#x578B;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#XSS"><span class="nav-number">1.1.</span> <span class="nav-text"><a href="#XSS" class="headerlink" title="XSS"></a>XSS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CSRF"><span class="nav-number">1.2.</span> <span class="nav-text"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#产生原理"><span class="nav-number">1.2.1.</span> <span class="nav-text"><a href="#&#x4EA7;&#x751F;&#x539F;&#x7406;" class="headerlink" title="&#x4EA7;&#x751F;&#x539F;&#x7406;"></a>&#x4EA7;&#x751F;&#x539F;&#x7406;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#防范手段"><span class="nav-number">1.2.2.</span> <span class="nav-text"><a href="#&#x9632;&#x8303;&#x624B;&#x6BB5;" class="headerlink" title="&#x9632;&#x8303;&#x624B;&#x6BB5;"></a>&#x9632;&#x8303;&#x624B;&#x6BB5;</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#判断请求头Referer"><span class="nav-number">1.2.2.1.</span> <span class="nav-text"><a href="#&#x5224;&#x65AD;&#x8BF7;&#x6C42;&#x5934;Referer" class="headerlink" title="&#x5224;&#x65AD;&#x8BF7;&#x6C42;&#x5934;Referer"></a>&#x5224;&#x65AD;&#x8BF7;&#x6C42;&#x5934;Referer</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#在请求参数中加入-csrf-token"><span class="nav-number">1.2.2.2.</span> <span class="nav-text"><a href="#&#x5728;&#x8BF7;&#x6C42;&#x53C2;&#x6570;&#x4E2D;&#x52A0;&#x5165;-csrf-token" class="headerlink" title="&#x5728;&#x8BF7;&#x6C42;&#x53C2;&#x6570;&#x4E2D;&#x52A0;&#x5165; csrf token"></a>&#x5728;&#x8BF7;&#x6C42;&#x53C2;&#x6570;&#x4E2D;&#x52A0;&#x5165; csrf token</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#新增-HTTP-Header"><span class="nav-number">1.2.2.3.</span> <span class="nav-text"><a href="#&#x65B0;&#x589E;-HTTP-Header" class="headerlink" title="&#x65B0;&#x589E; HTTP Header"></a>&#x65B0;&#x589E; HTTP Header</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重放攻击"><span class="nav-number">1.3.</span> <span class="nav-text"><a href="#&#x91CD;&#x653E;&#x653B;&#x51FB;" class="headerlink" title="&#x91CD;&#x653E;&#x653B;&#x51FB;"></a>&#x91CD;&#x653E;&#x653B;&#x51FB;</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#攻击类型"><span class="nav-number">1.</span> <span class="nav-text">攻击类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#XSS"><span class="nav-number">1.1.</span> <span class="nav-text">XSS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CSRF"><span class="nav-number">1.2.</span> <span class="nav-text">CSRF</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#产生原理"><span class="nav-number">1.2.1.</span> <span class="nav-text">产生原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#防范手段"><span class="nav-number">1.2.2.</span> <span class="nav-text">防范手段</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#判断请求头Referer"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">判断请求头Referer</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#在请求参数中加入-csrf-token"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">在请求参数中加入 csrf token</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#新增-HTTP-Header"><span class="nav-number">1.2.2.3.</span> <span class="nav-text">新增 HTTP Header</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重放攻击"><span class="nav-number">1.3.</span> <span class="nav-text">重放攻击</span></a></li></ol></li></ol></div>
             
 
           </div>
