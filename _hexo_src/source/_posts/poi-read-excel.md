@@ -7,74 +7,45 @@ categories: 软件开发
 ---
 
 
-##前言
+## 前言
 
 在实际项目上遇到了上传 Excel 并解析到数据库中的需求，经分析后选择 Apache POI 来实现，故事也就开始了……
 
-##常规模式
+## 常规模式
 
 ```java
 File file = new File(yourFilepath);
-
 FileInputStream is = new FileInputStream(file);
-
 Workbook workbook = WorkbookFactory.create(is);
-
 FormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
 
-
 for (Sheet sheet : workbook) {
-
     for (Row row : sheet) {
-
         for (Cell cell : row) {
 
             // Alternatively, get the value and format it yourself
-
             switch (formulaEvaluator.evaluateInCell(cell).getCellTypeEnum()) {
-
                 case STRING:
-
                     System.out.println(cell.getRichStringCellValue().getString());
-
                     break;
-
                 case NUMERIC:
-
                     if (DateUtil.isCellDateFormatted(cell)) {
-
                         System.out.println(cell.getDateCellValue());
-
                     } else {
-
                         System.out.println(cell.getNumericCellValue());
-
                     }
-
                     break;
-
                 case BOOLEAN:
-
                     System.out.println(cell.getBooleanCellValue());
-
                     break;
-
                 case FORMULA:
-
                     System.out.println(cell.getCellFormula());
-
                     break;
-
                 case BLANK:
-
                     System.out.println();
-
                     break;
-
                 default:
-
                     System.out.println();
-
             }
 
         }
@@ -90,7 +61,7 @@ for (Sheet sheet : workbook) {
 
 
 
-##事件驱动模式
+## 事件驱动模式
 
 优点：逐个单元格读取，理论上多大数据都能处理；
 

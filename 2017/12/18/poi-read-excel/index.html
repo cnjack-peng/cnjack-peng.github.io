@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="##前言 在实际项目上遇到了上传 Excel 并解析到数据库中的需求，经分析后选择 Apache POI 来实现，故事也就开始了…… ##常规模式 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676">
+<meta name="description" content="前言在实际项目上遇到了上传 Excel 并解析到数据库中的需求，经分析后选择 Apache POI 来实现，故事也就开始了…… 常规模式123456789101112131415161718192021222324252627282930313233343536373839File file = new File(yourFilepath);FileInputStream is = new Fil">
 <meta property="og:type" content="article">
 <meta property="og:title" content="POI两种读取Excel的方式">
 <meta property="og:url" content="http://keaimo.com/2017/12/18/poi-read-excel/index.html">
 <meta property="og:site_name" content="笑傲江湖└JP┐">
-<meta property="og:description" content="##前言 在实际项目上遇到了上传 Excel 并解析到数据库中的需求，经分析后选择 Apache POI 来实现，故事也就开始了…… ##常规模式 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676">
+<meta property="og:description" content="前言在实际项目上遇到了上传 Excel 并解析到数据库中的需求，经分析后选择 Apache POI 来实现，故事也就开始了…… 常规模式123456789101112131415161718192021222324252627282930313233343536373839File file = new File(yourFilepath);FileInputStream is = new Fil">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-12-18T04:32:29.640Z">
+<meta property="og:updated_time" content="2017-12-18T04:35:31.476Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="POI两种读取Excel的方式">
-<meta name="twitter:description" content="##前言 在实际项目上遇到了上传 Excel 并解析到数据库中的需求，经分析后选择 Apache POI 来实现，故事也就开始了…… ##常规模式 123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676">
+<meta name="twitter:description" content="前言在实际项目上遇到了上传 Excel 并解析到数据库中的需求，经分析后选择 Apache POI 来实现，故事也就开始了…… 常规模式123456789101112131415161718192021222324252627282930313233343536373839File file = new File(yourFilepath);FileInputStream is = new Fil">
 
 
 
@@ -365,14 +365,11 @@
       
 
       
-        <p>##前言</p>
-<p>在实际项目上遇到了上传 Excel 并解析到数据库中的需求，经分析后选择 Apache POI 来实现，故事也就开始了……</p>
-<p>##常规模式</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line">File file = <span class="keyword">new</span> File(yourFilepath);</span><br><span class="line"></span><br><span class="line">FileInputStream is = <span class="keyword">new</span> FileInputStream(file);</span><br><span class="line"></span><br><span class="line">Workbook workbook = WorkbookFactory.create(is);</span><br><span class="line"></span><br><span class="line">FormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (Sheet sheet : workbook) &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (Row row : sheet) &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> (Cell cell : row) &#123;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// Alternatively, get the value and format it yourself</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">switch</span> (formulaEvaluator.evaluateInCell(cell).getCellTypeEnum()) &#123;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">case</span> STRING:</span><br><span class="line"></span><br><span class="line">                    System.out.println(cell.getRichStringCellValue().getString());</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">case</span> NUMERIC:</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">if</span> (DateUtil.isCellDateFormatted(cell)) &#123;</span><br><span class="line"></span><br><span class="line">                        System.out.println(cell.getDateCellValue());</span><br><span class="line"></span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line"></span><br><span class="line">                        System.out.println(cell.getNumericCellValue());</span><br><span class="line"></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">case</span> BOOLEAN:</span><br><span class="line"></span><br><span class="line">                    System.out.println(cell.getBooleanCellValue());</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">case</span> FORMULA:</span><br><span class="line"></span><br><span class="line">                    System.out.println(cell.getCellFormula());</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">case</span> BLANK:</span><br><span class="line"></span><br><span class="line">                    System.out.println();</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">default</span>:</span><br><span class="line"></span><br><span class="line">                    System.out.println();</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>在实际项目上遇到了上传 Excel 并解析到数据库中的需求，经分析后选择 Apache POI 来实现，故事也就开始了……</p>
+<h2 id="常规模式"><a href="#常规模式" class="headerlink" title="常规模式"></a>常规模式</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">File file = <span class="keyword">new</span> File(yourFilepath);</span><br><span class="line">FileInputStream is = <span class="keyword">new</span> FileInputStream(file);</span><br><span class="line">Workbook workbook = WorkbookFactory.create(is);</span><br><span class="line">FormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (Sheet sheet : workbook) &#123;</span><br><span class="line">    <span class="keyword">for</span> (Row row : sheet) &#123;</span><br><span class="line">        <span class="keyword">for</span> (Cell cell : row) &#123;</span><br><span class="line"></span><br><span class="line">            <span class="comment">// Alternatively, get the value and format it yourself</span></span><br><span class="line">            <span class="keyword">switch</span> (formulaEvaluator.evaluateInCell(cell).getCellTypeEnum()) &#123;</span><br><span class="line">                <span class="keyword">case</span> STRING:</span><br><span class="line">                    System.out.println(cell.getRichStringCellValue().getString());</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> NUMERIC:</span><br><span class="line">                    <span class="keyword">if</span> (DateUtil.isCellDateFormatted(cell)) &#123;</span><br><span class="line">                        System.out.println(cell.getDateCellValue());</span><br><span class="line">                    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                        System.out.println(cell.getNumericCellValue());</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> BOOLEAN:</span><br><span class="line">                    System.out.println(cell.getBooleanCellValue());</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> FORMULA:</span><br><span class="line">                    System.out.println(cell.getCellFormula());</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> BLANK:</span><br><span class="line">                    System.out.println();</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">default</span>:</span><br><span class="line">                    System.out.println();</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>优点：取值方便，可供调用方法多；</p>
 <p>缺点：一次性读完值，在读取大量数据时可能会出现堆溢出。</p>
-<p>##事件驱动模式</p>
-<p>优点：逐个单元格读取，理论上多大数据都能处理；</p>
+<h2 id="事件驱动模式"><a href="#事件驱动模式" class="headerlink" title="事件驱动模式"></a>事件驱动模式</h2><p>优点：逐个单元格读取，理论上多大数据都能处理；</p>
 <p>缺点：调用方法较少，需要自己动手堆数据进行处理。</p>
 <p>查看 Excel XML 映射关系——新增 Excel 后缀名 .zip，打开 xl &gt; worksheets &gt; sheet1.xml ，查看对应的标签节点信息，通过 POI 提供的方法来读取。</p>
 <p>Excel XML 片段截取：</p>
@@ -462,8 +459,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -549,6 +555,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x524D;&#x8A00;" class="headerlink" title="&#x524D;&#x8A00;"></a>&#x524D;&#x8A00;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#常规模式"><span class="nav-number">2.</span> <span class="nav-text"><a href="#&#x5E38;&#x89C4;&#x6A21;&#x5F0F;" class="headerlink" title="&#x5E38;&#x89C4;&#x6A21;&#x5F0F;"></a>&#x5E38;&#x89C4;&#x6A21;&#x5F0F;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#事件驱动模式"><span class="nav-number">3.</span> <span class="nav-text"><a href="#&#x4E8B;&#x4EF6;&#x9A71;&#x52A8;&#x6A21;&#x5F0F;" class="headerlink" title="&#x4E8B;&#x4EF6;&#x9A71;&#x52A8;&#x6A21;&#x5F0F;"></a>&#x4E8B;&#x4EF6;&#x9A71;&#x52A8;&#x6A21;&#x5F0F;</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
