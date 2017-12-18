@@ -79,7 +79,7 @@
 
 
 
-<meta name="description" content="在Linux系统中，我们经常用free命令来查看系统内存的使用状态。在一个RHEL6的系统上，free命令的显示内容大概是这样一个状态：12345[root@tencent64 ~]# free             total       used       free     shared    buffers ">
+<meta name="description" content="在Linux系统中，我们经常用free命令来查看系统内存的使用状态。在一个RHEL6的系统上，free命令的显示内容大概是这样一个状态：12345[root@tencent64 ~]# free             total       used       free     shared    buffers     cachedMem:     132256952   72571772">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux内存中的Cache">
 <meta property="og:url" content="http://keaimo.com/2017/12/12/linux-cache/index.html">
@@ -452,6 +452,10 @@
 
           <div class="post-nav-prev post-nav-item">
             
+              <a href="/2017/12/14/mysql-tutorial-2/" rel="prev" title="MySQL通识 - 2">
+                MySQL通识 - 2 <i class="fa fa-chevron-right"></i>
+              </a>
+            
           </div>
         </div>
       
@@ -531,7 +535,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">13</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -542,7 +546,7 @@
               
               <div class="site-state-item site-state-categories">
                 
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">分类</span>
                 
               </div>
@@ -553,7 +557,7 @@
               
               <div class="site-state-item site-state-tags">
                 
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">2</span>
                   <span class="site-state-item-name">标签</span>
                 
               </div>
@@ -608,7 +612,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是buffer-cache"><span class="nav-number">1.</span> <span class="nav-text">什么是buffer/cache</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是page-cache"><span class="nav-number">1.1.</span> <span class="nav-text">什么是page cache</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是buffer-cache-1"><span class="nav-number">1.2.</span> <span class="nav-text">什么是buffer cache</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何回收cache"><span class="nav-number">2.</span> <span class="nav-text">如何回收cache</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cache都能被回收么"><span class="nav-number">3.</span> <span class="nav-text">cache都能被回收么</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#tmpfs"><span class="nav-number">3.1.</span> <span class="nav-text">tmpfs</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#共享内存"><span class="nav-number">4.</span> <span class="nav-text">共享内存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mmap"><span class="nav-number">5.</span> <span class="nav-text">mmap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最后"><span class="nav-number">6.</span> <span class="nav-text">最后</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是buffer-cache"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x4EC0;&#x4E48;&#x662F;buffer-cache" class="headerlink" title="&#x4EC0;&#x4E48;&#x662F;buffer/cache"></a>&#x4EC0;&#x4E48;&#x662F;buffer/cache</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是page-cache"><span class="nav-number">1.1.</span> <span class="nav-text"><a href="#&#x4EC0;&#x4E48;&#x662F;page-cache" class="headerlink" title="&#x4EC0;&#x4E48;&#x662F;page cache"></a>&#x4EC0;&#x4E48;&#x662F;page cache</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是buffer-cache-1"><span class="nav-number">1.2.</span> <span class="nav-text"><a href="#&#x4EC0;&#x4E48;&#x662F;buffer-cache-1" class="headerlink" title="&#x4EC0;&#x4E48;&#x662F;buffer cache"></a>&#x4EC0;&#x4E48;&#x662F;buffer cache</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何回收cache"><span class="nav-number">2.</span> <span class="nav-text"><a href="#&#x5982;&#x4F55;&#x56DE;&#x6536;cache" class="headerlink" title="&#x5982;&#x4F55;&#x56DE;&#x6536;cache"></a>&#x5982;&#x4F55;&#x56DE;&#x6536;cache</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#cache都能被回收么"><span class="nav-number">3.</span> <span class="nav-text"><a href="#cache&#x90FD;&#x80FD;&#x88AB;&#x56DE;&#x6536;&#x4E48;" class="headerlink" title="cache&#x90FD;&#x80FD;&#x88AB;&#x56DE;&#x6536;&#x4E48;"></a>cache&#x90FD;&#x80FD;&#x88AB;&#x56DE;&#x6536;&#x4E48;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#tmpfs"><span class="nav-number">3.1.</span> <span class="nav-text"><a href="#tmpfs" class="headerlink" title="tmpfs"></a>tmpfs</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#共享内存"><span class="nav-number">4.</span> <span class="nav-text"><a href="#&#x5171;&#x4EAB;&#x5185;&#x5B58;" class="headerlink" title="&#x5171;&#x4EAB;&#x5185;&#x5B58;"></a>&#x5171;&#x4EAB;&#x5185;&#x5B58;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#mmap"><span class="nav-number">5.</span> <span class="nav-text"><a href="#mmap" class="headerlink" title="mmap"></a>mmap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最后"><span class="nav-number">6.</span> <span class="nav-text"><a href="#&#x6700;&#x540E;" class="headerlink" title="&#x6700;&#x540E;"></a>&#x6700;&#x540E;</span></a></li></ol></div>
             
 
           </div>
