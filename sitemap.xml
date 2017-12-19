@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://keaimo.com/about/index.html</loc>
+    
+    <lastmod>2017-12-19T07:02:25.767Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://keaimo.com/2017/11/20/hexo-jekyllrb-tutorial/</loc>
     
     <lastmod>2017-12-19T06:51:10.463Z</lastmod>
@@ -89,13 +96,6 @@
     <loc>http://keaimo.com/2017/11/29/netsafe-technology/</loc>
     
     <lastmod>2017-11-29T07:13:35.131Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://keaimo.com/about/index.html</loc>
-    
-    <lastmod>2017-11-29T05:24:07.730Z</lastmod>
     
   </url>
   
