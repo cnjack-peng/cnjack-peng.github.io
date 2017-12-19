@@ -1,11 +1,11 @@
 ---
-title: HEXO Tutorial
+title: HEXO&Jekyllrb Tutorial
 date: 2017/11/20 17:30:00
 categories: 小技巧
 ---
 HEXO是一个静态BLOG APPS。
 
-## 安装配置
+## Hexo安装配置
 
 ### 安装
 
@@ -32,10 +32,15 @@ hexo clean
 hexo generate
 ```
 
-
-
-## NEXT主题
-
+### NEXT主题
+```bash
+$ cd your-hexo-site
+$ git clone https://github.com/iissnan/hexo-theme-next themes/next
+```
+克隆/下载 完成后，打开 站点配置文件，找到theme字段，并将其值更改为next。
+> 这里注意区分两个配置文件：
+> 站点配置文件：是你的 hexo 博客目录下面的 _config.yml 文件。
+> 主题配置文件：是 themes/next 目录下的 _config.yml 文件。
 
 ### 打开侧边栏
 ```bash
@@ -44,10 +49,10 @@ sidebar:
 ```
 
 
-## 高级功能
+### 高级功能
 
 
-### 搜索
+#### 搜索
 
 ```bash
 cnpm install hexo-generator-search --save
@@ -67,20 +72,20 @@ local_search:
   enable: true
 ```
 
-### 关于我页面
+#### 关于我页面
 ```bash
 hexo new page about
 ```
 在NEXT主题中开启关于我页面即可
 
-## 写作
+#### 写作
 
-### 阅读全文
+#### 阅读全文
 在适当的位置加入如下标签即可：
 ```bash
 <!--more-->
 ```
-### 创建文章
+#### 创建文章
 ```base
 hexo new [layout] <title>
 hexo new MyPage
@@ -93,3 +98,14 @@ hexo new MyPage
 hexo new 'article title'
 ```
 使用完命令之后，在source/_post文件夹里面就会出现一个“article title.md”的文件和一个“article title”的文件夹。
+
+
+
+## Jekyllrb安装配置
+
+Jekyllrb依赖Ruby，需要安装Ruby环境
+
+### 安装
+
+### Minimal Mistakes
+Minimal Mistakes（https://mademistakes.com/work/minimal-mistakes-jekyll-theme/）是一个Jekyllrb主题
