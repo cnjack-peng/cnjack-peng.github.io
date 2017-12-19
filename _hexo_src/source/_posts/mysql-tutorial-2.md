@@ -7,3 +7,4 @@ categories: MySQL
 
 ## MySQL主从复制
 
+准备两台MySQL服务器，版本越接近越好

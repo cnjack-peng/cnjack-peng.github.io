@@ -2,6 +2,7 @@
 title: Java关键字通识
 date: 2017-12-11 14:32:40
 tags:
+categories: 软件开发
 ---
 
 ## strictfp
