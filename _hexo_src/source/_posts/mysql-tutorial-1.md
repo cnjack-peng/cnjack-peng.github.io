@@ -1,5 +1,5 @@
 ---
-title: MySQL通识 - 1
+title: MySQL通识-基础应用
 date: 2017-12-14 09:17:52
 tags: 数据库
 categories: MySQL
@@ -24,7 +24,8 @@ show grants for 'keaimo';
 ```
 
 #### 忘记root密码：
-方法一：
+
+**方法一**
 1. 更改配置文件`/etc/my.cnf`,在`[mysqld]`的段上加上一句`skip-grant-tables`保存并退出；
 2. 重启MySQL；
 3. 登录并修改密码：
@@ -37,7 +38,7 @@ mysql> quit
 4. 将MySQL配置改回来；
 5. 重启MySQL；
 
-方法二：
+**方法二**
 1. KILL掉系统里的MySQL进程； 
 ```bash
 killall -TERM mysqld
@@ -61,7 +62,7 @@ mysql> quit
 ```
 
 
-## 方法三 ##
+**方法三**
 如果系统中没有`safe_mysqld`，可以使用如下方式恢复：
 1. 停止mysqld(您可能有其它的方法,总之停止mysqld的运行就可以了)； 
     ```bash
@@ -112,4 +113,31 @@ mysql --help | grep Distrib
 4. 使用mysql函数：
 ```bash
 mysql> select version();
+```
+
+### 实时SQL监控
+
+进入Mysql，启用Log功能(general_log=ON) 
+```bash
+SHOW VARIABLES LIKE "general_log%"; 
+SET GLOBAL general_log = 'ON';
+```
+设置Log文件地址(所有Sql语句都会在general_log_file里) 
+```bash
+SET GLOBAL general_log_file = 'c:\mysql.log';
+```
+
+### 查询结果导出到文件
+
+```bash
+select count(1) from table   into outfile '/data/test.xls';
+```
+
+```bash
+mysql> pager cat > /tmp/test.txt ;
+PAGER set to 'cat > /tmp/test.txt'
+# 之后的所有查询结果都自动写入/tmp/test.txt'，并前后覆盖
+mysql> select * from table ;
+30 rows in set (0.59 sec)
+# 在框口不再显示查询结果
 ```

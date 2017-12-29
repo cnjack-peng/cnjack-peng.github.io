@@ -13,6 +13,15 @@ cat /etc/mtab
 mount
 fdisk -l
 ```
+
+查找大文件/文件夹：
+```bash
+find . -type f -size +800M
+find . -type f -size +800M  -print0 | xargs -0 ls -l
+find . -type f -size +800M  -print0 | xargs -0 du -h
+find . -type f -size +800M  -print0 | xargs -0 du -h | sort -nr
+```
+
 ## 运行状态
 TOP查看系统运行情况：
 - 输入大写P，结果按CPU占用降序排序；
