@@ -276,6 +276,166 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/12/25/percona-xtrabackup/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jack Peng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="笑傲江湖└JP┐">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/12/25/percona-xtrabackup/" itemprop="url">Percona XtraBackup</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-25T13:02:52+08:00">
+                2017-12-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MySQL/" itemprop="url" rel="index">
+                    <span itemprop="name">MySQL</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>Percona XtraBackup是一个相对完美的免费开源数据备份工具，支持在线无锁表同步复制和可并行高效率的安全备份恢复。</p>
+<h2 id="备份原理"><a href="#备份原理" class="headerlink" title="备份原理"></a>备份原理</h2><p>Percona XtraBackup 基于InnoDB引擎的故障恢复功能。它拷贝InnoDB的数据文件，但是数据文件内存的数据并不是一致的；但是通过 XtraBackup 执行故障恢复确保了数据的一致性。Percona XtraBackup 保证数据一致性 是通过InnoDB的redo log（也叫事务日志 transaction log）。redo log记录了InnoDB 数据的每次改变。当InnoDB（MySQL）启动，它检查数据文件和事务日志（redo / transaction log），然后执行如下两步:</p>
+<ol>
+<li>应用已经提交的事务</li>
+<li>回滚已经修改但是没有提交的事务</li>
+</ol>
+<p>Percona XtraBackup 备份过程如下：</p>
+<ol>
+<li>备份InnoDB引擎：<br>当 Percona XtraBackup 开始工作，它记录所有 LSN （ log sequence number ），然后拷贝所有数据文件。<br>拷贝数据文件的同时， Percona XtraBackup 的一个后台进程监测 事务日志（redo / transaction log），然后从事务日志中拷贝改变的部分。<br>由于事务日志（log/transaction log）写日志采取round-robin方式，短时间事务日志就能够被重用，所以Percona XtraBackup 必须一致保持监测事务日志并拷贝改变部分。<br>Percona XtraBackup 从执行开始，就必须记录每一条事务日志，不然无法保证一致性和完整性。</li>
+<li>备份其他存储引擎（如MyISAM）：<br>Percona XtraBackup 备份 InnoDB/XtraDB 数据文件和事务日志完毕后。使用 FLUSH TABLES WITH READ LOCK 锁，阻止对MyISAM的DML操作,（从MySQL 5.6开始），然后备份拷贝MyISAM等non-InnoDB的相关文件，如.frm, .MRG, .MYD, .MYI,.TRG, .TRN, .ARM, .ARZ, .CSM, .CSV, .par, 和 .opt 文件。</li>
+</ol>
+<p><code>注意，备份MyISAM时，执行FLUSH TABLES WITH READ LOCK ，并不会影响InnoDB。</code>.</p>
+<h2 id="安装与使用"><a href="#安装与使用" class="headerlink" title="安装与使用"></a>安装与使用</h2><p>官方网站：<code>https://www.percona.com/downloads/XtraBackup/LATEST/</code>，下载适合你的平台软件，然后安装，需要注意的是如果下载的是RPM包或者源码，需要手动解决依赖的相关问题(报错:<code>Transaction Check Error:</code>)，推荐使用Percona仓库安装：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">yum install http://www.percona.com/downloads/percona-release/redhat/0.1-4/percona-release-0.1-4.noarch.rpm</span><br><span class="line">yum list | grep percona</span><br><span class="line">yum install percona-xtrabackup-24</span><br><span class="line"><span class="comment"># 用于解压备份文件</span></span><br><span class="line">yum install qpress</span><br></pre></td></tr></table></figure></p>
+<p>全量备份：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 备份并压缩</span></span><br><span class="line">xtrabackup --backup --compress --target-dir=/backup_store/db_back/</span><br><span class="line"><span class="comment"># 解压，必须解压才能--prepare</span></span><br><span class="line">xtrabackup --backup --decompress --target-dir=/backup_store/db_back/</span><br><span class="line"><span class="comment"># prepare之前，数据文件是不一致的，因为它们在不同时间点被备份因此，--prepare会使所有数据文件的步调达成一致</span></span><br><span class="line">xtrabackup --prepare --target-dir=/backup_store/db_back/</span><br></pre></td></tr></table></figure></p>
+<p>增量备份：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
+<h2 id="基于XtraBackup搭建主从"><a href="#基于XtraBackup搭建主从" class="headerlink" title="基于XtraBackup搭建主从"></a>基于XtraBackup搭建主从</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#原有主数据库版本</span></span><br><span class="line">mysql -V</span><br><span class="line">mysql  Ver 14.14 Distrib 5.5.31, <span class="keyword">for</span> Linux (x86_64) using readline 5.1</span><br><span class="line"><span class="comment">#迁移从数据库版本</span></span><br><span class="line">mysql -V</span><br><span class="line">mysql  Ver 14.14 Distrib 5.6.25, <span class="keyword">for</span> linux-glibc2.5 (x86_64) using  EditLine wrapper</span><br><span class="line"><span class="comment">#检查数据库引擎</span></span><br><span class="line">show engines;</span><br><span class="line">+--------------------+---------+----------------------------------------------------------------+--------------+------+------------+</span><br><span class="line">| Engine             | Support | Comment                                                        | Transactions | XA   | Savepoints |</span><br><span class="line">+--------------------+---------+----------------------------------------------------------------+--------------+------+------------+</span><br><span class="line">| MRG_MYISAM         | YES     | Collection of identical MyISAM tables                          | NO           | NO   | NO         |</span><br><span class="line">| CSV                | YES     | CSV storage engine                                             | NO           | NO   | NO         |</span><br><span class="line">| MyISAM             | YES     | MyISAM storage engine                                          | NO           | NO   | NO         |</span><br><span class="line">| BLACKHOLE          | YES     | /dev/null storage engine (anything you write to it disappears) | NO           | NO   | NO         |</span><br><span class="line">| MEMORY             | YES     | Hash based, stored <span class="keyword">in</span> memory, useful <span class="keyword">for</span> temporary tables      | NO           | NO   | NO         |</span><br><span class="line">| InnoDB             | DEFAULT | Supports transactions, row-level locking, and foreign keys     | YES          | YES  | YES        |</span><br><span class="line">| ARCHIVE            | YES     | Archive storage engine                                         | NO           | NO   | NO         |</span><br><span class="line">| PERFORMANCE_SCHEMA | YES     | Performance Schema                                             | NO           | NO   | NO         |</span><br><span class="line">| FEDERATED          | NO      | Federated MySQL storage engine                                 | NULL         | NULL | NULL       |</span><br><span class="line">+--------------------+---------+----------------------------------------------------------------+--------------+------+------------+</span><br><span class="line"><span class="comment">#主从数据库同步注意点</span></span><br><span class="line">[mysqld]</span><br><span class="line"><span class="comment">#主从之间的id不能相同</span></span><br><span class="line">server-id</span><br><span class="line"><span class="comment">#启用二进制日志</span></span><br><span class="line"><span class="built_in">log</span>-bin</span><br><span class="line"><span class="comment">#一般在从库开启（可选）</span></span><br><span class="line">read_only</span><br><span class="line"><span class="comment">#推荐使用InnoDB并做好相关配置</span></span><br><span class="line"><span class="comment">#检查主从数据库状态</span></span><br><span class="line">mysql -S /tmp/mysql.sock -e <span class="string">"show global variables like 'server_id';"</span></span><br><span class="line">+---------------+-------+</span><br><span class="line">| Variable_name | Value |</span><br><span class="line">+---------------+-------+</span><br><span class="line">| server_id     | 1     |</span><br><span class="line">+---------------+-------+</span><br><span class="line">mysql -S /tmp/mysql.sock -e <span class="string">"show global variables like 'log_bin';"</span></span><br><span class="line">+---------------+-------+</span><br><span class="line">| Variable_name | Value |</span><br><span class="line">+---------------+-------+</span><br><span class="line">| log_bin       | ON    |</span><br><span class="line">+---------------+-------+</span><br></pre></td></tr></table></figure>
+<h3 id="备份和恢复"><a href="#备份和恢复" class="headerlink" title="备份和恢复"></a>备份和恢复</h3><p>通常一般都直接使用innobackupex，因为它能同时备份InnoDB和MyISAM引擎的表。重点关注Slave_IO_Running和Slave_SQL_Runningd的状态是否为YES。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#备份</span></span><br><span class="line">innobackupex --socket=/usr/<span class="built_in">local</span>/var/mysql2/mysql2.sock --user=root --password --defaults-file=/etc/mysqld_multi.cnf --parallel=4 --database=passport /tmp/backup</span><br><span class="line"><span class="comment">#保持事务一致性</span></span><br><span class="line">innobackupex --socket=/usr/<span class="built_in">local</span>/var/mysql2/mysql2.sock --user=root --password --defaults-file=/etc/mysqld_multi.cnf --database=passport --apply-log /tmp/backup/2015-08-05_16-08-14</span><br><span class="line"><span class="comment">#传输</span></span><br><span class="line">scp -r /tmp/backup/2015-08-05_16-08-14 10.10.16.24:/tmp/backup/ </span><br><span class="line"><span class="comment">#恢复</span></span><br><span class="line">innobackupex --socket=/tmp/mysql.sock --user=root --password --defaults-file=/app/<span class="built_in">local</span>/mysql/my.cnf --copy-back /tmp/backup/2015-08-05_16-08-14/</span><br><span class="line"><span class="comment">#还原权限</span></span><br><span class="line">chown -R mysql:mysql /app/data/mysql/data</span><br><span class="line">service mysqld start</span><br><span class="line">/app/<span class="built_in">local</span>/mysql/scripts/mysql_install_db --basedir=/app/<span class="built_in">local</span>/mysql --datadir=/app/data/mysql/data --no-defaults --skip-name-resolve --user=mysql</span><br><span class="line"><span class="comment">#主库授权同步帐号</span></span><br><span class="line">SELECT DISTINCT CONCAT(<span class="string">'User: '</span><span class="string">''</span>,user,<span class="string">''</span><span class="string">'@'</span><span class="string">''</span>,host,<span class="string">''</span><span class="string">';'</span>) AS query FROM mysql.user;</span><br><span class="line">GRANT REPLICATION SLAVE ON *.* TO <span class="string">'slave_passport'</span>@<span class="string">'10.10.16.24'</span> IDENTIFIED BY <span class="string">'slave_passport'</span>;</span><br><span class="line">FLUSH PRIVILEGES;</span><br><span class="line"><span class="comment">#从库开启同步</span></span><br><span class="line">cat /tmp/backup/2015-08-05_16-08-14/xtrabackup_binlog_info </span><br><span class="line">mysql-bin.002599    804497686</span><br><span class="line">CHANGE MASTER TO</span><br><span class="line">MASTER_HOST=<span class="string">'10.10.16.51'</span>,</span><br><span class="line">MASTER_USER=<span class="string">'slave_passport'</span>,</span><br><span class="line">MASTER_PASSWORD=<span class="string">'slave_passport'</span>,</span><br><span class="line">MASTER_PORT=3307,</span><br><span class="line">MASTER_LOG_FILE=<span class="string">'mysql-bin.002599'</span>,</span><br><span class="line">MASTER_LOG_POS=804497686;</span><br><span class="line"><span class="comment">#开启主从同步</span></span><br><span class="line">start slave;</span><br><span class="line"><span class="comment">#查看从库状态</span></span><br><span class="line">show slave status\ G</span><br><span class="line"><span class="comment">#从库的检查参数</span></span><br><span class="line">Slave_IO_Running=Yes</span><br><span class="line">Slave_SQL_Running=Yes</span><br><span class="line"><span class="comment">#主库的检查参数</span></span><br><span class="line">show master status \G</span><br><span class="line">+------------------+-----------+--------------+------------------+</span><br><span class="line">| File             | Position  | Binlog_Do_DB | Binlog_Ignore_DB |</span><br><span class="line">+------------------+-----------+--------------+------------------+</span><br><span class="line">| mysql-bin.002600 | 454769337 |              |                  |</span><br><span class="line">+------------------+-----------+--------------+------------------+</span><br><span class="line">1 row <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</span><br><span class="line">show processlist;</span><br><span class="line">Master has sent all binlog to slave; waiting <span class="keyword">for</span> binlog to be updated</span><br></pre></td></tr></table></figure></p>
+<h3 id="MySQL主从切换"><a href="#MySQL主从切换" class="headerlink" title="MySQL主从切换"></a>MySQL主从切换</h3><p>切换前断开主库访问连接观察进程状态，无写操作后再停止从库IO_THREAD进行切换。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#查看主库状态</span></span><br><span class="line">show processlist;</span><br><span class="line">Master has sent all binlog to slave; waiting <span class="keyword">for</span> binlog to be updated</span><br><span class="line">show master status \G</span><br><span class="line"><span class="comment">#从库停止 IO_THREAD 线程</span></span><br><span class="line">stop slave IO_THREAD;</span><br><span class="line">show processlist;</span><br><span class="line">Slave has <span class="built_in">read</span> all relay <span class="built_in">log</span>; waiting <span class="keyword">for</span> the slave I/O thread to update it</span><br><span class="line">show slave status \G</span><br><span class="line"><span class="comment">#从库切换为主库</span></span><br><span class="line">stop slave;</span><br><span class="line">reset master;</span><br><span class="line">reset slave all;</span><br><span class="line">show master status \G</span><br><span class="line"><span class="comment">#激活帐户</span></span><br><span class="line">SELECT DISTINCT CONCAT(<span class="string">'User: '</span><span class="string">''</span>,user,<span class="string">''</span><span class="string">'@'</span><span class="string">''</span>,host,<span class="string">''</span><span class="string">';'</span>) AS query FROM mysql.user;</span><br><span class="line">GRANT REPLICATION SLAVE ON *.* TO <span class="string">'slave_passport'</span>@<span class="string">'10.10.16.51'</span> IDENTIFIED BY <span class="string">'slave_passport'</span>;</span><br><span class="line">FLUSH PRIVILEGES;</span><br><span class="line"><span class="comment">#切换原有主库为从库</span></span><br><span class="line">reset master;</span><br><span class="line">reset slave all;</span><br><span class="line">CHANGE MASTER TO</span><br><span class="line">MASTER_HOST=<span class="string">'10.10.16.24'</span>,</span><br><span class="line">MASTER_USER=<span class="string">'slave_passport'</span>,</span><br><span class="line">MASTER_PASSWORD=<span class="string">'slave_passport'</span>,</span><br><span class="line">MASTER_PORT=3306,</span><br><span class="line">MASTER_LOG_FILE=<span class="string">'mysql-bin.000001'</span>,</span><br><span class="line">MASTER_LOG_POS=804497686;</span><br><span class="line"><span class="comment">#检查主库</span></span><br><span class="line">SHOW PROCESSLIST;</span><br><span class="line">show master status \G</span><br><span class="line"><span class="comment">#启动从库</span></span><br><span class="line">SHOW PROCESSLIST;</span><br><span class="line">start slave;</span><br><span class="line">show slave status \G</span><br></pre></td></tr></table></figure></p>
+<h3 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h3><p>Slave_SQL_Running:No<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#一般是事务回滚造成的</span></span><br><span class="line">stop slave;</span><br><span class="line"><span class="built_in">set</span> GLOBAL SQL_SLAVE_SKIP_COUNTER=1;</span><br><span class="line">start slave;</span><br></pre></td></tr></table></figure></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/12/19/facebook-haystack/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -704,6 +864,351 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/12/14/mysql-tutorial-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jack Peng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="笑傲江湖└JP┐">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/12/14/mysql-tutorial-1/" itemprop="url">MySQL通识-基础应用</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-14T09:17:52+08:00">
+                2017-12-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MySQL/" itemprop="url" rel="index">
+                    <span itemprop="name">MySQL</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="基础运维命令"><a href="#基础运维命令" class="headerlink" title="基础运维命令"></a>基础运维命令</h2><h3 id="用户管理"><a href="#用户管理" class="headerlink" title="用户管理"></a>用户管理</h3><h4 id="查询MySQL所有用户："><a href="#查询MySQL所有用户：" class="headerlink" title="查询MySQL所有用户："></a>查询MySQL所有用户：</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">User</span>, Host, <span class="keyword">Password</span> <span class="keyword">FROM</span> mysql.user;</span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">DISTINCT</span> <span class="keyword">User</span> <span class="keyword">FROM</span> mysql.user;</span><br></pre></td></tr></table></figure>
+<h4 id="添加MySQL用户："><a href="#添加MySQL用户：" class="headerlink" title="添加MySQL用户："></a>添加MySQL用户：</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">user</span> keaimo <span class="keyword">identified</span> <span class="keyword">by</span> <span class="string">'keaimopw'</span>;</span><br><span class="line"><span class="keyword">grant</span> all <span class="keyword">privileges</span> <span class="keyword">on</span> *.* <span class="keyword">to</span> keaimo@<span class="string">'%'</span> <span class="keyword">identified</span> <span class="keyword">by</span> <span class="string">'keaimopw'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">show</span> <span class="keyword">grants</span> <span class="keyword">for</span> <span class="string">'keaimo'</span>;</span><br></pre></td></tr></table></figure>
+<h4 id="忘记root密码："><a href="#忘记root密码：" class="headerlink" title="忘记root密码："></a>忘记root密码：</h4><p><strong>方法一</strong></p>
+<ol>
+<li>更改配置文件<code>/etc/my.cnf</code>,在<code>[mysqld]</code>的段上加上一句<code>skip-grant-tables</code>保存并退出；</li>
+<li>重启MySQL；</li>
+<li><p>登录并修改密码：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; USE mysql ; </span><br><span class="line">mysql&gt; UPDATE user SET Password=password( <span class="string">'new-password'</span> ) WHERE User=<span class="string">'root'</span>; </span><br><span class="line">mysql&gt; flush privileges ; </span><br><span class="line">mysql&gt; quit</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>将MySQL配置改回来；</p>
+</li>
+<li>重启MySQL；</li>
+</ol>
+<p><strong>方法二</strong></p>
+<ol>
+<li><p>KILL掉系统里的MySQL进程； </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">killall -TERM mysqld</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>用以下命令启动MySQL，以不检查权限的方式启动(safe_mysqld是mysqld_safe的符号链接)； </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">safe_mysqld --skip-grant-tables &amp;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>然后用空密码方式使用root用户登录 MySQL； </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u root</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改root用户的密码； </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; update mysql.user <span class="built_in">set</span> password=PASSWORD(<span class="string">'新密码'</span>) <span class="built_in">where</span> User=<span class="string">'root'</span>;</span><br><span class="line">mysql&gt; flush privileges;</span><br><span class="line">mysql&gt; quit</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p><strong>方法三</strong><br>如果系统中没有<code>safe_mysqld</code>，可以使用如下方式恢复：</p>
+<ol>
+<li><p>停止mysqld(您可能有其它的方法,总之停止mysqld的运行就可以了)； </p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/mysql stop</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>用以下命令启动MySQL，以不检查权限的方式启动； </p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqld --skip-grant-tables &amp;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>然后用空密码方式使用root用户登录 MySQL； </p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u root</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改root用户的密码； </p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; update mysql.user <span class="built_in">set</span> password=PASSWORD(<span class="string">'newpassword'</span>) <span class="built_in">where</span> User=<span class="string">'root'</span>; </span><br><span class="line">mysql&gt; flush privileges; </span><br><span class="line">mysql&gt; quit</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重新启动MySQL</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/mysql restart</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="环境信息"><a href="#环境信息" class="headerlink" title="环境信息"></a>环境信息</h3><h4 id="MySQL版本信息"><a href="#MySQL版本信息" class="headerlink" title="MySQL版本信息"></a>MySQL版本信息</h4><ol>
+<li><p>Shell命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -V</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>MySQL中：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; status;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>help中查找:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql --<span class="built_in">help</span> | grep Distrib</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>使用mysql函数：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select version();</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="实时SQL监控"><a href="#实时SQL监控" class="headerlink" title="实时SQL监控"></a>实时SQL监控</h3><p>进入Mysql，启用Log功能(general_log=ON)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">SHOW VARIABLES LIKE <span class="string">"general_log%"</span>; </span><br><span class="line">SET GLOBAL general_log = <span class="string">'ON'</span>;</span><br></pre></td></tr></table></figure></p>
+<p>设置Log文件地址(所有Sql语句都会在general_log_file里)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SET GLOBAL general_log_file = <span class="string">'c:\mysql.log'</span>;</span><br></pre></td></tr></table></figure></p>
+<h3 id="查询结果导出到文件"><a href="#查询结果导出到文件" class="headerlink" title="查询结果导出到文件"></a>查询结果导出到文件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">select count(1) from table   into outfile <span class="string">'/data/test.xls'</span>;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; pager cat &gt; /tmp/test.txt ;</span><br><span class="line">PAGER <span class="built_in">set</span> to <span class="string">'cat &gt; /tmp/test.txt'</span></span><br><span class="line"><span class="comment"># 之后的所有查询结果都自动写入/tmp/test.txt'，并前后覆盖</span></span><br><span class="line">mysql&gt; select * from table ;</span><br><span class="line">30 rows <span class="keyword">in</span> <span class="built_in">set</span> (0.59 sec)</span><br><span class="line"><span class="comment"># 在框口不再显示查询结果</span></span><br></pre></td></tr></table></figure>
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/12/14/mysql-tutorial-3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jack Peng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="笑傲江湖└JP┐">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/12/14/mysql-tutorial-3/" itemprop="url">MySQL通识-SQL</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-14T09:17:52+08:00">
+                2017-12-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MySQL/" itemprop="url" rel="index">
+                    <span itemprop="name">MySQL</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/12/14/mysql-tutorial-2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -797,207 +1302,26 @@
       
         
           
-            <h2 id="MySQL主从复制"><a href="#MySQL主从复制" class="headerlink" title="MySQL主从复制"></a>MySQL主从复制</h2><p>准备两台MySQL服务器，版本越接近越好</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/12/14/mysql-tutorial-1/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jack Peng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="笑傲江湖└JP┐">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/12/14/mysql-tutorial-1/" itemprop="url">MySQL通识 - 1</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-14T09:17:52+08:00">
-                2017-12-14
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/MySQL/" itemprop="url" rel="index">
-                    <span itemprop="name">MySQL</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="基础运维命令"><a href="#基础运维命令" class="headerlink" title="基础运维命令"></a>基础运维命令</h2><h3 id="用户管理"><a href="#用户管理" class="headerlink" title="用户管理"></a>用户管理</h3><h4 id="查询MySQL所有用户："><a href="#查询MySQL所有用户：" class="headerlink" title="查询MySQL所有用户："></a>查询MySQL所有用户：</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">User</span>, Host, <span class="keyword">Password</span> <span class="keyword">FROM</span> mysql.user;</span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">DISTINCT</span> <span class="keyword">User</span> <span class="keyword">FROM</span> mysql.user;</span><br></pre></td></tr></table></figure>
-<h4 id="添加MySQL用户："><a href="#添加MySQL用户：" class="headerlink" title="添加MySQL用户："></a>添加MySQL用户：</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">user</span> keaimo <span class="keyword">identified</span> <span class="keyword">by</span> <span class="string">'keaimopw'</span>;</span><br><span class="line"><span class="keyword">grant</span> all <span class="keyword">privileges</span> <span class="keyword">on</span> *.* <span class="keyword">to</span> keaimo@<span class="string">'%'</span> <span class="keyword">identified</span> <span class="keyword">by</span> <span class="string">'keaimopw'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">show</span> <span class="keyword">grants</span> <span class="keyword">for</span> <span class="string">'keaimo'</span>;</span><br></pre></td></tr></table></figure>
-<h4 id="忘记root密码："><a href="#忘记root密码：" class="headerlink" title="忘记root密码："></a>忘记root密码：</h4><p>方法一：</p>
+            <h2 id="二进制日志"><a href="#二进制日志" class="headerlink" title="二进制日志"></a>二进制日志</h2><p>准备两台MySQL服务器，版本越接近越好</p>
+<p>###　查看二进制日志状态</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">show variables like <span class="string">'log_bin'</span>;</span><br><span class="line">show variables like <span class="string">'%log_bin%'</span>;</span><br><span class="line">show variables like <span class="string">'binlog_format'</span>;</span><br></pre></td></tr></table></figure>
+<p>###　开启二进制日志<br>修改my.cnf，在[mysqld]下面增加log_bin=mysql_bin_log，重启MySQL后，你就会发现log_bin变为了ON。如果在my.cnf里面只设置log_bin，但是不指定file_name，然后重启数据库。你会发现二进制日志文件名称为${hostname}-bin 这样的格式。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[mysqld]</span><br><span class="line">log_bin=/mysql/bin_log/mysql_binlog</span><br></pre></td></tr></table></figure></p>
+<p>###　查看二进制日志文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">show binary logs;</span><br><span class="line">show master logs;</span><br><span class="line">show master status;</span><br></pre></td></tr></table></figure>
+<h3 id="切换二进制日志"><a href="#切换二进制日志" class="headerlink" title="切换二进制日志"></a>切换二进制日志</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flush logs;</span><br></pre></td></tr></table></figure>
+<p>每次MySQL重启也会生成新的二进制日志文件。</p>
+<h3 id="删除二进制日志"><a href="#删除二进制日志" class="headerlink" title="删除二进制日志"></a>删除二进制日志</h3><p><code>purge binary logs to xxx;</code>表示删除某个日志之前的所有二进制日志文件。这个命令会修改index中相关数据：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">purge binary logs to <span class="string">'DB-Server-bin.000002'</span>;</span><br></pre></td></tr></table></figure></p>
+<p>清除某个时间点以前的二进制日志文件：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">purge binary logs before <span class="string">'2017-03-10 10:10:00'</span>;</span><br></pre></td></tr></table></figure></p>
+<p>清除7天前的二进制日志文件：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">purge master logs before date_sub( now( ), interval 7 day);</span><br></pre></td></tr></table></figure></p>
+<p>清除所有的二进制日志文件（当前不存在主从复制关系）:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reset master;</span><br></pre></td></tr></table></figure></p>
+<p>也可以设置expire_logs_days参数，设置自动清理，其默认值为0,表示不启用过期自动删除功能，如果启用了自动清理功能，表示超出此天数的二进制日志文件将被自动删除，自动删除工作通常发生在MySQL启动时或FLUSH日志时。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show variables like <span class="string">'expire_logs_days'</span>;</span><br></pre></td></tr></table></figure></p>
+<h3 id="查看二进制日志内容"><a href="#查看二进制日志内容" class="headerlink" title="查看二进制日志内容"></a>查看二进制日志内容</h3><h4 id="show-binlog-events"><a href="#show-binlog-events" class="headerlink" title="show binlog events"></a>show binlog events</h4><p>使用show binlog events方式可以获取当前以及指定binlog的日志，不适宜提取大量日志。<code>SHOW BINLOG EVENTS[IN &#39;log_name&#39;] [FROM pos] [LIMIT [offset,] row_count]</code>。生产环境不要执行这个命令，可能会导致卡死，应该使用limit限制查询大小：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">binlog</span> <span class="keyword">events</span>;</span><br><span class="line"><span class="keyword">show</span> <span class="keyword">binlog</span> <span class="keyword">events</span> <span class="keyword">in</span> <span class="string">'DB-Server-bin.000012'</span>;</span><br><span class="line"><span class="keyword">show</span> <span class="keyword">binlog</span> <span class="keyword">events</span> <span class="keyword">in</span> <span class="string">'DB-Server-bin.000012'</span> <span class="keyword">from</span> <span class="number">336</span>;</span><br></pre></td></tr></table></figure></p>
+<h4 id="mysqlbinlog"><a href="#mysqlbinlog" class="headerlink" title="mysqlbinlog"></a>mysqlbinlog</h4><p>当bin-log的模式设置为row时不仅日志长得快 并且查看执行的sql时 也稍微麻烦一点：1.干扰语句多；2生成sql的编码需要解码。直接mysqlbinlog出来的文件执行sql部分的sql显示为base64编码格式，故生成sql记录的时候不能用常规的办法去生成，需要加上相应的参数才能显示出sql语句<code>--base64-output=decode-rows -v</code>。<br>使用时可能会报错<code>mysqlbinlog: unknown variable &#39;default-character-set=utf8mb4&#39;</code>，原因是mysqlbinlog这个工具无法识别binlog中的配置中的default-character-set=utf8这个指令，解决的办法有两个:</p>
 <ol>
-<li>更改配置文件<code>/etc/my.cnf</code>,在<code>[mysqld]</code>的段上加上一句<code>skip-grant-tables</code>保存并退出；</li>
-<li>重启MySQL；</li>
-<li><p>登录并修改密码：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; USE mysql ; </span><br><span class="line">mysql&gt; UPDATE user SET Password=password( <span class="string">'new-password'</span> ) WHERE User=<span class="string">'root'</span>; </span><br><span class="line">mysql&gt; flush privileges ; </span><br><span class="line">mysql&gt; quit</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>将MySQL配置改回来；</p>
-</li>
-<li>重启MySQL；</li>
+<li>将/etc/my.cnf中配置的default-character-set = utf8mb4修改为character-set-server = utf8mb4 但是这种修改方法需要重启数据库, 在线上业务库中使用这种方法查看 binlog 日志并不划算</li>
+<li>mysqlbinlog –no-defaults mysql-bin.000256 完美解决;</li>
 </ol>
-<p>方法二：</p>
-<ol>
-<li><p>KILL掉系统里的MySQL进程； </p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">killall -TERM mysqld</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>用以下命令启动MySQL，以不检查权限的方式启动(safe_mysqld是mysqld_safe的符号链接)； </p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">safe_mysqld --skip-grant-tables &amp;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>然后用空密码方式使用root用户登录 MySQL； </p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u root</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>修改root用户的密码； </p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; update mysql.user <span class="built_in">set</span> password=PASSWORD(<span class="string">'新密码'</span>) <span class="built_in">where</span> User=<span class="string">'root'</span>;</span><br><span class="line">mysql&gt; flush privileges;</span><br><span class="line">mysql&gt; quit</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<h2 id="方法三"><a href="#方法三" class="headerlink" title="方法三"></a>方法三</h2><p>如果系统中没有<code>safe_mysqld</code>，可以使用如下方式恢复：</p>
-<ol>
-<li><p>停止mysqld(您可能有其它的方法,总之停止mysqld的运行就可以了)； </p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/mysql stop</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>用以下命令启动MySQL，以不检查权限的方式启动； </p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqld --skip-grant-tables &amp;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>然后用空密码方式使用root用户登录 MySQL； </p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u root</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>修改root用户的密码； </p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; update mysql.user <span class="built_in">set</span> password=PASSWORD(<span class="string">'newpassword'</span>) <span class="built_in">where</span> User=<span class="string">'root'</span>; </span><br><span class="line">mysql&gt; flush privileges; </span><br><span class="line">mysql&gt; quit</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>重新启动MySQL</p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/init.d/mysql restart</span><br></pre></td></tr></table></figure>
-</li>
-</ol>
-<h3 id="环境信息"><a href="#环境信息" class="headerlink" title="环境信息"></a>环境信息</h3><h4 id="MySQL版本信息"><a href="#MySQL版本信息" class="headerlink" title="MySQL版本信息"></a>MySQL版本信息</h4><ol>
-<li><p>Shell命令：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -V</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>MySQL中：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; status;</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>help中查找:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql --<span class="built_in">help</span> | grep Distrib</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>使用mysql函数：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; select version();</span><br></pre></td></tr></table></figure></li>
-</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 提取指定的binlog日志  </span></span><br><span class="line">mysqlbinlog /opt/data/APP01bin.000001  </span><br><span class="line">mysqlbinlog /opt/data/APP01bin.000001|grep insert  </span><br><span class="line"></span><br><span class="line"><span class="comment"># 提取指定position位置的binlog日志  </span></span><br><span class="line">mysqlbinlog --start-position=<span class="string">"120"</span> --stop-position=<span class="string">"332"</span> /opt/data/APP01bin.000001  </span><br><span class="line">  </span><br><span class="line"><span class="comment"># 提取指定position位置的binlog日志并输出到压缩文件  </span></span><br><span class="line">mysqlbinlog --start-position=<span class="string">"120"</span> --stop-position=<span class="string">"332"</span> /opt/data/APP01bin.000001 |gzip &gt;extra_01.sql.gz  </span><br><span class="line">  </span><br><span class="line"><span class="comment"># 提取指定position位置的binlog日志导入数据库  </span></span><br><span class="line">mysqlbinlog --start-position=<span class="string">"120"</span> --stop-position=<span class="string">"332"</span> /opt/data/APP01bin.000001 | mysql -uroot -p  </span><br><span class="line">  </span><br><span class="line"><span class="comment"># 提取指定开始时间的binlog并输出到日志文件  </span></span><br><span class="line">mysqlbinlog --start-datetime=<span class="string">"2014-12-15 20:15:23"</span> /opt/data/APP01bin.000002 --result-file=extra02.sql  </span><br><span class="line">  </span><br><span class="line"><span class="comment"># 提取指定位置的多个binlog日志文件  </span></span><br><span class="line">mysqlbinlog --start-position=<span class="string">"120"</span> --stop-position=<span class="string">"332"</span> /opt/data/APP01bin.000001 /opt/data/APP01bin.000002|more  </span><br><span class="line">  </span><br><span class="line"><span class="comment"># 提取指定数据库binlog并转换字符集到UTF8  </span></span><br><span class="line">mysqlbinlog --database=<span class="built_in">test</span> --<span class="built_in">set</span>-charset=utf8 /opt/data/APP01bin.000001 /opt/data/APP01bin.000002 &gt;test.sql  </span><br><span class="line">  </span><br><span class="line"><span class="comment"># 远程提取日志，指定结束时间   </span></span><br><span class="line">mysqlbinlog -urobin -p -h192.168.1.116 -P3306 --stop-datetime=<span class="string">"2014-12-15 20:30:23"</span> --<span class="built_in">read</span>-from-remote-server mysql-bin.000033 |more  </span><br><span class="line">  </span><br><span class="line"><span class="comment"># 远程提取使用row格式的binlog日志并输出到本地文件  </span></span><br><span class="line">mysqlbinlog -urobin -p -P3606 -h192.168.1.177 --<span class="built_in">read</span>-from-remote-server -vv inst3606bin.000005 &gt;row.sql</span><br></pre></td></tr></table></figure>
 
           
         
@@ -1482,22 +1806,29 @@
       
         
           
-            <h2 id="Double-Check"><a href="#Double-Check" class="headerlink" title="Double Check"></a>Double Check</h2><p>在 Effecitve Java 一书的第 48 条中提到了双重检查模式，并指出这种模式在 Java 中通常并不适用。该模式的结构如下所示：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Resource <span class="title">getResource</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (resource == <span class="keyword">null</span>) &#123; </span><br><span class="line">    <span class="keyword">synchronized</span>(<span class="keyword">this</span>)&#123; </span><br><span class="line">      <span class="keyword">if</span> (resource==<span class="keyword">null</span>) &#123;</span><br><span class="line">        resource = <span class="keyword">new</span> Resource();  </span><br><span class="line">      &#125;   </span><br><span class="line">    &#125;  </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> resource;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+            <h2 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h2><p>给线程安全下定义比较困难。存在很多种定义，如：“一个类在可以被多个线程安全调用时就是线程安全的”。 </p>
+<h3 id="静态变量"><a href="#静态变量" class="headerlink" title="静态变量"></a>静态变量</h3><p>使用static关键字定义的变量。static可以修饰变量和方法，也有static静态代码块。被static修饰的成员变量和成员方法独立于该类的任何对象。也就是说，它不依赖类特定的实例，被类的所有实例共享。只要这个类被加载，Java虚拟机就能根据类名在运行时数据区的方法区内定找到他们。因此，static对象可以在它的任何对象创建之前访问，无需引用任何对象。静态变量通常用于对象间共享值、方便访问变量等场景。<br>静态变量即类变量，位于方法区，为所有对象共享，共享一份内存，一旦静态变量被修改，其他对象均对修改可见，静态变量是<em>非线程安全的</em>。</p>
+<h3 id="实例变量"><a href="#实例变量" class="headerlink" title="实例变量"></a>实例变量</h3><p>单例模式（只有一个对象实例存在）线程非安全，非单例线程安全。 实例变量为对象实例私有，在虚拟机的堆中分配，若在系统中只存在一个此对象的实例，在多线程环境下，“犹如”静态变量那样，被某个线程修改后，其他线程对修改均可见，故线程非安全；如果每个线程执行都是在不同的对象中，那对象与对象之间的实例变量的修改将互不影响，故线程安全。</p>
+<h3 id="局部变量"><a href="#局部变量" class="headerlink" title="局部变量"></a>局部变量</h3><p>线程安全。每个线程执行时将会把局部变量放在各自栈帧的工作内存中，线程间不共享，故不存在线程安全问题。</p>
+<h2 id="线程安全的单例模式"><a href="#线程安全的单例模式" class="headerlink" title="线程安全的单例模式"></a>线程安全的单例模式</h2><p>单例模式是一种常用的软件设计模式。在它的核心结构中只包含一个被称为单例类的特殊类。通过单例模式可以保证系统中一个类只有一个实例而且该实例易于外界访问，从而方便对实例个数的控制并节约系统资源。如果希望在系统中某个类的对象只能存在一个，单例模式是最好的解决方案。</p>
+<h3 id="Double-Check"><a href="#Double-Check" class="headerlink" title="Double Check"></a>Double Check</h3><p>在 Effecitve Java 一书的第 48 条中提到了双重检查模式，并指出这种模式在 Java 中通常并不适用。该模式的结构如下所示：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Resource <span class="title">getResource</span><span class="params">()</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (resource == <span class="keyword">null</span>) &#123; </span><br><span class="line">    <span class="keyword">synchronized</span>(<span class="keyword">this</span>)&#123; </span><br><span class="line">      <span class="keyword">if</span> (resource==<span class="keyword">null</span>) &#123;</span><br><span class="line">        resource = <span class="keyword">new</span> Resource();  </span><br><span class="line">      &#125;   </span><br><span class="line">    &#125;  </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> resource;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>该模式是对下面的代码改进：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> Resource <span class="title">getResource</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (resource == <span class="keyword">null</span>)&#123; </span><br><span class="line">        resource = <span class="keyword">new</span> Resource();  </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> resource;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>这段代码的目的是对 resource 延迟初始化。但是每次访问的时候都需要同步。为了减少同步的开销，于是有了双重检查模式。在 Java 中双重检查模式无效的原因是在不同步的情况下引用类型不是线程安全的。对于除了 long 和 double 的基本类型，双重检查模式是适用 的。比如下面这段代码就是正确的：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">int</span> count;</span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getCount</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (count == <span class="number">0</span>)&#123; </span><br><span class="line">    <span class="keyword">synchronized</span>(<span class="keyword">this</span>)&#123; </span><br><span class="line">      <span class="keyword">if</span> (count == <span class="number">0</span>)&#123;</span><br><span class="line">        count = computeCount();  <span class="comment">//一个耗时的计算</span></span><br><span class="line">      &#125;   </span><br><span class="line">    &#125;  </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> count;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>上面就是关于java中双重检查模式（double-check idiom）的一般结论。但是事情还没有结束，因为java的内存模式也在改进中。Doug Lea 在他的文章中写道：“根据最新的 JSR133 的 Java 内存模型，如果将引用类型声明为 volatile，双重检查模式就可以工作了”，参见 <a href="http://gee.cs.oswego.edu/dl/cpj/updates.html" target="_blank" rel="noopener">http://gee.cs.oswego.edu/dl/cpj/updates.html</a> 。所以以后要在 Java 中使用双重检查模式，可以使用下面的代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> Resource resource;</span><br><span class="line"><span class="function"><span class="keyword">public</span> Resource <span class="title">getResource</span><span class="params">()</span></span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (resource == <span class="keyword">null</span>)&#123; </span><br><span class="line">    <span class="keyword">synchronized</span>(<span class="keyword">this</span>)&#123; </span><br><span class="line">      <span class="keyword">if</span> (resource==<span class="keyword">null</span>)&#123;</span><br><span class="line">        resource = <span class="keyword">new</span> Resource();  </span><br><span class="line">      &#125;   </span><br><span class="line">    &#125;  </span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> resource;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>当然了，得是在遵循 JSR133 规范的 Java 中。所以，double-check 在 J2SE 1.4 或早期版本在多线程或者 JVM 调优时由于 out-of-order writes，是不可用的。 这个问题在 J2SE 5.0 中已经被修复，可以使用 volatile 关键字来保证多线程下的单例。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">volatile</span> Singleton instance = <span class="keyword">null</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Singleton <span class="title">getInstance</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (instance == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">synchronized</span>(<span class="keyword">this</span>) &#123;</span><br><span class="line">                <span class="keyword">if</span> (instance == <span class="keyword">null</span>) &#123;</span><br><span class="line">                    instance = <span class="keyword">new</span> Singleton();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>推荐方法 是Initialization on Demand Holder（IODH），详见 <a href="http://en.wikipedia.org/wiki/Initialization_on_demand_holder_idiom" target="_blank" rel="noopener">http://en.wikipedia.org/wiki/Initialization_on_demand_holder_idiom</a><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">static</span> Singleton instance = <span class="keyword">new</span> Singleton();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> SingletonHolder.instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>编译并运行上述代码，运行结果为：true，即创建的单例对象s1和s2为同一对象。由于静态单例对象没有作为Singleton的成员变量直接实例化，因此类加载时不会实例化Singleton，第一次调用getInstance()时将加载内部类HolderClass，在该内部类中定义了一个static类型的变量instance，此时会首先初始化这个成员变量，由Java虚拟机来保证其线程安全性，确保该成员变量只能初始化一次。由于getInstance()方法没有任何线程锁定，因此其性能不会造成任何影响。通过使用IoDH，我们既可以实现延迟加载，又可以保证线程安全，不影响系统性能，不失为一种最好的Java语言单例模式实现方式（其缺点是与编程语言本身的特性相关，很多面向对象语言不支持IoDH）。</p>
+<h3 id="IODH"><a href="#IODH" class="headerlink" title="IODH"></a>IODH</h3><p>推荐方法 是Initialization on Demand Holder（IODH），详见 <a href="http://en.wikipedia.org/wiki/Initialization_on_demand_holder_idiom" target="_blank" rel="noopener">http://en.wikipedia.org/wiki/Initialization_on_demand_holder_idiom</a><br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Singleton</span> </span>&#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">SingletonHolder</span> </span>&#123;</span><br><span class="line">        <span class="keyword">static</span> Singleton instance = <span class="keyword">new</span> Singleton();</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Singleton <span class="title">getInstance</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> SingletonHolder.instance;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>编译并运行上述代码，运行结果为：true，即创建的单例对象s1和s2为同一对象。由于静态单例对象没有作为Singleton的成员变量直接实例化，因此类加载时不会实例化Singleton，第一次调用getInstance()时将加载内部类SingletonHolder，在该内部类中定义了一个static类型的变量instance，此时会首先初始化这个成员变量，由Java虚拟机来保证其线程安全性，确保该成员变量只能初始化一次。由于getInstance()方法没有任何线程锁定，因此其性能不会造成任何影响。通过使用IoDH，我们既可以实现延迟加载，又可以保证线程安全，不影响系统性能，不失为一种最好的Java语言单例模式实现方式（其缺点是与编程语言本身的特性相关，很多面向对象语言不支持IoDH）。</p>
 <h2 id="线程池"><a href="#线程池" class="headerlink" title="线程池"></a>线程池</h2><p>Java通过Executors提供四种线程池，分别为：<br>newCachedThreadPool创建一个可缓存线程池，如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则新建线程。<br>newFixedThreadPool 创建一个定长线程池，可控制线程最大并发数，超出的线程会在队列中等待。<br>newScheduledThreadPool 创建一个定长线程池，支持定时及周期性任务执行。<br>newSingleThreadExecutor 创建一个单线程化的线程池，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序(FIFO, LIFO, 优先级)执行。</p>
-<h3 id="newCachedThreadPool"><a href="#newCachedThreadPool" class="headerlink" title="newCachedThreadPool"></a>newCachedThreadPool</h3><p>创建一个可缓存线程池，如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则新建线程。示例代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> test;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ExecutorService;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadPoolExecutorTest</span> </span>&#123;  </span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </span><br><span class="line">  ExecutorService cachedThreadPool = Executors.newCachedThreadPool();  </span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;  </span><br><span class="line">   <span class="keyword">final</span> <span class="keyword">int</span> index = i;  </span><br><span class="line">   <span class="keyword">try</span> &#123;  </span><br><span class="line">    Thread.sleep(index * <span class="number">1000</span>);  </span><br><span class="line">   &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;  </span><br><span class="line">    e.printStackTrace();  </span><br><span class="line">   &#125;  </span><br><span class="line">   cachedThreadPool.execute(<span class="keyword">new</span> Runnable() &#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">     System.out.println(index);  </span><br><span class="line">    &#125;  </span><br><span class="line">   &#125;);  </span><br><span class="line">  &#125;  </span><br><span class="line"> &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="ExecutorService"><a href="#ExecutorService" class="headerlink" title="ExecutorService"></a>ExecutorService</h3><p>ExecutorServcie中执行一个Runnable有两个方法，两个分别是：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(Runnable command)</span></span>;</span><br><span class="line"><span class="keyword">public</span> &lt;T&gt; <span class="function">Future&lt;T&gt; <span class="title">submit</span><span class="params">(Runnable task, T result)</span></span>;</span><br></pre></td></tr></table></figure></p>
+<p>其实submit最后是调用的execute的，而且在调用execute前，对task进行了一次封装，变成了RunnableFuture。</p>
+<h4 id="execute"><a href="#execute" class="headerlink" title="execute"></a>execute</h4><h4 id="submit"><a href="#submit" class="headerlink" title="submit"></a>submit</h4><h3 id="创建线程池"><a href="#创建线程池" class="headerlink" title="创建线程池"></a>创建线程池</h3><h4 id="newCachedThreadPool"><a href="#newCachedThreadPool" class="headerlink" title="newCachedThreadPool"></a>newCachedThreadPool</h4><p>创建一个可缓存线程池，如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则新建线程。示例代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> test;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ExecutorService;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadPoolExecutorTest</span> </span>&#123;  </span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </span><br><span class="line">  ExecutorService cachedThreadPool = Executors.newCachedThreadPool();  </span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;  </span><br><span class="line">   <span class="keyword">final</span> <span class="keyword">int</span> index = i;  </span><br><span class="line">   <span class="keyword">try</span> &#123;  </span><br><span class="line">    Thread.sleep(index * <span class="number">1000</span>);  </span><br><span class="line">   &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;  </span><br><span class="line">    e.printStackTrace();  </span><br><span class="line">   &#125;  </span><br><span class="line">   cachedThreadPool.execute(<span class="keyword">new</span> Runnable() &#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">     System.out.println(index);  </span><br><span class="line">    &#125;  </span><br><span class="line">   &#125;);  </span><br><span class="line">  &#125;  </span><br><span class="line"> &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>线程池为无限大，当执行第二个任务时第一个任务已经完成，会复用执行第一个任务的线程，而不用每次新建线程。</p>
-<h3 id="newFixedThreadPool"><a href="#newFixedThreadPool" class="headerlink" title="newFixedThreadPool"></a>newFixedThreadPool</h3><p>创建一个定长线程池，可控制线程最大并发数，超出的线程会在队列中等待。示例代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> test;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ExecutorService;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadPoolExecutorTest</span> </span>&#123;  </span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </span><br><span class="line">  ExecutorService fixedThreadPool = Executors.newFixedThreadPool(<span class="number">3</span>);  </span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;  </span><br><span class="line">   <span class="keyword">final</span> <span class="keyword">int</span> index = i;  </span><br><span class="line">   fixedThreadPool.execute(<span class="keyword">new</span> Runnable() &#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">     <span class="keyword">try</span> &#123;  </span><br><span class="line">      System.out.println(index);  </span><br><span class="line">      Thread.sleep(<span class="number">2000</span>);  </span><br><span class="line">     &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;  </span><br><span class="line">      e.printStackTrace();  </span><br><span class="line">     &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">   &#125;);  </span><br><span class="line">  &#125;  </span><br><span class="line"> &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="newFixedThreadPool"><a href="#newFixedThreadPool" class="headerlink" title="newFixedThreadPool"></a>newFixedThreadPool</h4><p>创建一个定长线程池，可控制线程最大并发数，超出的线程会在队列中等待。示例代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> test;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ExecutorService;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadPoolExecutorTest</span> </span>&#123;  </span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </span><br><span class="line">  ExecutorService fixedThreadPool = Executors.newFixedThreadPool(<span class="number">3</span>);  </span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;  </span><br><span class="line">   <span class="keyword">final</span> <span class="keyword">int</span> index = i;  </span><br><span class="line">   fixedThreadPool.execute(<span class="keyword">new</span> Runnable() &#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">     <span class="keyword">try</span> &#123;  </span><br><span class="line">      System.out.println(index);  </span><br><span class="line">      Thread.sleep(<span class="number">2000</span>);  </span><br><span class="line">     &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;  </span><br><span class="line">      e.printStackTrace();  </span><br><span class="line">     &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">   &#125;);  </span><br><span class="line">  &#125;  </span><br><span class="line"> &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>因为线程池大小为3，每个任务输出index后sleep 2秒，所以每两秒打印3个数字。<br>定长线程池的大小最好根据系统资源进行设置。如Runtime.getRuntime().availableProcessors()</p>
-<h3 id="newScheduledThreadPool"><a href="#newScheduledThreadPool" class="headerlink" title="newScheduledThreadPool"></a>newScheduledThreadPool</h3><p>创建一个定长线程池，支持定时及周期性任务执行。延迟执行示例代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> test;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ScheduledExecutorService;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadPoolExecutorTest</span> </span>&#123;  </span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </span><br><span class="line">  ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(<span class="number">5</span>);  </span><br><span class="line">  scheduledThreadPool.schedule(<span class="keyword">new</span> Runnable() &#123;  </span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">    System.out.println(<span class="string">"delay 3 seconds"</span>);  </span><br><span class="line">   &#125;  </span><br><span class="line">  &#125;, <span class="number">3</span>, TimeUnit.SECONDS);  </span><br><span class="line"> &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="newScheduledThreadPool"><a href="#newScheduledThreadPool" class="headerlink" title="newScheduledThreadPool"></a>newScheduledThreadPool</h4><p>创建一个定长线程池，支持定时及周期性任务执行。延迟执行示例代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> test;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ScheduledExecutorService;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadPoolExecutorTest</span> </span>&#123;  </span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </span><br><span class="line">  ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(<span class="number">5</span>);  </span><br><span class="line">  scheduledThreadPool.schedule(<span class="keyword">new</span> Runnable() &#123;  </span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">    System.out.println(<span class="string">"delay 3 seconds"</span>);  </span><br><span class="line">   &#125;  </span><br><span class="line">  &#125;, <span class="number">3</span>, TimeUnit.SECONDS);  </span><br><span class="line"> &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>表示延迟3秒执行。<br>定期执行示例代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> test;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ScheduledExecutorService;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadPoolExecutorTest</span> </span>&#123;  </span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </span><br><span class="line">  ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(<span class="number">5</span>);  </span><br><span class="line">  scheduledThreadPool.scheduleAtFixedRate(<span class="keyword">new</span> Runnable() &#123;  </span><br><span class="line">   <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">    System.out.println(<span class="string">"delay 1 seconds, and excute every 3 seconds"</span>);  </span><br><span class="line">   &#125;  </span><br><span class="line">  &#125;, <span class="number">1</span>, <span class="number">3</span>, TimeUnit.SECONDS);  </span><br><span class="line"> &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>表示延迟1秒后每3秒执行一次。</p>
-<h3 id="newSingleThreadExecutor"><a href="#newSingleThreadExecutor" class="headerlink" title="newSingleThreadExecutor"></a>newSingleThreadExecutor</h3><p>创建一个单线程化的线程池，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序(FIFO, LIFO, 优先级)执行。示例代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> test;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ExecutorService;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadPoolExecutorTest</span> </span>&#123;  </span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </span><br><span class="line">  ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();  </span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;  </span><br><span class="line">   <span class="keyword">final</span> <span class="keyword">int</span> index = i;  </span><br><span class="line">   singleThreadExecutor.execute(<span class="keyword">new</span> Runnable() &#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">     <span class="keyword">try</span> &#123;  </span><br><span class="line">      System.out.println(index);  </span><br><span class="line">      Thread.sleep(<span class="number">2000</span>);  </span><br><span class="line">     &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;  </span><br><span class="line">      e.printStackTrace();  </span><br><span class="line">     &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">   &#125;);  </span><br><span class="line">  &#125;  </span><br><span class="line"> &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="newSingleThreadExecutor"><a href="#newSingleThreadExecutor" class="headerlink" title="newSingleThreadExecutor"></a>newSingleThreadExecutor</h4><p>创建一个单线程化的线程池，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序(FIFO, LIFO, 优先级)执行。示例代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> test;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ExecutorService;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadPoolExecutorTest</span> </span>&#123;  </span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </span><br><span class="line">  ExecutorService singleThreadExecutor = Executors.newSingleThreadExecutor();  </span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">10</span>; i++) &#123;  </span><br><span class="line">   <span class="keyword">final</span> <span class="keyword">int</span> index = i;  </span><br><span class="line">   singleThreadExecutor.execute(<span class="keyword">new</span> Runnable() &#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">     <span class="keyword">try</span> &#123;  </span><br><span class="line">      System.out.println(index);  </span><br><span class="line">      Thread.sleep(<span class="number">2000</span>);  </span><br><span class="line">     &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;  </span><br><span class="line">      e.printStackTrace();  </span><br><span class="line">     &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">   &#125;);  </span><br><span class="line">  &#125;  </span><br><span class="line"> &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>结果依次输出，相当于顺序执行各个任务。<br>你可以使用JDK自带的监控工具来监控我们创建的线程数量，运行一个不终止的线程，创建指定量的线程，来观察：<br>工具目录：C:\Program Files\Java\jdk1.6.0_06\bin\jconsole.exe<br>运行程序做稍微修改：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> test;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ExecutorService;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ThreadPoolExecutorTest</span> </span>&#123;  </span><br><span class="line"> <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </span><br><span class="line">  ExecutorService singleThreadExecutor = Executors.newCachedThreadPool();  </span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100</span>; i++) &#123;  </span><br><span class="line">   <span class="keyword">final</span> <span class="keyword">int</span> index = i;  </span><br><span class="line">   singleThreadExecutor.execute(<span class="keyword">new</span> Runnable() &#123;  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">     <span class="keyword">try</span> &#123;  </span><br><span class="line">      <span class="keyword">while</span>(<span class="keyword">true</span>) &#123;  </span><br><span class="line">       System.out.println(index);  </span><br><span class="line">       Thread.sleep(<span class="number">10</span> * <span class="number">1000</span>);  </span><br><span class="line">      &#125;  </span><br><span class="line">     &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;  </span><br><span class="line">      e.printStackTrace();  </span><br><span class="line">     &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">   &#125;);  </span><br><span class="line">   <span class="keyword">try</span> &#123;  </span><br><span class="line">    Thread.sleep(<span class="number">500</span>);  </span><br><span class="line">   &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;  </span><br><span class="line">    e.printStackTrace();  </span><br><span class="line">   &#125;  </span><br><span class="line">  &#125;  </span><br><span class="line"> &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 
           
@@ -1692,286 +2023,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/12/08/linux-ops-base/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jack Peng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="笑傲江湖└JP┐">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/12/08/linux-ops-base/" itemprop="url">Linux运维基础</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-08T15:02:27+08:00">
-                2017-12-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Linux运维/" itemprop="url" rel="index">
-                    <span itemprop="name">Linux运维</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="磁盘管理"><a href="#磁盘管理" class="headerlink" title="磁盘管理"></a>磁盘管理</h2><p>查看文件(夹)所在分区(挂载点)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">df /path</span><br><span class="line">cat /etc/mtab</span><br><span class="line">mount</span><br><span class="line">fdisk -l</span><br></pre></td></tr></table></figure></p>
-<h2 id="运行状态"><a href="#运行状态" class="headerlink" title="运行状态"></a>运行状态</h2><p>TOP查看系统运行情况：</p>
-<ul>
-<li>输入大写P，结果按CPU占用降序排序；</li>
-<li>输入大写M，结果按内存占用降序排序；</li>
-</ul>
-<h2 id="网络安全"><a href="#网络安全" class="headerlink" title="网络安全"></a>网络安全</h2><p>当VPS暴露在外网中，就会有人不断暴力破解你的SSH登录。于是就有必要使用SSH密钥来登录。并关闭密码登录。用以下命令可以查看别人暴力破解你SSH密码登录的大概情况：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep <span class="string">"Failed password for invalid user"</span> /var/<span class="built_in">log</span>/secure | awk <span class="string">'&#123;print $13&#125;'</span> | sort | uniq -c | sort -nr | more</span><br></pre></td></tr></table></figure></p>
-<p>这时可以使用SSH秘钥登录来防止暴力破解。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/12/08/web-upfile-iframe/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jack Peng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="笑傲江湖└JP┐">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/12/08/web-upfile-iframe/" itemprop="url">iframe无刷新跨域上传文件并获取返回值</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-08T14:32:02+08:00">
-                2017-12-08
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>通常我们会有一个统一的上传接口，这个接口会被其他的服务调用。如果出现不同域，还需要无刷新上传文件，并且获取返回值，这就有点麻烦了。比如，新浪微博启用了新域名www.weibo.com，但接口还是使用原来的域：picupload.t.sina.com.cn。</p>
-<p>研究了一下新浪微博的处理方法，这里大概演示一下。</p>
-<p>首先是一个正常的上传页面 upload.html</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="undefined">	// 这个函数将来会被iframe用到</span></span><br><span class="line"><span class="undefined">	function getIframeVal(val)</span></span><br><span class="line"><span class="undefined">	&#123;</span></span><br><span class="line"><span class="undefined">		alert(val);</span></span><br><span class="line"><span class="undefined">	&#125;</span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">&lt;!-- 我把upload.com指向了127.0.0.1 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">method</span>=<span class="string">"post"</span> <span class="attr">target</span>=<span class="string">"if"</span> <span class="attr">enctype</span>=<span class="string">"multipart/form-data"</span> </span></span><br><span class="line"><span class="tag"><span class="attr">action</span>=<span class="string">"http://upload.com/playground/js/deal.php?cb=http://localhost/playground/js/deal_cd.html"</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"file"</span> <span class="attr">name</span>=<span class="string">"file"</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"SUBMIT"</span> <span class="attr">value</span>=<span class="string">"upload"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">IFRAME</span> <span class="attr">id</span>=<span class="string">"if"</span> <span class="attr">name</span>=<span class="string">"if"</span> <span class="attr">src</span>=<span class="string">"about:blank"</span> <span class="attr">frameborder</span>=<span class="string">'0'</span>&gt;</span><span class="tag">&lt;/<span class="name">IFRAME</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>这里有一个关键点是form的target要指向iframe，同时把iframe隐藏起来，这样上传的处理结果就会显示在该iframe里。action里的cb(callback)参数表示处理完成后要跳转的url，因为我们的目标是iframe，所以只会把跳转的页面输出到iframe，而不会让当前页面跳转。</p>
-<p>还有一点，callback url要和当前页面同域。跨域的iframe无法调用父页面的内容。</p>
-<p>再来看看deal.php，也就是form的action</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;?php</span><br><span class="line">// deal upload file</span><br><span class="line">// and get file id, you can pass other params either</span><br><span class="line">header('location:'.$_GET['cb'].'?file_id=123');</span><br></pre></td></tr></table></figure>
-<p>这里可以处理文件，然后入库。操作完成后，把文件的id及其他信息都放在url里，最后跳转到这个url。</p>
-<p>最后来看看deal_cd.html，也就是刚刚deal.php跳转到的url，这个文件的内容会填充到页面的iframe里。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="undefined">	var rs = window.location.search.split('?').slice(1);</span></span><br><span class="line"><span class="undefined">	window.parent.getIframeVal(rs.toString().split('=').slice(1));</span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
-<p>这里调用了父窗口的getIframeVal方法，这样父页面就获得了文件的id。</p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2026,7 +2077,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-count">16</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
