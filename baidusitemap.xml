@@ -4,6 +4,26 @@
 
     
   <url>
+    <loc>http://keaimo.com/2017/12/14/mysql-tutorial-2/</loc>
+    <lastmod>2017-12-29T00:44:21.941Z</lastmod>
+    <data>
+        <display>
+        <title>MySQL通识-高可用</title>
+        <pubTime>2017-12-14T01:17:52.000Z</pubTime>
+        
+        <tag>数据库</tag>
+         
+         
+           
+             
+              <breadCrumb title="MySQL" url="http://keaimo.com/categories/MySQL/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://keaimo.com/2017/12/14/mysql-tutorial-1/</loc>
     <lastmod>2017-12-29T00:43:28.378Z</lastmod>
     <data>
@@ -93,26 +113,6 @@
            
              
               <breadCrumb title="Linux运维" url="http://keaimo.com/categories/Linux%E8%BF%90%E7%BB%B4/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://keaimo.com/2017/12/14/mysql-tutorial-2/</loc>
-    <lastmod>2017-12-25T03:58:25.762Z</lastmod>
-    <data>
-        <display>
-        <title>MySQL通识 - 2</title>
-        <pubTime>2017-12-14T01:17:52.000Z</pubTime>
-        
-        <tag>数据库</tag>
-         
-         
-           
-             
-              <breadCrumb title="MySQL" url="http://keaimo.com/categories/MySQL/"/>
           
         </display>
     </data>

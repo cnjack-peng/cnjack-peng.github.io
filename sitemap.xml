@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://keaimo.com/2017/12/14/mysql-tutorial-2/</loc>
+    
+    <lastmod>2017-12-29T00:44:21.941Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://keaimo.com/2017/12/14/mysql-tutorial-1/</loc>
     
     <lastmod>2017-12-29T00:43:28.378Z</lastmod>
@@ -33,13 +40,6 @@
     <loc>http://keaimo.com/2017/12/08/linux-ops-base/</loc>
     
     <lastmod>2017-12-25T05:58:21.728Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://keaimo.com/2017/12/14/mysql-tutorial-2/</loc>
-    
-    <lastmod>2017-12-25T03:58:25.762Z</lastmod>
     
   </url>
   
