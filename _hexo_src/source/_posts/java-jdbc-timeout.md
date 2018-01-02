@@ -5,6 +5,102 @@ tags: 基础原理
 categories: 软件开发
 ---
 
+“超时”在系统设计中是很重要的一块，有很多种超时，如服务超时、数据库连接超时、写入超时、读取超时，涉及到的设计点包括重试策略、显示策略、错误处理策略等，本文主要讨论数据库超时的方方面面、
+
+## 数据库超时
+
+数据库超时涉及到的超时面有：JDBC超时、连接池超时、MyBatis查询超时（Statement Timeout）、事务超时、Socket超时。
+
+## JDBC原理
+
+JDBC(Java Database Connectivity：Java访问数据库的解决方案)是Java应用程序访问数据库的里程碑式解决方案。Java研发者希望用相同的方式访问不同的数据库，以实现与具体数据库无关的Java操作界面。JDBC定义了一套标准接口，即访问数据库的通用API，不同的数据库厂商根据各自数据库的特点去实现这些接口。
+
+### JDBC接口及数据库厂商实现
+
+JDBC中定义了一些接口：
+
+1. 驱动管理：DriverManager
+2. 连接接口：Connection、DatabasemetaData
+3. 语句对象接口：Statement、PreparedStatement、CallableStatement
+4. 结果集接口：ResultSet、ResultSetMetaData
+
+### JDBC工作原理
+
+JDBC只定义接口，具体实现由各个数据库厂商负责。程序员使用时只需要调用接口，实际调用的是底层数据库厂商的实现部分。
+
+**JDBC访问数据库的工作过程：**
+
+1. 加载驱动，建立连接
+2. 创建语句对象
+3. 执行SQL语句
+4. 处理结果集
+5. 关闭连接
+
+### Driver接口及驱动类加载
+
+要使用JDBC接口，需要先将对应数据库的实现部分（驱动）加载进来。驱动类加载方式（Oracle）：
+```java
+Class.forName("oracle.jdbc.driver.OracleDriver");
+```
+这条语句的含义是：装载驱动类，驱动类通过static块实现在DriverManager中的“自动注册”。
+
+### Connection接口
+
+Connection接口负责应用程序对数据库的连接，在加载驱动之后，使用url、username、password三个参数，创建到具体数据库的连接。
+```java
+Class.forName("oracle.jdbc.OracleDriver")
+//根据url连接参数，找到与之匹配的Driver对象，调用其方法获取连接
+Connection conn = DriverManager.getConnection(
+"jdbc:oracle:thin:@192.168.0.26:1521:tarena",
+"openlab","open123");
+```
+需要注意的是:Connection只是接口，真正的实现是由数据库厂商提供的驱动包完成的。
+
+###  Statement接口
+
+Statement接口用来处理发送到数据库的SQL语句对象，通过Connection对象创建。主要有三个常用方法：
+```java
+Statement stmt=conn.createStatement();
+//1.execute方法，如果执行的sql是查询语句且有结果集则返回true，如果是非查询语句或者没有结果集，返回false
+boolean flag = stmt.execute(sql);
+//2.执行查询语句，返回结果集
+ResultSetrs = stmt.executeQuery(sql);
+//3.执行DML语句，返回影响的记录数
+int flag = stmt.executeUpdate(sql);
+```
+
+### ResultSet接口     
+
+执行查询SQL语句后返回的结果集，由ResultSet接口接收。常用处理方式：遍历 / 判断是否有结果（登录）。
+```java
+String sql = "select * from emp";
+ResultSetrs = stmt.executeQuery(sql);
+while (rs.next()) {
+    System.out.println(rs.getInt("empno")+",“
+       +rs.getString("ename") );
+}
+```
+查询的结果存放在ResultSet对象的一系列行中，指针的最初位置在行首，使用next()方法用来在行间移动，getXXX()方法用来取得字段的内容。
+
+## 连接池技术
+
+数据库连接的建立及关闭资源消耗巨大。传统数据库访问方式：一次数据库访问对应一个物理连接,每次操作数据库都要打开、关闭该物理连接, 系统性能严重受损。
+
+**解决方案：数据库连接池（Connection Pool）**
+
+系统初始运行时，主动建立足够的连接，组成一个池.每次应用程序请求数据库连接时，无需重新打开连接，而是从池中取出已有的连接，使用完后，不再关闭，而是归还。
+
+连接池中连接的释放与使用原则：
+
+* 应用启动时，创建初始化数目的连接
+* 当申请时无连接可用或者达到指定的最小连接数，按增量参数值创建新的连接
+* 为确保连接池中最小的连接数的策略：
+    1. 动态检查：定时检查连接池，一旦发现数量小于最小连接数，则补充相应的新连接，保证连接池正常运转
+    2. 静态检查：空闲连接不足时，系统才检测是否达到最小连接数
+* 按需分配，用过归还，超时归还
+* 连接池也只是JDBC中定义的接口，具体实现由厂商实完成。
+
+## JDBC超时
 
 恰当的JDBC超时设置能够有效地减少服务失效的时间。本文将对数据库的各种超时设置及其设置方法做介绍。    
      　　

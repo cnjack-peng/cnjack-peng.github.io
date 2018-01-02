@@ -79,13 +79,13 @@
 
 
 
-<meta name="description" content="恰当的JDBC超时设置能够有效地减少服务失效的时间。本文将对数据库的各种超时设置及其设置方法做介绍。     　　真实案例：应用服务器在遭到DDos攻击后无法响应 　　在遭到DDos攻击后，整个服务都垮掉了。由于第四层交换机不堪重负，网络变得无法连接，从而导致业务系统也无法正常运转。安全组很快屏蔽了所有的DDos攻击，并恢复了网络，但业务系统却还是无法工作。 通过分析系统的thread dump发">
+<meta name="description" content="“超时”在系统设计中是很重要的一块，有很多种超时，如服务超时、数据库连接超时、写入超时、读取超时，涉及到的设计点包括重试策略、显示策略、错误处理策略等，本文主要讨论数据库超时的方方面面、 数据库超时数据库超时涉及到的超时面有：JDBC超时、连接池超时、MyBatis查询超时（Statement Timeout）、事务超时、Socket超时。 JDBC原理JDBC(Java Database Con">
 <meta name="keywords" content="基础原理">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JDBC超时时间">
 <meta property="og:url" content="http://keaimo.com/2018/01/02/java-jdbc-timeout/index.html">
 <meta property="og:site_name" content="笑傲江湖└JP┐">
-<meta property="og:description" content="恰当的JDBC超时设置能够有效地减少服务失效的时间。本文将对数据库的各种超时设置及其设置方法做介绍。     　　真实案例：应用服务器在遭到DDos攻击后无法响应 　　在遭到DDos攻击后，整个服务都垮掉了。由于第四层交换机不堪重负，网络变得无法连接，从而导致业务系统也无法正常运转。安全组很快屏蔽了所有的DDos攻击，并恢复了网络，但业务系统却还是无法工作。 通过分析系统的thread dump发">
+<meta property="og:description" content="“超时”在系统设计中是很重要的一块，有很多种超时，如服务超时、数据库连接超时、写入超时、读取超时，涉及到的设计点包括重试策略、显示策略、错误处理策略等，本文主要讨论数据库超时的方方面面、 数据库超时数据库超时涉及到的超时面有：JDBC超时、连接池超时、MyBatis查询超时（Statement Timeout）、事务超时、Socket超时。 JDBC原理JDBC(Java Database Con">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://keaimo.com/2018/01/02/java-jdbc-timeout/jdbc-type.png">
 <meta property="og:image" content="http://keaimo.com/2018/01/02/java-jdbc-timeout/timeout-class.png">
@@ -94,10 +94,10 @@
 <meta property="og:image" content="http://keaimo.com/2018/01/02/java-jdbc-timeout/jtds-query-timeout-process.png">
 <meta property="og:image" content="http://keaimo.com/2018/01/02/java-jdbc-timeout/mysql-query-timeout-process.png">
 <meta property="og:image" content="http://keaimo.com/2018/01/02/java-jdbc-timeout/cubrid-query-timeout-process.png">
-<meta property="og:updated_time" content="2018-01-02T06:49:21.840Z">
+<meta property="og:updated_time" content="2018-01-02T09:18:36.061Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JDBC超时时间">
-<meta name="twitter:description" content="恰当的JDBC超时设置能够有效地减少服务失效的时间。本文将对数据库的各种超时设置及其设置方法做介绍。     　　真实案例：应用服务器在遭到DDos攻击后无法响应 　　在遭到DDos攻击后，整个服务都垮掉了。由于第四层交换机不堪重负，网络变得无法连接，从而导致业务系统也无法正常运转。安全组很快屏蔽了所有的DDos攻击，并恢复了网络，但业务系统却还是无法工作。 通过分析系统的thread dump发">
+<meta name="twitter:description" content="“超时”在系统设计中是很重要的一块，有很多种超时，如服务超时、数据库连接超时、写入超时、读取超时，涉及到的设计点包括重试策略、显示策略、错误处理策略等，本文主要讨论数据库超时的方方面面、 数据库超时数据库超时涉及到的超时面有：JDBC超时、连接池超时、MyBatis查询超时（Statement Timeout）、事务超时、Socket超时。 JDBC原理JDBC(Java Database Con">
 <meta name="twitter:image" content="http://keaimo.com/2018/01/02/java-jdbc-timeout/jdbc-type.png">
 
 
@@ -374,7 +374,48 @@
       
 
       
-        <p>恰当的JDBC超时设置能够有效地减少服务失效的时间。本文将对数据库的各种超时设置及其设置方法做介绍。<br>     　　<br><strong>真实案例：应用服务器在遭到DDos攻击后无法响应</strong></p>
+        <p>“超时”在系统设计中是很重要的一块，有很多种超时，如服务超时、数据库连接超时、写入超时、读取超时，涉及到的设计点包括重试策略、显示策略、错误处理策略等，本文主要讨论数据库超时的方方面面、</p>
+<h2 id="数据库超时"><a href="#数据库超时" class="headerlink" title="数据库超时"></a>数据库超时</h2><p>数据库超时涉及到的超时面有：JDBC超时、连接池超时、MyBatis查询超时（Statement Timeout）、事务超时、Socket超时。</p>
+<h2 id="JDBC原理"><a href="#JDBC原理" class="headerlink" title="JDBC原理"></a>JDBC原理</h2><p>JDBC(Java Database Connectivity：Java访问数据库的解决方案)是Java应用程序访问数据库的里程碑式解决方案。Java研发者希望用相同的方式访问不同的数据库，以实现与具体数据库无关的Java操作界面。JDBC定义了一套标准接口，即访问数据库的通用API，不同的数据库厂商根据各自数据库的特点去实现这些接口。</p>
+<h3 id="JDBC接口及数据库厂商实现"><a href="#JDBC接口及数据库厂商实现" class="headerlink" title="JDBC接口及数据库厂商实现"></a>JDBC接口及数据库厂商实现</h3><p>JDBC中定义了一些接口：</p>
+<ol>
+<li>驱动管理：DriverManager</li>
+<li>连接接口：Connection、DatabasemetaData</li>
+<li>语句对象接口：Statement、PreparedStatement、CallableStatement</li>
+<li>结果集接口：ResultSet、ResultSetMetaData</li>
+</ol>
+<h3 id="JDBC工作原理"><a href="#JDBC工作原理" class="headerlink" title="JDBC工作原理"></a>JDBC工作原理</h3><p>JDBC只定义接口，具体实现由各个数据库厂商负责。程序员使用时只需要调用接口，实际调用的是底层数据库厂商的实现部分。</p>
+<p><strong>JDBC访问数据库的工作过程：</strong></p>
+<ol>
+<li>加载驱动，建立连接</li>
+<li>创建语句对象</li>
+<li>执行SQL语句</li>
+<li>处理结果集</li>
+<li>关闭连接</li>
+</ol>
+<h3 id="Driver接口及驱动类加载"><a href="#Driver接口及驱动类加载" class="headerlink" title="Driver接口及驱动类加载"></a>Driver接口及驱动类加载</h3><p>要使用JDBC接口，需要先将对应数据库的实现部分（驱动）加载进来。驱动类加载方式（Oracle）：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Class.forName(<span class="string">"oracle.jdbc.driver.OracleDriver"</span>);</span><br></pre></td></tr></table></figure></p>
+<p>这条语句的含义是：装载驱动类，驱动类通过static块实现在DriverManager中的“自动注册”。</p>
+<h3 id="Connection接口"><a href="#Connection接口" class="headerlink" title="Connection接口"></a>Connection接口</h3><p>Connection接口负责应用程序对数据库的连接，在加载驱动之后，使用url、username、password三个参数，创建到具体数据库的连接。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Class.forName(<span class="string">"oracle.jdbc.OracleDriver"</span>)</span><br><span class="line"><span class="comment">//根据url连接参数，找到与之匹配的Driver对象，调用其方法获取连接</span></span><br><span class="line">Connection conn = DriverManager.getConnection(</span><br><span class="line"><span class="string">"jdbc:oracle:thin:@192.168.0.26:1521:tarena"</span>,</span><br><span class="line"><span class="string">"openlab"</span>,<span class="string">"open123"</span>);</span><br></pre></td></tr></table></figure></p>
+<p>需要注意的是:Connection只是接口，真正的实现是由数据库厂商提供的驱动包完成的。</p>
+<h3 id="Statement接口"><a href="#Statement接口" class="headerlink" title="Statement接口"></a>Statement接口</h3><p>Statement接口用来处理发送到数据库的SQL语句对象，通过Connection对象创建。主要有三个常用方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Statement stmt=conn.createStatement();</span><br><span class="line"><span class="comment">//1.execute方法，如果执行的sql是查询语句且有结果集则返回true，如果是非查询语句或者没有结果集，返回false</span></span><br><span class="line"><span class="keyword">boolean</span> flag = stmt.execute(sql);</span><br><span class="line"><span class="comment">//2.执行查询语句，返回结果集</span></span><br><span class="line">ResultSetrs = stmt.executeQuery(sql);</span><br><span class="line"><span class="comment">//3.执行DML语句，返回影响的记录数</span></span><br><span class="line"><span class="keyword">int</span> flag = stmt.executeUpdate(sql);</span><br></pre></td></tr></table></figure></p>
+<h3 id="ResultSet接口"><a href="#ResultSet接口" class="headerlink" title="ResultSet接口"></a>ResultSet接口</h3><p>执行查询SQL语句后返回的结果集，由ResultSet接口接收。常用处理方式：遍历 / 判断是否有结果（登录）。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">String sql = <span class="string">"select * from emp"</span>;</span><br><span class="line">ResultSetrs = stmt.executeQuery(sql);</span><br><span class="line"><span class="keyword">while</span> (rs.next()) &#123;</span><br><span class="line">    System.out.println(rs.getInt(<span class="string">"empno"</span>)+<span class="string">",“</span></span><br><span class="line"><span class="string">       +rs.getString("</span>ename<span class="string">") );</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure></p>
+<p>查询的结果存放在ResultSet对象的一系列行中，指针的最初位置在行首，使用next()方法用来在行间移动，getXXX()方法用来取得字段的内容。</p>
+<h2 id="连接池技术"><a href="#连接池技术" class="headerlink" title="连接池技术"></a>连接池技术</h2><p>数据库连接的建立及关闭资源消耗巨大。传统数据库访问方式：一次数据库访问对应一个物理连接,每次操作数据库都要打开、关闭该物理连接, 系统性能严重受损。</p>
+<p><strong>解决方案：数据库连接池（Connection Pool）</strong></p>
+<p>系统初始运行时，主动建立足够的连接，组成一个池.每次应用程序请求数据库连接时，无需重新打开连接，而是从池中取出已有的连接，使用完后，不再关闭，而是归还。</p>
+<p>连接池中连接的释放与使用原则：</p>
+<ul>
+<li>应用启动时，创建初始化数目的连接</li>
+<li>当申请时无连接可用或者达到指定的最小连接数，按增量参数值创建新的连接</li>
+<li>为确保连接池中最小的连接数的策略：<ol>
+<li>动态检查：定时检查连接池，一旦发现数量小于最小连接数，则补充相应的新连接，保证连接池正常运转</li>
+<li>静态检查：空闲连接不足时，系统才检测是否达到最小连接数</li>
+</ol>
+</li>
+<li>按需分配，用过归还，超时归还</li>
+<li>连接池也只是JDBC中定义的接口，具体实现由厂商实完成。</li>
+</ul>
+<h2 id="JDBC超时"><a href="#JDBC超时" class="headerlink" title="JDBC超时"></a>JDBC超时</h2><p>恰当的JDBC超时设置能够有效地减少服务失效的时间。本文将对数据库的各种超时设置及其设置方法做介绍。<br>     　　<br><strong>真实案例：应用服务器在遭到DDos攻击后无法响应</strong></p>
 <p>　　在遭到DDos攻击后，整个服务都垮掉了。由于第四层交换机不堪重负，网络变得无法连接，从而导致业务系统也无法正常运转。安全组很快屏蔽了所有的DDos攻击，并恢复了网络，但业务系统却还是无法工作。 通过分析系统的thread dump发现，业务系统停在了JDBC API的调用上。20分钟后，系统仍处于WAITING状态，无法响应。30分钟后，系统抛出异常，服务恢复正常。</p>
 <p>　　为什么我们明明将query timeout设置成了3秒，系统却持续了30分钟的WAITING状态？为什么30分钟后系统又恢复正常了？ 当你对理解了JDBC的超时设置后，就能找到问题的答案。</p>
 <p><strong>为什么我们要了解JDBC？</strong></p>
@@ -734,7 +775,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring超时时间"><span class="nav-number">1.</span> <span class="nav-text"><a href="#Spring&#x8D85;&#x65F6;&#x65F6;&#x95F4;" class="headerlink" title="Spring&#x8D85;&#x65F6;&#x65F6;&#x95F4;"></a>Spring&#x8D85;&#x65F6;&#x65F6;&#x95F4;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring事务测试"><span class="nav-number">1.1.</span> <span class="nav-text"><a href="#Spring&#x4E8B;&#x52A1;&#x6D4B;&#x8BD5;" class="headerlink" title="Spring&#x4E8B;&#x52A1;&#x6D4B;&#x8BD5;"></a>Spring&#x4E8B;&#x52A1;&#x6D4B;&#x8BD5;</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分析"><span class="nav-number">2.</span> <span class="nav-text"><a href="#&#x5206;&#x6790;" class="headerlink" title="&#x5206;&#x6790;"></a>&#x5206;&#x6790;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#结论"><span class="nav-number">2.1.</span> <span class="nav-text"><a href="#&#x7ED3;&#x8BBA;" class="headerlink" title="&#x7ED3;&#x8BBA;"></a>&#x7ED3;&#x8BBA;</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#提供AOP工具类监测Spring常见问题"><span class="nav-number">3.</span> <span class="nav-text"><a href="#&#x63D0;&#x4F9B;AOP&#x5DE5;&#x5177;&#x7C7B;&#x76D1;&#x6D4B;Spring&#x5E38;&#x89C1;&#x95EE;&#x9898;" class="headerlink" title="&#x63D0;&#x4F9B;AOP&#x5DE5;&#x5177;&#x7C7B;&#x76D1;&#x6D4B;Spring&#x5E38;&#x89C1;&#x95EE;&#x9898;"></a>&#x63D0;&#x4F9B;AOP&#x5DE5;&#x5177;&#x7C7B;&#x76D1;&#x6D4B;Spring&#x5E38;&#x89C1;&#x95EE;&#x9898;</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#数据库超时"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x6570;&#x636E;&#x5E93;&#x8D85;&#x65F6;" class="headerlink" title="&#x6570;&#x636E;&#x5E93;&#x8D85;&#x65F6;"></a>&#x6570;&#x636E;&#x5E93;&#x8D85;&#x65F6;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDBC原理"><span class="nav-number">2.</span> <span class="nav-text"><a href="#JDBC&#x539F;&#x7406;" class="headerlink" title="JDBC&#x539F;&#x7406;"></a>JDBC&#x539F;&#x7406;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#JDBC接口及数据库厂商实现"><span class="nav-number">2.1.</span> <span class="nav-text"><a href="#JDBC&#x63A5;&#x53E3;&#x53CA;&#x6570;&#x636E;&#x5E93;&#x5382;&#x5546;&#x5B9E;&#x73B0;" class="headerlink" title="JDBC&#x63A5;&#x53E3;&#x53CA;&#x6570;&#x636E;&#x5E93;&#x5382;&#x5546;&#x5B9E;&#x73B0;"></a>JDBC&#x63A5;&#x53E3;&#x53CA;&#x6570;&#x636E;&#x5E93;&#x5382;&#x5546;&#x5B9E;&#x73B0;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JDBC工作原理"><span class="nav-number">2.2.</span> <span class="nav-text"><a href="#JDBC&#x5DE5;&#x4F5C;&#x539F;&#x7406;" class="headerlink" title="JDBC&#x5DE5;&#x4F5C;&#x539F;&#x7406;"></a>JDBC&#x5DE5;&#x4F5C;&#x539F;&#x7406;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Driver接口及驱动类加载"><span class="nav-number">2.3.</span> <span class="nav-text"><a href="#Driver&#x63A5;&#x53E3;&#x53CA;&#x9A71;&#x52A8;&#x7C7B;&#x52A0;&#x8F7D;" class="headerlink" title="Driver&#x63A5;&#x53E3;&#x53CA;&#x9A71;&#x52A8;&#x7C7B;&#x52A0;&#x8F7D;"></a>Driver&#x63A5;&#x53E3;&#x53CA;&#x9A71;&#x52A8;&#x7C7B;&#x52A0;&#x8F7D;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Connection接口"><span class="nav-number">2.4.</span> <span class="nav-text"><a href="#Connection&#x63A5;&#x53E3;" class="headerlink" title="Connection&#x63A5;&#x53E3;"></a>Connection&#x63A5;&#x53E3;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Statement接口"><span class="nav-number">2.5.</span> <span class="nav-text"><a href="#Statement&#x63A5;&#x53E3;" class="headerlink" title="Statement&#x63A5;&#x53E3;"></a>Statement&#x63A5;&#x53E3;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ResultSet接口"><span class="nav-number">2.6.</span> <span class="nav-text"><a href="#ResultSet&#x63A5;&#x53E3;" class="headerlink" title="ResultSet&#x63A5;&#x53E3;"></a>ResultSet&#x63A5;&#x53E3;</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#连接池技术"><span class="nav-number">3.</span> <span class="nav-text"><a href="#&#x8FDE;&#x63A5;&#x6C60;&#x6280;&#x672F;" class="headerlink" title="&#x8FDE;&#x63A5;&#x6C60;&#x6280;&#x672F;"></a>&#x8FDE;&#x63A5;&#x6C60;&#x6280;&#x672F;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDBC超时"><span class="nav-number">4.</span> <span class="nav-text"><a href="#JDBC&#x8D85;&#x65F6;" class="headerlink" title="JDBC&#x8D85;&#x65F6;"></a>JDBC&#x8D85;&#x65F6;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring超时时间"><span class="nav-number">5.</span> <span class="nav-text"><a href="#Spring&#x8D85;&#x65F6;&#x65F6;&#x95F4;" class="headerlink" title="Spring&#x8D85;&#x65F6;&#x65F6;&#x95F4;"></a>Spring&#x8D85;&#x65F6;&#x65F6;&#x95F4;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring事务测试"><span class="nav-number">5.1.</span> <span class="nav-text"><a href="#Spring&#x4E8B;&#x52A1;&#x6D4B;&#x8BD5;" class="headerlink" title="Spring&#x4E8B;&#x52A1;&#x6D4B;&#x8BD5;"></a>Spring&#x4E8B;&#x52A1;&#x6D4B;&#x8BD5;</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分析"><span class="nav-number">6.</span> <span class="nav-text"><a href="#&#x5206;&#x6790;" class="headerlink" title="&#x5206;&#x6790;"></a>&#x5206;&#x6790;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#结论"><span class="nav-number">6.1.</span> <span class="nav-text"><a href="#&#x7ED3;&#x8BBA;" class="headerlink" title="&#x7ED3;&#x8BBA;"></a>&#x7ED3;&#x8BBA;</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#提供AOP工具类监测Spring常见问题"><span class="nav-number">7.</span> <span class="nav-text"><a href="#&#x63D0;&#x4F9B;AOP&#x5DE5;&#x5177;&#x7C7B;&#x76D1;&#x6D4B;Spring&#x5E38;&#x89C1;&#x95EE;&#x9898;" class="headerlink" title="&#x63D0;&#x4F9B;AOP&#x5DE5;&#x5177;&#x7C7B;&#x76D1;&#x6D4B;Spring&#x5E38;&#x89C1;&#x95EE;&#x9898;"></a>&#x63D0;&#x4F9B;AOP&#x5DE5;&#x5177;&#x7C7B;&#x76D1;&#x6D4B;Spring&#x5E38;&#x89C1;&#x95EE;&#x9898;</span></a></li></ol></div>
             
 
           </div>
