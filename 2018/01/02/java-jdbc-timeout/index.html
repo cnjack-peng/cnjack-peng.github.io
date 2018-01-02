@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="基础原理," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="恰当的JDBC超时设置能够有效地减少服务失效的时间。本文将对数据库的各种超时设置及其设置方法做介绍。     　　真实案例：应用服务器在遭到DDos攻击后无法响应 　　在遭到DDos攻击后，整个服务都垮掉了。由于第四层交换机不堪重负，网络变得无法连接，从而导致业务系统也无法正常运转。安全组很快屏蔽了所有的DDos攻击，并恢复了网络，但业务系统却还是无法工作。 通过分析系统的thread dump发">
+<meta name="keywords" content="基础原理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JDBC超时时间">
+<meta property="og:url" content="http://keaimo.com/2018/01/02/java-jdbc-timeout/index.html">
+<meta property="og:site_name" content="笑傲江湖└JP┐">
+<meta property="og:description" content="恰当的JDBC超时设置能够有效地减少服务失效的时间。本文将对数据库的各种超时设置及其设置方法做介绍。     　　真实案例：应用服务器在遭到DDos攻击后无法响应 　　在遭到DDos攻击后，整个服务都垮掉了。由于第四层交换机不堪重负，网络变得无法连接，从而导致业务系统也无法正常运转。安全组很快屏蔽了所有的DDos攻击，并恢复了网络，但业务系统却还是无法工作。 通过分析系统的thread dump发">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://keaimo.com/2018/01/02/java-jdbc-timeout/jdbc-type.png">
+<meta property="og:image" content="http://keaimo.com/2018/01/02/java-jdbc-timeout/timeout-class.png">
+<meta property="og:image" content="http://keaimo.com/2018/01/02/java-jdbc-timeout/timeout-for-each-levels.png">
+<meta property="og:image" content="http://keaimo.com/2018/01/02/java-jdbc-timeout/oracle-query-timeout-process.png">
+<meta property="og:image" content="http://keaimo.com/2018/01/02/java-jdbc-timeout/jtds-query-timeout-process.png">
+<meta property="og:image" content="http://keaimo.com/2018/01/02/java-jdbc-timeout/mysql-query-timeout-process.png">
+<meta property="og:image" content="http://keaimo.com/2018/01/02/java-jdbc-timeout/cubrid-query-timeout-process.png">
+<meta property="og:updated_time" content="2018-01-02T06:49:21.840Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JDBC超时时间">
+<meta name="twitter:description" content="恰当的JDBC超时设置能够有效地减少服务失效的时间。本文将对数据库的各种超时设置及其设置方法做介绍。     　　真实案例：应用服务器在遭到DDos攻击后无法响应 　　在遭到DDos攻击后，整个服务都垮掉了。由于第四层交换机不堪重负，网络变得无法连接，从而导致业务系统也无法正常运转。安全组很快屏蔽了所有的DDos攻击，并恢复了网络，但业务系统却还是无法工作。 通过分析系统的thread dump发">
+<meta name="twitter:image" content="http://keaimo.com/2018/01/02/java-jdbc-timeout/jdbc-type.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://keaimo.com/2018/01/02/java-jdbc-timeout/"/>
+
+
+
+
+
+  <title>JDBC超时时间 | 笑傲江湖└JP┐</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <!--<div class="headband"></div>-->
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">笑傲江湖└JP┐</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2018/01/02/java-jdbc-timeout/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jack Peng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="笑傲江湖└JP┐">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">JDBC超时时间</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-02T09:17:52+08:00">
+                2018-01-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/软件开发/" itemprop="url" rel="index">
+                    <span itemprop="name">软件开发</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>恰当的JDBC超时设置能够有效地减少服务失效的时间。本文将对数据库的各种超时设置及其设置方法做介绍。<br>     　　<br><strong>真实案例：应用服务器在遭到DDos攻击后无法响应</strong></p>
+<p>　　在遭到DDos攻击后，整个服务都垮掉了。由于第四层交换机不堪重负，网络变得无法连接，从而导致业务系统也无法正常运转。安全组很快屏蔽了所有的DDos攻击，并恢复了网络，但业务系统却还是无法工作。 通过分析系统的thread dump发现，业务系统停在了JDBC API的调用上。20分钟后，系统仍处于WAITING状态，无法响应。30分钟后，系统抛出异常，服务恢复正常。</p>
+<p>　　为什么我们明明将query timeout设置成了3秒，系统却持续了30分钟的WAITING状态？为什么30分钟后系统又恢复正常了？ 当你对理解了JDBC的超时设置后，就能找到问题的答案。</p>
+<p><strong>为什么我们要了解JDBC？</strong></p>
+<p>当遇到性能问题或系统出错时，业务系统和数据库通常是我们最关心的两个部分。在公司里，这两个部分是交由两个不同的部门来负责的，因此各个部门都会集中精力地在自身领域内寻找问题，这样的话，在业务系统和数据库之间的部分就会成为一个盲区。对于Java应用而言，这个盲区就是DBCP数据库连接池和JDBC，本文将集中介绍JDBC。 </p>
+<p><strong>什么是JDBC？</strong><br>　　JDBC是Java应用中用来连接关系型数据库的标准API。Sun公司一共定义了4种类型的JDBC，我们主要使用的是第4种，该类型的Driver完全由Java代码实现，通过使用socket与数据库进行通信。 </p>
+<img src="/2018/01/02/java-jdbc-timeout/jdbc-type.png" title="JDBC Type">
+<p>第4种类型的JDBC通过socket对字节流进行处理，因此也会有一些基本网络操作，类似于HttpClient这种用于网络操作的代码库。当在网络操作中遇到问题的时候，将会消耗大量的cpu资源，并且失去响应超时。如果你之前用过HttpClient，那么你一定遇到过未设置timeout造成的错误。同样，第4种类型的JDBC，若没有合理地设置socket timeout，也会有相同的错误——连接被阻塞。 </p>
+<p>接下来，就让我们来学习一下如何正确地设置socket timeout，以及需要考虑的问题。 应用与数据库间的timeout层级:</p>
+<img src="/2018/01/02/java-jdbc-timeout/timeout-class.png" title="Timeout Class">
+<p>上图展示了简化后应用与数据库间的timeout层级。（译者注：WAS/BLOC是作者公司的具体应用名称，无需深究） </p>
+<p>高级别的timeout依赖于低级别的timeout，只有当低级别的timeout无误时，高级别的timeout才能确保正常。例如，当socket timeout出现问题时，高级别的statement timeout和transaction timeout都将失效。 我们收到的很多评论中提到： </p>
+<blockquote>
+<p>即使设置了statement timeout，当网络出错时，应用也无法从错误中恢复。statement timeout无法处理网络连接失败时的超时，它能做的仅仅是限制statement的操作时间。网络连接失败时的timeout必须交由JDBC来处理。 </p>
+<p>JDBC的socket timeout会受到操作系统socket timeout设置的影响，这就解释了为什么在之前的案例中，JDBC连接会在网络出错后阻塞30分钟，然后又奇迹般恢复，即使我们并没有对JDBC的socket timeout进行设置。 </p>
+<p>DBCP连接池位于图2的左侧，你会发现timeout层级与DBCP是相互独立的。DBCP负责的是数据库连接的创建和管理，并不干涉timeout的处理。当连接在DBCP中创建，或是DBCP发送校验query检查连接有效性的时候，socket timeout将会影响这些过程，但并不直接对应用造成影响。 当在应用中调用DBCP的getConnection()方法时，你可以设置获取数据库连接的超时时间，但是这和JDBC的timeout毫不相关。 </p>
+</blockquote>
+<img src="/2018/01/02/java-jdbc-timeout/timeout-for-each-levels.png" title="Timeout for Each Levels">
+<p><strong>什么是Transaction Timeout？</strong><br>transaction timeout一般存在于框架（Spring, EJB）或应用级。transaction timeout或许是个相对陌生的概念，简单地说，transaction timeout就是“statement Timeout * N（需要执行的statement数量） + @（垃圾回收等其他时间）”。transaction timeout用来限制执行statement的总时长。 </p>
+<p>例如，假设执行一个statement需要0.1秒，那么执行少量statement不会有什么问题，但若是要执行100,000个statement则需要10,000秒（约7个小时）。这时，transaction timeout就派上用场了。EJB CMT (Container Managed Transaction)就是一种典型的实现，它提供了多种方法供开发者选择。但我们并不使用EJB，Spring的transaction timeout设置会更常用一些。在Spring中，你可以使用下面展示的XML或是在源码中使用@Transactional注解来进行设置。 </p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">tx:attributes</span>&gt;</span>  </span><br><span class="line">        <span class="tag">&lt;<span class="name">tx:method</span> <span class="attr">name</span>=<span class="string">"…"</span> <span class="attr">timeout</span>=<span class="string">"3"</span>/&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">tx:attributes</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>Spring提供的transaction timeout配置非常简单，它会记录每个事务的开始时间和消耗时间，当特定的事件发生时就会对消耗时间做校验，当超出timeout值时将抛出异常。 </p>
+<p>Spring中，数据库连接被保存在ThreadLocal里，这被称为事务同步（Transaction Synchronization），与此同时，事务的开始时间和消耗时间也被保存下来。当使用这种代理连接创建statement时，就会校验事务的消耗时间。EJB CMT的实现方式与之类似，其结构本身也十分简单。 </p>
+<p>当你选用的容器或框架并不支持transaction timeout这一特性，你可以考虑自己来实现。transaction timeout并没有标准的API。Lucy框架的1.5和1.6版本都不支持transaction timeout，但是你可以通过使用Spring的Transaction Manager来达到与之同样的效果。 </p>
+<p>假设某个事务中包含5个statement，每个statement的执行时间是200ms，其他业务逻辑的执行时间是100ms，那么transaction timeout至少应该设置为1,100ms（200 * 5 + 100）。 </p>
+<p><strong>什么是Statement Timeout？</strong><br>statement timeout用来限制statement的执行时长，timeout的值通过调用JDBC的java.sql.Statement.setQueryTimeout(int timeout) API进行设置。不过现在开发者已经很少直接在代码中设置，而多是通过框架来进行设置。 </p>
+<p>以iBatis为例，statement timeout的默认值可以通过sql-map-config.xml中的defaultStatementTimeout 属性进行设置。同时，你还可以设置sqlmap中select，insert，update标签的timeout属性，从而对不同sql语句的超时时间进行独立的配置。 </p>
+<p>如果你使用的是Lucy1.5或1.6版本，通过设置queryTimeout属性可以在datasource层面对statement timeout进行设置。 </p>
+<p>statement timeout的具体值需要依据应用本身的特性而定，并没有可供推荐的配置。 </p>
+<p><strong>JDBC的statement timeout处理过程</strong></p>
+<p>不同的关系型数据库，以及不同的JDBC驱动，其statement timeout处理过程会有所不同。其中，Oracle和MS SQLServer的处理相类似，MySQL和CUBRID类似。 </p>
+<p><strong>Oracle JDBC Statement的QueryTimeout处理过程</strong> </p>
+<ol>
+<li>通过调用Connection的createStatement()方法创建statement</li>
+<li>调用Statement的executeQuery()方法；</li>
+<li>statement通过自身connection将query发送给Oracle数据库；</li>
+<li>statement在OracleTimeoutPollingThread（每个classloader一个）上进行注册；</li>
+<li>达到超时时间；</li>
+<li>OracleTimeoutPollingThread调用OracleStatement的cancel()方法；</li>
+<li>通过connection向正在执行的query发送cancel消息；</li>
+</ol>
+<img src="/2018/01/02/java-jdbc-timeout/oracle-query-timeout-process.png" title="Query Timeout Execution Process for Oracle JDBC Statement">
+<p><strong>JTDS (MS SQLServer) Statement的QueryTimeout处理过程</strong></p>
+<ol>
+<li>通过调用Connection的createStatement()方法创建statement；</li>
+<li>调用Statement的executeQuery()方法；</li>
+<li>statement通过自身connection将query发送给MS SqlServer数据库；</li>
+<li>statement在TimerThread上进行注册；</li>
+<li>达到超时时间；</li>
+<li>TimerThread调用JtdsStatement实例中的TsdCore.cancel()方法；</li>
+<li>通过ConnectionJDBC向正在执行的query发送cancel消息；</li>
+</ol>
+<img src="/2018/01/02/java-jdbc-timeout/jtds-query-timeout-process.png" title="QueryTimeout Execution Process for JTDS (MS SQLServer) Statement">
+<p><strong>MySQL JDBC Statement的QueryTimeout处理过程</strong></p>
+<p>　　1. 通过调用Connection的createStatement()方法创建statement<br>　　2. 调用Statement的executeQuery()方法<br>　　3. statement通过自身connection将query发送给MySQL数据库<br>　　4. statement创建一个新的timeout-execution线程用于超时处理<br>　　5. 5.1版本后改为每个connection分配一个timeout-execution线程<br>　　6. 向timeout-execution线程进行注册<br>　　7. 达到超时时间<br>　　6. TimerThread调用JtdsStatement实例中的TsdCore.cancel()方法<br>　　7. timeout-execution线程创建一个和statement配置相同的connection<br>　　8. 使用新创建的connection向超时query发送cancel query（KILL QUERY “connectionId”） </p>
+<img src="/2018/01/02/java-jdbc-timeout/mysql-query-timeout-process.png" title="QueryTimeout Execution Process for MySQL JDBC Statement (5.0.8)">
+<p><strong>CUBRID JDBC Statement的QueryTimeout处理过程</strong></p>
+<p>　　1. 通过调用Connection的createStatement()方法创建statement<br>　　2. 调用Statement的executeQuery()方法<br>　　3. statement通过自身connection将query发送给CUBRID数据库<br>　　4. statement创建一个新的timeout-execution线程用于超时处理<br>　　5. 5.1版本后改为每个connection分配一个timeout-execution线程<br>　　6. 向timeout-execution线程进行注册<br>　　7. 达到超时时间<br>　　6. TimerThread调用JtdsStatement实例中的TsdCore.cancel()方法<br>　　7. timeout-execution线程创建一个和statement配置相同的connection<br>　　8. 使用新创建的connection向超时query发送cancel消息 </p>
+<img src="/2018/01/02/java-jdbc-timeout/cubrid-query-timeout-process.png" title="QueryTimeout Execution Process for CUBRID JDBC Statement.">
+<p><strong>什么是JDBC的socket timeout？</strong><br>　　<br>第4种类型的JDBC使用socket与数据库连接，数据库并不对应用与数据库间的连接超时进行处理。 </p>
+<p>JDBC的socket timeout在数据库被突然停掉或是发生网络错误（由于设备故障等原因）时十分重要。由于TCP/IP的结构原因，socket没有办法探测到网络错误，因此应用也无法主动发现数据库连接断开。如果没有设置socket timeout的话，应用在数据库返回结果前会无期限地等下去，这种连接被称为dead connection。 </p>
+<p>为了避免dead connections，socket必须要有超时配置。socket timeout可以通过JDBC设置，socket timeout能够避免应用在发生网络错误时产生无休止等待的情况，缩短服务失效的时间。 </p>
+<p>不推荐使用socket timeout来限制statement的执行时长，因此socket timeout的值必须要高于statement timeout，否则，socket timeout将会先生效，这样statement timeout就变得毫无意义，也无法生效。 </p>
+<p>下面展示了socket timeout的两个设置项，不同的JDBC驱动其配置方式会有所不同。 </p>
+<ul>
+<li>socket连接时的timeout：通过Socket.connect(SocketAddress endpoint, int timeout)设置</li>
+<li>socket读写时的timeout：通过Socket.setSoTimeout(int timeout)设置</li>
+</ul>
+<p>通过查看CUBRID，MySQL，MS SQL Server (JTDS)和Oracle的JDBC驱动源码，我们发现所有的驱动内部都是使用上面的2个API来设置socket timeout的。 </p>
+<p>下面是不同驱动的socket timeout配置方式：</p>
+<table>
+<thead>
+<tr>
+<th>JDBC Driver</th>
+<th>connectTimeout配置项</th>
+<th>socketTimeout配置项</th>
+<th>url格式</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MySQL Driver</td>
+<td>connectTimeout（默认值：0，单位：ms）</td>
+<td><code>socketTimeout</code>（默认值：0，单位：ms）</td>
+<td><code>jdbc:mysql://[host:port],[host:port]…/[database][?propertyName1][=propertyValue1][&amp;propertyName2][=propertyValue2]…</code></td>
+<td><code>jdbc:mysql://x.x.x.x:3306/db?connectTimeout=60000&amp;socketTimeout=60000</code></td>
+</tr>
+<tr>
+<td>MS-SQL DriverjTDS Driver</td>
+<td>loginTimeout（默认值：0，单位：s）</td>
+<td>socketTimeout（默认值：0，单位：s）</td>
+<td><code>jdbc:jtds:&lt;server_type&gt;://&lt;server&gt;[:&lt;port&gt;][/&lt;database&gt;][;&lt;property&gt;=&lt;value&gt;[;...]]</code></td>
+<td><code>jdbc:jtds:sqlserver://server:port/database;loginTimeout=60;socketTimeout=60</code></td>
+</tr>
+<tr>
+<td>Oracle Thin Driver</td>
+<td><code>oracle.net.CONNECT_TIMEOUT</code>（默认值：0，单位：ms）</td>
+<td><code>oracle.jdbc.ReadTimeout</code>（默认值：0，单位：ms）</td>
+<td>不支持通过url配置，只能通过<code>OracleDatasource.setConnectionProperties()</code> API设置，使用DBCP时可以调用<code>BasicDatasource.setConnectionProperties()</code>或<code>BasicDatasource.addConnectionProperties()</code>进行设置</td>
+<td></td>
+</tr>
+<tr>
+<td>CUBRID Thin Driver</td>
+<td>无独立配置项（默认值：5,000，单位：ms）</td>
+<td>无独立配置项（默认值：5,000，单位：ms）</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>connectTimeout和socketTimeout的默认值为0时，timeout不生效。</li>
+<li>除了调用DBCP的API以外，还可以通过properties属性进行配置。<pre><code>  　　
+</code></pre>通过properties属性进行配置时，需要传入key为“connectionProperties”的键值对，value的格式为“[propertyName=property;]*”。下面是iBatis中的properties配置。 </li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">transactionManager</span> <span class="attr">type</span>=<span class="string">"JDBC"</span>&gt;</span>  </span><br><span class="line">  <span class="tag">&lt;<span class="name">dataSource</span> <span class="attr">type</span>=<span class="string">"com.nhncorp.lucy.db.DbcpDSFactory"</span>&gt;</span>  </span><br><span class="line">    …</span><br><span class="line">     <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"connectionProperties"</span> <span class="attr">value</span>=<span class="string">"oracle.net.CONNECT_TIMEOUT=6000;oracle.jdbc.ReadTimeout=6000"</span>/&gt;</span>   </span><br><span class="line">  <span class="tag">&lt;/<span class="name">dataSource</span>&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">transactionManager</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><strong>操作系统的socket timeout配置</strong></p>
+<p>如果不设置socket timeout或connect timeout，应用多数情况下是无法发现网络错误的。因此，当网络错误发生后，在连接重新连接成功或成功接收到数据之前，应用会无限制地等下去。但是，通过本文开篇处的实际案例我们发现，30分钟后应用的连接问题奇迹般的解决了，这是因为操作系统同样能够对socket timeout进行配置。公司的Linux服务器将socket timeout设置为了30分钟，从而会在操作系统的层面对网络连接做校验，因此即使JDBC的socket timeout设置为0，由网络错误造成的数据库连接问题的持续时间也不会超过30分钟。 </p>
+<p>通常，应用会在调用Socket.read()时由于网络问题被阻塞住，而很少在调用Socket.write()时进入waiting状态，这取决于网络构成和错误类型。当Socket.write()被调用时，数据被写入到操作系统内核的缓冲区，控制权立即回到应用手上。因此，一旦数据被写入内核缓冲区，Socket.write()调用就必然会成功。但是，如果系统内核缓冲区由于某种网络错误而满了的话，Socket.write()也会进入waiting状态。这种情况下，操作系统会尝试重新发包，当达到重试的时间限制时，将产生系统错误。在我们公司，重新发包的超时时间被设置为15分钟。 </p>
+<p>至此，我已经对JDBC的内部操作做了讲解，希望能够让大家学会如何正确的配置超时时间，从而减少错误的发生。 </p>
+<p>最后，我将列出一些常见的问题。</p>
+<p><strong>FAQ</strong></p>
+<p>Q1. 我已经使用Statement.setQueryTimeout()方法设置了查询超时，但在网络出错时并没有产生作用。 </p>
+<blockquote>
+<p>查询超时仅在socket timeout生效的前提下才有效，它并不能用来解决外部的网络错误，要解决这种问题，必须设置JDBC的socket timeout。 </p>
+</blockquote>
+<p>Q2. transaction timeout，statement timeout和socket timeout和DBCP的配置有什么关系？ </p>
+<blockquote>
+<p>当通过DBCP获取数据库连接时，除了DBCP获取连接时的waitTimeout配置以外，其他配置对JDBC没有什么影响。 </p>
+</blockquote>
+<p>Q3. 如果设置了JDBC的socket timeout，那DBCP连接池中处于IDLE状态的连接是否也会在达到超时时间后被关闭？ </p>
+<blockquote>
+<p>不会。socket的设置只会在产生数据读写时生效，而不会对DBCP中的IDLE连接产生影响。当DBCP中发生新连接创建，老的IDLE连接被移除，或是连接有效性校验的时候，socket设置会对其产生一定的影响，但除非发生网络问题，否则影响很小。 </p>
+</blockquote>
+<p>Q4. socket timeout应该设置为多少？ </p>
+<blockquote>
+<p>就像我在正文中提的那样，socket timeout必须高于statement timeout，但并没有什么推荐值。在发生网络错误的时候，socket timeout将会生效，但是再小心的配置也无法避免网络错误的发生，只是在网络错误发生后缩短服务失效的时间（如果网络恢复正常的话）</p>
+</blockquote>
+<h2 id="Spring超时时间"><a href="#Spring超时时间" class="headerlink" title="Spring超时时间"></a>Spring超时时间</h2><h3 id="Spring事务测试"><a href="#Spring事务测试" class="headerlink" title="Spring事务测试"></a>Spring事务测试</h3><p><strong>spring-config.xml</strong></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"dataSource"</span> <span class="attr">class</span>=<span class="string">"org.springframework.jdbc.datasource.DriverManagerDataSource"</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"driverClassName"</span> <span class="attr">value</span>=<span class="string">"com.mysql.jdbc.Driver"</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"url"</span> <span class="attr">value</span>=<span class="string">"jdbc:mysql://localhost:3306/test?autoReconnect=true&amp;amp;useUnicode=true&amp;amp;characterEncoding=utf-8"</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"username"</span> <span class="attr">value</span>=<span class="string">"root"</span>/&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"password"</span> <span class="attr">value</span>=<span class="string">""</span>/&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span>  </span><br><span class="line">  </span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">"txManager"</span> <span class="attr">class</span>=<span class="string">"org.springframework.jdbc.datasource.DataSourceTransactionManager"</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">"dataSource"</span> <span class="attr">ref</span>=<span class="string">"dataSource"</span>/&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>测试用例:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RunWith</span>(SpringJUnit4ClassRunner.class)  </span><br><span class="line"><span class="meta">@ContextConfiguration</span>(locations = <span class="string">"classpath:spring-config.xml"</span>)  </span><br><span class="line"><span class="meta">@TransactionConfiguration</span>(transactionManager = <span class="string">"txManager"</span>, defaultRollback = <span class="keyword">false</span>)  </span><br><span class="line"><span class="meta">@Transactional</span>(timeout = <span class="number">2</span>)  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Timeout1Test</span> </span>&#123;  </span><br><span class="line">    <span class="meta">@Autowired</span>  </span><br><span class="line">    <span class="keyword">private</span> DataSource ds;  </span><br><span class="line">    <span class="meta">@Test</span>  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testTimeout</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;  </span><br><span class="line">        System.out.println(System.currentTimeMillis());  </span><br><span class="line">        JdbcTemplate jdbcTemplate = <span class="keyword">new</span> JdbcTemplate(ds);  </span><br><span class="line">        jdbcTemplate.execute(<span class="string">" update test set name = name || '1'"</span>);  </span><br><span class="line">        System.out.println(System.currentTimeMillis());  </span><br><span class="line">        Thread.sleep(<span class="number">3000L</span>);  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我设置事务超时时间是2秒；但我事务肯定执行3秒以上；为什么没有起作用呢？  这其实是对Spring实现的事务超时的错误认识。那首先分析下Spring事务超时实现吧。</p>
+<h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>在此我们分析下DataSourceTransactionManager；首先开启事物会调用其doBegin方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">int</span> timeout = determineTimeout(definition);  </span><br><span class="line"><span class="keyword">if</span> (timeout != TransactionDefinition.TIMEOUT_DEFAULT) &#123;  </span><br><span class="line">    txObject.getConnectionHolder().setTimeoutInSeconds(timeout);  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p> 其中determineTimeout用来获取我们设置的事务超时时间；然后设置到ConnectionHolder对象上（其是ResourceHolder子类），接着看ResourceHolderSupport的setTimeoutInSeconds实现：</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTimeoutInSeconds</span><span class="params">(<span class="keyword">int</span> seconds)</span> </span>&#123;  </span><br><span class="line">    setTimeoutInMillis(seconds * <span class="number">1000</span>);  </span><br><span class="line">&#125;  </span><br><span class="line">  </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setTimeoutInMillis</span><span class="params">(<span class="keyword">long</span> millis)</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">this</span>.deadline = <span class="keyword">new</span> Date(System.currentTimeMillis() + millis);  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p> 大家可以看到，其会设置一个deadline时间；用来判断事务超时时间的；那什么时候调用呢？首先检查该类中的代码，会发现：</p>
+ <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getTimeToLiveInSeconds</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">    <span class="keyword">double</span> diff = ((<span class="keyword">double</span>) getTimeToLiveInMillis()) / <span class="number">1000</span>;  </span><br><span class="line">    <span class="keyword">int</span> secs = (<span class="keyword">int</span>) Math.ceil(diff);  </span><br><span class="line">    checkTransactionTimeout(secs &lt;= <span class="number">0</span>);  </span><br><span class="line">    <span class="keyword">return</span> secs;  </span><br><span class="line">&#125;  </span><br><span class="line">  </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">getTimeToLiveInMillis</span><span class="params">()</span> <span class="keyword">throws</span> TransactionTimedOutException</span>&#123;  </span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.deadline == <span class="keyword">null</span>) &#123;  </span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(<span class="string">"No timeout specified for this resource holder"</span>);  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="keyword">long</span> timeToLive = <span class="keyword">this</span>.deadline.getTime() - System.currentTimeMillis();  </span><br><span class="line">    checkTransactionTimeout(timeToLive &lt;= <span class="number">0</span>);  </span><br><span class="line">    <span class="keyword">return</span> timeToLive;  </span><br><span class="line">&#125;  </span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">checkTransactionTimeout</span><span class="params">(<span class="keyword">boolean</span> deadlineReached)</span> <span class="keyword">throws</span> TransactionTimedOutException </span>&#123;  </span><br><span class="line">    <span class="keyword">if</span> (deadlineReached) &#123;  </span><br><span class="line">        setRollbackOnly();  </span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> TransactionTimedOutException(<span class="string">"Transaction timed out: deadline was "</span> + <span class="keyword">this</span>.deadline);  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>会发现在调用getTimeToLiveInSeconds和getTimeToLiveInMillis，会检查是否超时，如果超时设置事务回滚，并抛出TransactionTimedOutException异常。到此我们只要找到调用它们的位置就好了，那什么地方调用的它们呢？ 最简单的办法使用如“IntelliJ IDEA”中的“Find Usages”找到get<em>*</em>的使用地方；会发现：</p>
+<p>DataSourceUtils.applyTransactionTimeout会调用DataSourceUtils.applyTimeout，DataSourceUtils.applyTimeout代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">applyTimeout</span><span class="params">(Statement stmt, DataSource dataSource, <span class="keyword">int</span> timeout)</span> <span class="keyword">throws</span> SQLException </span>&#123;  </span><br><span class="line">    Assert.notNull(stmt, <span class="string">"No Statement specified"</span>);  </span><br><span class="line">    Assert.notNull(dataSource, <span class="string">"No DataSource specified"</span>);  </span><br><span class="line">    ConnectionHolder holder = (ConnectionHolder) TransactionSynchronizationManager.getResource(dataSource);  </span><br><span class="line">    <span class="keyword">if</span> (holder != <span class="keyword">null</span> &amp;&amp; holder.hasTimeout()) &#123;  </span><br><span class="line">        <span class="comment">// Remaining transaction timeout overrides specified value.  </span></span><br><span class="line">        stmt.setQueryTimeout(holder.getTimeToLiveInSeconds());  </span><br><span class="line">    &#125;  </span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (timeout &gt; <span class="number">0</span>) &#123;  </span><br><span class="line">        <span class="comment">// No current transaction timeout -&gt; apply specified value.  </span></span><br><span class="line">        stmt.setQueryTimeout(timeout);  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中其在stmt.setQueryTimeout(holder.getTimeToLiveInSeconds());中会调用getTimeToLiveInSeconds，此时就会检查事务是否超时；</p>
+<p>然后在JdbcTemplate中，执行sql之前，会调用其applyStatementSettings：其会调用DataSourceUtils.applyTimeout(stmt, getDataSource(), getQueryTimeout());设置超时时间；具体可以看其源码；</p>
+<p>到此我们知道了在JdbcTemplate拿到Statement之后，执行之前会设置其queryTimeout，具体意思参考Javadoc。</p>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><blockquote>
+<p>Spring事务超时 = 事务开始时到最后一个Statement创建时时间 + 最后一个Statement的执行时超时时间（即其queryTimeout）。</p>
+</blockquote>
+<p>因此假设事务超时时间设置为2秒；假设sql执行时间为1秒；如下调用是事务不超时的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testTimeout</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;  </span><br><span class="line">    System.out.println(System.currentTimeMillis());  </span><br><span class="line">    JdbcTemplate jdbcTemplate = <span class="keyword">new</span> JdbcTemplate(ds);  </span><br><span class="line">    jdbcTemplate.execute(<span class="string">" update test set hobby = hobby || '1'"</span>);  </span><br><span class="line">    System.out.println(System.currentTimeMillis());  </span><br><span class="line">    Thread.sleep(<span class="number">3000L</span>);  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而如下事务超时是起作用的：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">testTimeout</span><span class="params">()</span> <span class="keyword">throws</span> InterruptedException </span>&#123;  </span><br><span class="line">    Thread.sleep(<span class="number">3000L</span>);  </span><br><span class="line">    System.out.println(System.currentTimeMillis());  </span><br><span class="line">    JdbcTemplate jdbcTemplate = <span class="keyword">new</span> JdbcTemplate(ds);  </span><br><span class="line">    jdbcTemplate.execute(<span class="string">" update test set hobby = hobby || '1'"</span>);  </span><br><span class="line">    System.out.println(System.currentTimeMillis());  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因此，不要忽略应用中如远程调用产生的事务时间和这个事务时间是否对您的事务产生影响。</p>
+<h2 id="提供AOP工具类监测Spring常见问题"><a href="#提供AOP工具类监测Spring常见问题" class="headerlink" title="提供AOP工具类监测Spring常见问题"></a>提供AOP工具类监测Spring常见问题</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.sishuok.es.common.spring.utils;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.aopalliance.aop.Advice;</span><br><span class="line"><span class="keyword">import</span> org.springframework.aop.Advisor;</span><br><span class="line"><span class="keyword">import</span> org.springframework.aop.TargetSource;</span><br><span class="line"><span class="keyword">import</span> org.springframework.aop.framework.ProxyFactory;</span><br><span class="line"><span class="keyword">import</span> org.springframework.aop.interceptor.AsyncExecutionInterceptor;</span><br><span class="line"><span class="keyword">import</span> org.springframework.aop.support.AopUtils;</span><br><span class="line"><span class="keyword">import</span> org.springframework.transaction.interceptor.TransactionInterceptor;</span><br><span class="line"><span class="keyword">import</span> org.springframework.util.ReflectionUtils;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Field;</span><br><span class="line"><span class="keyword">import</span> java.lang.reflect.Proxy;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * AOP代理工具类</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;User: Zhang Kaitao</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;Date: 13-7-3 下午12:29</span></span><br><span class="line"><span class="comment"> * &lt;p&gt;Version: 1.0</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AopProxyUtils</span> </span>&#123;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 是否代理了多次</span></span><br><span class="line"><span class="comment">     * see http://jinnianshilongnian.iteye.com/blog/1894465</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> proxy</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isMultipleProxy</span><span class="params">(Object proxy)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            ProxyFactory proxyFactory = <span class="keyword">null</span>;</span><br><span class="line">            <span class="keyword">if</span>(AopUtils.isJdkDynamicProxy(proxy)) &#123;</span><br><span class="line">                proxyFactory = findJdkDynamicProxyFactory(proxy);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span>(AopUtils.isCglibProxy(proxy)) &#123;</span><br><span class="line">                proxyFactory = findCglibProxyFactory(proxy);</span><br><span class="line">            &#125;</span><br><span class="line">            TargetSource targetSource = (TargetSource) ReflectionUtils.getField(ProxyFactory_targetSource_FIELD, proxyFactory);</span><br><span class="line">            <span class="keyword">return</span> AopUtils.isAopProxy(targetSource.getTarget());</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">"proxy args maybe not proxy with cglib or jdk dynamic proxy. this method not support"</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 查看指定的代理对象是否 添加事务切面</span></span><br><span class="line"><span class="comment">     * see http://jinnianshilongnian.iteye.com/blog/1850432</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> proxy</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isTransactional</span><span class="params">(Object proxy)</span> </span>&#123;</span><br><span class="line">       <span class="keyword">return</span> hasAdvice(proxy, TransactionInterceptor.class);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 移除代理对象的异步调用支持</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">removeTransactional</span><span class="params">(Object proxy)</span> </span>&#123;</span><br><span class="line">         removeAdvisor(proxy, TransactionInterceptor.class);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 是否是异步的代理</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> proxy</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">isAsync</span><span class="params">(Object proxy)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> hasAdvice(proxy, AsyncExecutionInterceptor.class);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 移除代理对象的异步调用支持</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@return</span></span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">removeAsync</span><span class="params">(Object proxy)</span> </span>&#123;</span><br><span class="line">        removeAdvisor(proxy, AsyncExecutionInterceptor.class);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">removeAdvisor</span><span class="params">(Object proxy, Class&lt;? extends Advice&gt; adviceClass)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(!AopUtils.isAopProxy(proxy)) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        ProxyFactory proxyFactory = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">if</span>(AopUtils.isJdkDynamicProxy(proxy)) &#123;</span><br><span class="line">            proxyFactory = findJdkDynamicProxyFactory(proxy);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(AopUtils.isCglibProxy(proxy)) &#123;</span><br><span class="line">            proxyFactory = findCglibProxyFactory(proxy);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Advisor[] advisors = proxyFactory.getAdvisors();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(advisors == <span class="keyword">null</span> || advisors.length == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(Advisor advisor : advisors) &#123;</span><br><span class="line">            <span class="keyword">if</span>(adviceClass.isAssignableFrom(advisor.getAdvice().getClass())) &#123;</span><br><span class="line">                proxyFactory.removeAdvisor(advisor);</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">boolean</span> <span class="title">hasAdvice</span><span class="params">(Object proxy, Class&lt;? extends Advice&gt; adviceClass)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(!AopUtils.isAopProxy(proxy)) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        ProxyFactory proxyFactory = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">if</span>(AopUtils.isJdkDynamicProxy(proxy)) &#123;</span><br><span class="line">            proxyFactory = findJdkDynamicProxyFactory(proxy);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(AopUtils.isCglibProxy(proxy)) &#123;</span><br><span class="line">            proxyFactory = findCglibProxyFactory(proxy);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Advisor[] advisors = proxyFactory.getAdvisors();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(advisors == <span class="keyword">null</span> || advisors.length == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span>(Advisor advisor : advisors) &#123;</span><br><span class="line">            <span class="keyword">if</span>(adviceClass.isAssignableFrom(advisor.getAdvice().getClass())) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> ProxyFactory <span class="title">findJdkDynamicProxyFactory</span><span class="params">(<span class="keyword">final</span> Object proxy)</span> </span>&#123;</span><br><span class="line">        Object jdkDynamicAopProxy = ReflectionUtils.getField(JdkDynamicProxy_h_FIELD, proxy);</span><br><span class="line">        <span class="keyword">return</span> (ProxyFactory) ReflectionUtils.getField(JdkDynamicAopProxy_advised_FIELD, jdkDynamicAopProxy);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> ProxyFactory <span class="title">findCglibProxyFactory</span><span class="params">(<span class="keyword">final</span> Object proxy)</span> </span>&#123;</span><br><span class="line">        Field field  = ReflectionUtils.findField(proxy.getClass(), <span class="string">"CGLIB$CALLBACK_0"</span>);</span><br><span class="line">        ReflectionUtils.makeAccessible(field);</span><br><span class="line">        Object CGLIB$CALLBACK_0 = ReflectionUtils.getField(field, proxy);</span><br><span class="line">        <span class="keyword">return</span> (ProxyFactory) ReflectionUtils.getField(CglibAopProxy$DynamicAdvisedInterceptor_advised_FIELD, CGLIB$CALLBACK_0);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">///////////////////////////////////内部使用的反射 静态字段///////////////////////////////////</span></span><br><span class="line">    <span class="comment">//JDK动态代理 字段相关</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Field JdkDynamicProxy_h_FIELD;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Class JdkDynamicAopProxy_CLASS;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Field JdkDynamicAopProxy_advised_FIELD;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//CGLIB代理 相关字段</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Class CglibAopProxy_CLASS;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Class CglibAopProxy$DynamicAdvisedInterceptor_CLASS;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Field CglibAopProxy$DynamicAdvisedInterceptor_advised_FIELD;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//ProxyFactory 相关字段</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Class ProxyFactory_CLASS;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> Field ProxyFactory_targetSource_FIELD;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">static</span> &#123;</span><br><span class="line">        JdkDynamicProxy_h_FIELD = ReflectionUtils.findField(Proxy.class, <span class="string">"h"</span>);</span><br><span class="line">        ReflectionUtils.makeAccessible(JdkDynamicProxy_h_FIELD);</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            JdkDynamicAopProxy_CLASS = Class.forName(<span class="string">"org.springframework.aop.framework.JdkDynamicAopProxy"</span>);</span><br><span class="line">            JdkDynamicAopProxy_advised_FIELD = ReflectionUtils.findField(JdkDynamicAopProxy_CLASS, <span class="string">"advised"</span>);</span><br><span class="line">            ReflectionUtils.makeAccessible(JdkDynamicAopProxy_advised_FIELD);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            <span class="comment">/*ignore*/</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            CglibAopProxy_CLASS = Class.forName(<span class="string">"org.springframework.aop.framework.CglibAopProxy"</span>);</span><br><span class="line">            CglibAopProxy$DynamicAdvisedInterceptor_CLASS = Class.forName(<span class="string">"org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor"</span>);</span><br><span class="line">            CglibAopProxy$DynamicAdvisedInterceptor_advised_FIELD = ReflectionUtils.findField(CglibAopProxy$DynamicAdvisedInterceptor_CLASS, <span class="string">"advised"</span>);</span><br><span class="line">            ReflectionUtils.makeAccessible(CglibAopProxy$DynamicAdvisedInterceptor_advised_FIELD);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (ClassNotFoundException e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">            <span class="comment">/*ignore*/</span></span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        ProxyFactory_CLASS = ProxyFactory.class;</span><br><span class="line">        ProxyFactory_targetSource_FIELD = ReflectionUtils.findField(ProxyFactory_CLASS, <span class="string">"targetSource"</span>);</span><br><span class="line">        ReflectionUtils.makeAccessible(ProxyFactory_targetSource_FIELD);</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/基础原理/" rel="tag"># 基础原理</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/12/25/percona-xtrabackup/" rel="next" title="Percona XtraBackup">
+                <i class="fa fa-chevron-left"></i> Percona XtraBackup
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Jack Peng" />
+            
+              <p class="site-author-name" itemprop="name">Jack Peng</p>
+              <p class="site-description motion-element" itemprop="description">自知者明，自强者胜。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/cnjack-peng" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:cnjack.peng@gmail.com" target="_blank" title="E-Mail">
+                    
+                      <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://weibo.com/cnjackpeng" target="_blank" title="Weibo">
+                    
+                      <i class="fa fa-fw fa-weibo"></i>Weibo</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Spring超时时间"><span class="nav-number">1.</span> <span class="nav-text"><a href="#Spring&#x8D85;&#x65F6;&#x65F6;&#x95F4;" class="headerlink" title="Spring&#x8D85;&#x65F6;&#x65F6;&#x95F4;"></a>Spring&#x8D85;&#x65F6;&#x65F6;&#x95F4;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Spring事务测试"><span class="nav-number">1.1.</span> <span class="nav-text"><a href="#Spring&#x4E8B;&#x52A1;&#x6D4B;&#x8BD5;" class="headerlink" title="Spring&#x4E8B;&#x52A1;&#x6D4B;&#x8BD5;"></a>Spring&#x4E8B;&#x52A1;&#x6D4B;&#x8BD5;</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分析"><span class="nav-number">2.</span> <span class="nav-text"><a href="#&#x5206;&#x6790;" class="headerlink" title="&#x5206;&#x6790;"></a>&#x5206;&#x6790;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#结论"><span class="nav-number">2.1.</span> <span class="nav-text"><a href="#&#x7ED3;&#x8BBA;" class="headerlink" title="&#x7ED3;&#x8BBA;"></a>&#x7ED3;&#x8BBA;</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#提供AOP工具类监测Spring常见问题"><span class="nav-number">3.</span> <span class="nav-text"><a href="#&#x63D0;&#x4F9B;AOP&#x5DE5;&#x5177;&#x7C7B;&#x76D1;&#x6D4B;Spring&#x5E38;&#x89C1;&#x95EE;&#x9898;" class="headerlink" title="&#x63D0;&#x4F9B;AOP&#x5DE5;&#x5177;&#x7C7B;&#x76D1;&#x6D4B;Spring&#x5E38;&#x89C1;&#x95EE;&#x9898;"></a>&#x63D0;&#x4F9B;AOP&#x5DE5;&#x5177;&#x7C7B;&#x76D1;&#x6D4B;Spring&#x5E38;&#x89C1;&#x95EE;&#x9898;</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jack Peng</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+<div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  访客数:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+  
+</body>
+</html>

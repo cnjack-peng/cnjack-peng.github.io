@@ -86,7 +86,7 @@
 <meta property="og:site_name" content="笑傲江湖└JP┐">
 <meta property="og:description" content="磁盘管理查看文件(夹)所在分区(挂载点)1234df /pathcat /etc/mtabmountfdisk -l 查找大文件/文件夹：1234find . -type f -size +800Mfind . -type f -size +800M  -print0 | xargs -0 ls -lfind . -type f -size +800M  -print0 | xargs -0 du">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-12-25T05:58:21.728Z">
+<meta property="og:updated_time" content="2018-01-02T05:42:12.936Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux运维基础">
 <meta name="twitter:description" content="磁盘管理查看文件(夹)所在分区(挂载点)1234df /pathcat /etc/mtabmountfdisk -l 查找大文件/文件夹：1234find . -type f -size +800Mfind . -type f -size +800M  -print0 | xargs -0 ls -lfind . -type f -size +800M  -print0 | xargs -0 du">
@@ -372,6 +372,7 @@
 <li>输入大写P，结果按CPU占用降序排序；</li>
 <li>输入大写M，结果按内存占用降序排序；</li>
 </ul>
+<h2 id="NFS"><a href="#NFS" class="headerlink" title="NFS"></a>NFS</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
 <h2 id="网络安全"><a href="#网络安全" class="headerlink" title="网络安全"></a>网络安全</h2><p>当VPS暴露在外网中，就会有人不断暴力破解你的SSH登录。于是就有必要使用SSH密钥来登录。并关闭密码登录。用以下命令可以查看别人暴力破解你SSH密码登录的大概情况：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep <span class="string">"Failed password for invalid user"</span> /var/<span class="built_in">log</span>/secure | awk <span class="string">'&#123;print $13&#125;'</span> | sort | uniq -c | sort -nr | more</span><br></pre></td></tr></table></figure></p>
 <p>这时可以使用SSH秘钥登录来防止暴力破解。</p>
 
@@ -491,7 +492,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-count">17</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -513,7 +514,7 @@
               
               <div class="site-state-item site-state-tags">
                 
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">标签</span>
                 
               </div>
@@ -568,7 +569,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#磁盘管理"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x78C1;&#x76D8;&#x7BA1;&#x7406;" class="headerlink" title="&#x78C1;&#x76D8;&#x7BA1;&#x7406;"></a>&#x78C1;&#x76D8;&#x7BA1;&#x7406;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#运行状态"><span class="nav-number">2.</span> <span class="nav-text"><a href="#&#x8FD0;&#x884C;&#x72B6;&#x6001;" class="headerlink" title="&#x8FD0;&#x884C;&#x72B6;&#x6001;"></a>&#x8FD0;&#x884C;&#x72B6;&#x6001;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络安全"><span class="nav-number">3.</span> <span class="nav-text"><a href="#&#x7F51;&#x7EDC;&#x5B89;&#x5168;" class="headerlink" title="&#x7F51;&#x7EDC;&#x5B89;&#x5168;"></a>&#x7F51;&#x7EDC;&#x5B89;&#x5168;</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#磁盘管理"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x78C1;&#x76D8;&#x7BA1;&#x7406;" class="headerlink" title="&#x78C1;&#x76D8;&#x7BA1;&#x7406;"></a>&#x78C1;&#x76D8;&#x7BA1;&#x7406;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#运行状态"><span class="nav-number">2.</span> <span class="nav-text"><a href="#&#x8FD0;&#x884C;&#x72B6;&#x6001;" class="headerlink" title="&#x8FD0;&#x884C;&#x72B6;&#x6001;"></a>&#x8FD0;&#x884C;&#x72B6;&#x6001;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NFS"><span class="nav-number">3.</span> <span class="nav-text"><a href="#NFS" class="headerlink" title="NFS"></a>NFS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络安全"><span class="nav-number">4.</span> <span class="nav-text"><a href="#&#x7F51;&#x7EDC;&#x5B89;&#x5168;" class="headerlink" title="&#x7F51;&#x7EDC;&#x5B89;&#x5168;"></a>&#x7F51;&#x7EDC;&#x5B89;&#x5168;</span></a></li></ol></div>
             
 
           </div>
@@ -589,7 +590,7 @@
     <footer id="footer" class="footer">
       <div class="footer-inner">
         <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
-<div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>

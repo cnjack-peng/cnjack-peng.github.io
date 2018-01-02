@@ -4,11 +4,31 @@
 
     
   <url>
-    <loc>http://keaimo.com/2017/12/14/mysql-tutorial-2/</loc>
-    <lastmod>2017-12-29T00:44:21.941Z</lastmod>
+    <loc>http://keaimo.com/2018/01/02/java-jdbc-timeout/</loc>
+    <lastmod>2018-01-02T06:49:21.840Z</lastmod>
     <data>
         <display>
-        <title>MySQL通识-高可用</title>
+        <title>JDBC超时时间</title>
+        <pubTime>2018-01-02T01:17:52.000Z</pubTime>
+        
+        <tag>基础原理</tag>
+         
+         
+           
+             
+              <breadCrumb title="软件开发" url="http://keaimo.com/categories/%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://keaimo.com/2017/12/14/mysql-tutorial-3/</loc>
+    <lastmod>2018-01-02T05:48:14.482Z</lastmod>
+    <data>
+        <display>
+        <title>MySQL通识-SQL</title>
         <pubTime>2017-12-14T01:17:52.000Z</pubTime>
         
         <tag>数据库</tag>
@@ -24,8 +44,26 @@
 
     
   <url>
+    <loc>http://keaimo.com/2017/12/08/linux-ops-base/</loc>
+    <lastmod>2018-01-02T05:42:12.936Z</lastmod>
+    <data>
+        <display>
+        <title>Linux运维基础</title>
+        <pubTime>2017-12-08T07:02:27.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="Linux运维" url="http://keaimo.com/categories/Linux%E8%BF%90%E7%BB%B4/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://keaimo.com/2017/12/14/mysql-tutorial-1/</loc>
-    <lastmod>2017-12-29T00:43:28.378Z</lastmod>
+    <lastmod>2017-12-29T01:01:03.808Z</lastmod>
     <data>
         <display>
         <title>MySQL通识-基础应用</title>
@@ -44,11 +82,11 @@
 
     
   <url>
-    <loc>http://keaimo.com/2017/12/14/mysql-tutorial-3/</loc>
-    <lastmod>2017-12-27T02:11:55.164Z</lastmod>
+    <loc>http://keaimo.com/2017/12/14/mysql-tutorial-2/</loc>
+    <lastmod>2017-12-29T00:44:21.941Z</lastmod>
     <data>
         <display>
-        <title>MySQL通识-SQL</title>
+        <title>MySQL通识-高可用</title>
         <pubTime>2017-12-14T01:17:52.000Z</pubTime>
         
         <tag>数据库</tag>
@@ -95,24 +133,6 @@
            
              
               <breadCrumb title="MySQL" url="http://keaimo.com/categories/MySQL/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://keaimo.com/2017/12/08/linux-ops-base/</loc>
-    <lastmod>2017-12-25T05:58:21.728Z</lastmod>
-    <data>
-        <display>
-        <title>Linux运维基础</title>
-        <pubTime>2017-12-08T07:02:27.000Z</pubTime>
-        
-         
-           
-             
-              <breadCrumb title="Linux运维" url="http://keaimo.com/categories/Linux%E8%BF%90%E7%BB%B4/"/>
           
         </display>
     </data>
