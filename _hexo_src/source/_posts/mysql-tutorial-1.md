@@ -141,3 +141,11 @@ mysql> select * from table ;
 30 rows in set (0.59 sec)
 # 在框口不再显示查询结果
 ```
+
+### 直接执行SQL文件
+
+**第一种方式**
+在未连接数据库的情况下，输入 `mysql -h localhost -u root -p 123456  < d:\book.sql` 回车即可；
+
+**第二种方式**
+在已连接数据库的情况下，此时命令提示符为`mysql>`，输入 `source d:\book.sql`  或者 `\. d:\book.sql` 回车即可。
