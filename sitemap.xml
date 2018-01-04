@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://keaimo.com/2017/11/20/hexo-jekyllrb-tutorial/</loc>
+    
+    <lastmod>2018-01-04T07:43:14.887Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://keaimo.com/2018/01/02/java-jdbc-timeout/</loc>
     
     <lastmod>2018-01-02T09:18:36.061Z</lastmod>
@@ -61,13 +68,6 @@
     <loc>http://keaimo.com/about/index.html</loc>
     
     <lastmod>2017-12-19T07:02:25.767Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://keaimo.com/2017/11/20/hexo-jekyllrb-tutorial/</loc>
-    
-    <lastmod>2017-12-19T06:51:10.463Z</lastmod>
     
   </url>
   

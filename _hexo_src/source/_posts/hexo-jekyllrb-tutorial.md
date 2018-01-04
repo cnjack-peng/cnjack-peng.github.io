@@ -42,6 +42,11 @@ $ git clone https://github.com/iissnan/hexo-theme-next themes/next
 > 站点配置文件：是你的 hexo 博客目录下面的 _config.yml 文件。
 > 主题配置文件：是 themes/next 目录下的 _config.yml 文件。
 
+### 访问统计
+
+打开 Hexo 目录下的 \themes\next\ _config.yml 文件
+{% asset_img next-visit-count.png %}
+
 ### 打开侧边栏
 ```bash
 sidebar:
@@ -109,3 +114,8 @@ Jekyllrb依赖Ruby，需要安装Ruby环境
 
 ### Minimal Mistakes
 Minimal Mistakes（https://mademistakes.com/work/minimal-mistakes-jekyll-theme/）是一个Jekyllrb主题
+
+
+## 评论服务
+
+Disqus第三方评论服务。
