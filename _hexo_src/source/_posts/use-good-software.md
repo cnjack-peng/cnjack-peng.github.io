@@ -11,5 +11,6 @@ categories: 日常工作
 ------- | ---- | ------- | -------
 FSCapture | 否 | windows | 自带视频录制功能
 Bandicam | 否 | windows | 
-Open Broadcaster Software (OBS) | 开源 | windows、mac、linux | 
+[Open Broadcaster Software (OBS)](https://obsproject.com) | 开源 | windows、mac、linux | 
+[ScreenToGif](https://github.com/NickeManarin/ScreenToGif) | 开源 | windows | GIF录制
 
