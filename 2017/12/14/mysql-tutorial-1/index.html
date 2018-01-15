@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="基础运维命令用户管理查询MySQL所有用户：12SELECT User, Host, Password FROM mysql.user;SELECT DISTINCT User FROM mysql.user; 添加MySQL用户：1234create user keaimo identified by &apos;keaimopw&apos;;grant all privileges on *.* to keaim">
+<meta name="description" content="基础运维命令连接MySQL1234--本地连接mysql -h localhost -u root -p123--远程连接mysql -h localhost -u root -p123 基本命令一览   命令 说明     show processlist 显示正在执行的SQL，显示完整SQL使用show full processlist   show databases 显示所有数据库">
 <meta name="keywords" content="数据库">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MySQL通识-基础应用">
 <meta property="og:url" content="http://keaimo.com/2017/12/14/mysql-tutorial-1/index.html">
 <meta property="og:site_name" content="笑傲江湖└JP┐">
-<meta property="og:description" content="基础运维命令用户管理查询MySQL所有用户：12SELECT User, Host, Password FROM mysql.user;SELECT DISTINCT User FROM mysql.user; 添加MySQL用户：1234create user keaimo identified by &apos;keaimopw&apos;;grant all privileges on *.* to keaim">
+<meta property="og:description" content="基础运维命令连接MySQL1234--本地连接mysql -h localhost -u root -p123--远程连接mysql -h localhost -u root -p123 基本命令一览   命令 说明     show processlist 显示正在执行的SQL，显示完整SQL使用show full processlist   show databases 显示所有数据库">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-12-29T01:01:03.808Z">
+<meta property="og:updated_time" content="2018-01-15T07:42:19.548Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="MySQL通识-基础应用">
-<meta name="twitter:description" content="基础运维命令用户管理查询MySQL所有用户：12SELECT User, Host, Password FROM mysql.user;SELECT DISTINCT User FROM mysql.user; 添加MySQL用户：1234create user keaimo identified by &apos;keaimopw&apos;;grant all privileges on *.* to keaim">
+<meta name="twitter:description" content="基础运维命令连接MySQL1234--本地连接mysql -h localhost -u root -p123--远程连接mysql -h localhost -u root -p123 基本命令一览   命令 说明     show processlist 显示正在执行的SQL，显示完整SQL使用show full processlist   show databases 显示所有数据库">
 
 
 
@@ -366,7 +366,26 @@
       
 
       
-        <h2 id="基础运维命令"><a href="#基础运维命令" class="headerlink" title="基础运维命令"></a>基础运维命令</h2><h3 id="用户管理"><a href="#用户管理" class="headerlink" title="用户管理"></a>用户管理</h3><h4 id="查询MySQL所有用户："><a href="#查询MySQL所有用户：" class="headerlink" title="查询MySQL所有用户："></a>查询MySQL所有用户：</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">User</span>, Host, <span class="keyword">Password</span> <span class="keyword">FROM</span> mysql.user;</span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">DISTINCT</span> <span class="keyword">User</span> <span class="keyword">FROM</span> mysql.user;</span><br></pre></td></tr></table></figure>
+        <h2 id="基础运维命令"><a href="#基础运维命令" class="headerlink" title="基础运维命令"></a>基础运维命令</h2><h3 id="连接MySQL"><a href="#连接MySQL" class="headerlink" title="连接MySQL"></a>连接MySQL</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">--本地连接</span><br><span class="line">mysql -h localhost -u root -p123</span><br><span class="line">--远程连接</span><br><span class="line">mysql -h localhost -u root -p123</span><br></pre></td></tr></table></figure>
+<h3 id="基本命令一览"><a href="#基本命令一览" class="headerlink" title="基本命令一览"></a>基本命令一览</h3><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>show processlist</td>
+<td>显示正在执行的SQL，显示完整SQL使用<code>show full processlist</code></td>
+</tr>
+<tr>
+<td>show databases</td>
+<td>显示所有数据库</td>
+</tr>
+</tbody>
+</table>
+<h3 id="用户管理"><a href="#用户管理" class="headerlink" title="用户管理"></a>用户管理</h3><h4 id="查询MySQL所有用户："><a href="#查询MySQL所有用户：" class="headerlink" title="查询MySQL所有用户："></a>查询MySQL所有用户：</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">User</span>, Host, <span class="keyword">Password</span> <span class="keyword">FROM</span> mysql.user;</span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">DISTINCT</span> <span class="keyword">User</span> <span class="keyword">FROM</span> mysql.user;</span><br></pre></td></tr></table></figure>
 <h4 id="添加MySQL用户："><a href="#添加MySQL用户：" class="headerlink" title="添加MySQL用户："></a>添加MySQL用户：</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">user</span> keaimo <span class="keyword">identified</span> <span class="keyword">by</span> <span class="string">'keaimopw'</span>;</span><br><span class="line"><span class="keyword">grant</span> all <span class="keyword">privileges</span> <span class="keyword">on</span> *.* <span class="keyword">to</span> keaimo@<span class="string">'%'</span> <span class="keyword">identified</span> <span class="keyword">by</span> <span class="string">'keaimopw'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">show</span> <span class="keyword">grants</span> <span class="keyword">for</span> <span class="string">'keaimo'</span>;</span><br></pre></td></tr></table></figure>
 <h4 id="忘记root密码："><a href="#忘记root密码：" class="headerlink" title="忘记root密码："></a>忘记root密码：</h4><p><strong>方法一</strong></p>
 <ol>
@@ -472,8 +491,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/12/14/mysql-tutorial-3/" rel="prev" title="MySQL通识-SQL">
-                MySQL通识-SQL <i class="fa fa-chevron-right"></i>
+              <a href="/2017/12/18/poi-read-excel/" rel="prev" title="POI两种读取Excel的方式">
+                POI两种读取Excel的方式 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -555,7 +574,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-count">22</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -632,7 +651,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基础运维命令"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x57FA;&#x7840;&#x8FD0;&#x7EF4;&#x547D;&#x4EE4;" class="headerlink" title="&#x57FA;&#x7840;&#x8FD0;&#x7EF4;&#x547D;&#x4EE4;"></a>&#x57FA;&#x7840;&#x8FD0;&#x7EF4;&#x547D;&#x4EE4;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#用户管理"><span class="nav-number">1.1.</span> <span class="nav-text"><a href="#&#x7528;&#x6237;&#x7BA1;&#x7406;" class="headerlink" title="&#x7528;&#x6237;&#x7BA1;&#x7406;"></a>&#x7528;&#x6237;&#x7BA1;&#x7406;</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#查询MySQL所有用户："><span class="nav-number">1.1.1.</span> <span class="nav-text"><a href="#&#x67E5;&#x8BE2;MySQL&#x6240;&#x6709;&#x7528;&#x6237;&#xFF1A;" class="headerlink" title="&#x67E5;&#x8BE2;MySQL&#x6240;&#x6709;&#x7528;&#x6237;&#xFF1A;"></a>&#x67E5;&#x8BE2;MySQL&#x6240;&#x6709;&#x7528;&#x6237;&#xFF1A;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#添加MySQL用户："><span class="nav-number">1.1.2.</span> <span class="nav-text"><a href="#&#x6DFB;&#x52A0;MySQL&#x7528;&#x6237;&#xFF1A;" class="headerlink" title="&#x6DFB;&#x52A0;MySQL&#x7528;&#x6237;&#xFF1A;"></a>&#x6DFB;&#x52A0;MySQL&#x7528;&#x6237;&#xFF1A;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#忘记root密码："><span class="nav-number">1.1.3.</span> <span class="nav-text"><a href="#&#x5FD8;&#x8BB0;root&#x5BC6;&#x7801;&#xFF1A;" class="headerlink" title="&#x5FD8;&#x8BB0;root&#x5BC6;&#x7801;&#xFF1A;"></a>&#x5FD8;&#x8BB0;root&#x5BC6;&#x7801;&#xFF1A;</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#环境信息"><span class="nav-number">1.2.</span> <span class="nav-text"><a href="#&#x73AF;&#x5883;&#x4FE1;&#x606F;" class="headerlink" title="&#x73AF;&#x5883;&#x4FE1;&#x606F;"></a>&#x73AF;&#x5883;&#x4FE1;&#x606F;</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#MySQL版本信息"><span class="nav-number">1.2.1.</span> <span class="nav-text"><a href="#MySQL&#x7248;&#x672C;&#x4FE1;&#x606F;" class="headerlink" title="MySQL&#x7248;&#x672C;&#x4FE1;&#x606F;"></a>MySQL&#x7248;&#x672C;&#x4FE1;&#x606F;</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实时SQL监控"><span class="nav-number">1.3.</span> <span class="nav-text"><a href="#&#x5B9E;&#x65F6;SQL&#x76D1;&#x63A7;" class="headerlink" title="&#x5B9E;&#x65F6;SQL&#x76D1;&#x63A7;"></a>&#x5B9E;&#x65F6;SQL&#x76D1;&#x63A7;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查询结果导出到文件"><span class="nav-number">1.4.</span> <span class="nav-text"><a href="#&#x67E5;&#x8BE2;&#x7ED3;&#x679C;&#x5BFC;&#x51FA;&#x5230;&#x6587;&#x4EF6;" class="headerlink" title="&#x67E5;&#x8BE2;&#x7ED3;&#x679C;&#x5BFC;&#x51FA;&#x5230;&#x6587;&#x4EF6;"></a>&#x67E5;&#x8BE2;&#x7ED3;&#x679C;&#x5BFC;&#x51FA;&#x5230;&#x6587;&#x4EF6;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#直接执行SQL文件"><span class="nav-number">1.5.</span> <span class="nav-text"><a href="#&#x76F4;&#x63A5;&#x6267;&#x884C;SQL&#x6587;&#x4EF6;" class="headerlink" title="&#x76F4;&#x63A5;&#x6267;&#x884C;SQL&#x6587;&#x4EF6;"></a>&#x76F4;&#x63A5;&#x6267;&#x884C;SQL&#x6587;&#x4EF6;</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基础运维命令"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x57FA;&#x7840;&#x8FD0;&#x7EF4;&#x547D;&#x4EE4;" class="headerlink" title="&#x57FA;&#x7840;&#x8FD0;&#x7EF4;&#x547D;&#x4EE4;"></a>&#x57FA;&#x7840;&#x8FD0;&#x7EF4;&#x547D;&#x4EE4;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#连接MySQL"><span class="nav-number">1.1.</span> <span class="nav-text"><a href="#&#x8FDE;&#x63A5;MySQL" class="headerlink" title="&#x8FDE;&#x63A5;MySQL"></a>&#x8FDE;&#x63A5;MySQL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基本命令一览"><span class="nav-number">1.2.</span> <span class="nav-text"><a href="#&#x57FA;&#x672C;&#x547D;&#x4EE4;&#x4E00;&#x89C8;" class="headerlink" title="&#x57FA;&#x672C;&#x547D;&#x4EE4;&#x4E00;&#x89C8;"></a>&#x57FA;&#x672C;&#x547D;&#x4EE4;&#x4E00;&#x89C8;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#用户管理"><span class="nav-number">1.3.</span> <span class="nav-text"><a href="#&#x7528;&#x6237;&#x7BA1;&#x7406;" class="headerlink" title="&#x7528;&#x6237;&#x7BA1;&#x7406;"></a>&#x7528;&#x6237;&#x7BA1;&#x7406;</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#查询MySQL所有用户："><span class="nav-number">1.3.1.</span> <span class="nav-text"><a href="#&#x67E5;&#x8BE2;MySQL&#x6240;&#x6709;&#x7528;&#x6237;&#xFF1A;" class="headerlink" title="&#x67E5;&#x8BE2;MySQL&#x6240;&#x6709;&#x7528;&#x6237;&#xFF1A;"></a>&#x67E5;&#x8BE2;MySQL&#x6240;&#x6709;&#x7528;&#x6237;&#xFF1A;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#添加MySQL用户："><span class="nav-number">1.3.2.</span> <span class="nav-text"><a href="#&#x6DFB;&#x52A0;MySQL&#x7528;&#x6237;&#xFF1A;" class="headerlink" title="&#x6DFB;&#x52A0;MySQL&#x7528;&#x6237;&#xFF1A;"></a>&#x6DFB;&#x52A0;MySQL&#x7528;&#x6237;&#xFF1A;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#忘记root密码："><span class="nav-number">1.3.3.</span> <span class="nav-text"><a href="#&#x5FD8;&#x8BB0;root&#x5BC6;&#x7801;&#xFF1A;" class="headerlink" title="&#x5FD8;&#x8BB0;root&#x5BC6;&#x7801;&#xFF1A;"></a>&#x5FD8;&#x8BB0;root&#x5BC6;&#x7801;&#xFF1A;</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#环境信息"><span class="nav-number">1.4.</span> <span class="nav-text"><a href="#&#x73AF;&#x5883;&#x4FE1;&#x606F;" class="headerlink" title="&#x73AF;&#x5883;&#x4FE1;&#x606F;"></a>&#x73AF;&#x5883;&#x4FE1;&#x606F;</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#MySQL版本信息"><span class="nav-number">1.4.1.</span> <span class="nav-text"><a href="#MySQL&#x7248;&#x672C;&#x4FE1;&#x606F;" class="headerlink" title="MySQL&#x7248;&#x672C;&#x4FE1;&#x606F;"></a>MySQL&#x7248;&#x672C;&#x4FE1;&#x606F;</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实时SQL监控"><span class="nav-number">1.5.</span> <span class="nav-text"><a href="#&#x5B9E;&#x65F6;SQL&#x76D1;&#x63A7;" class="headerlink" title="&#x5B9E;&#x65F6;SQL&#x76D1;&#x63A7;"></a>&#x5B9E;&#x65F6;SQL&#x76D1;&#x63A7;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#查询结果导出到文件"><span class="nav-number">1.6.</span> <span class="nav-text"><a href="#&#x67E5;&#x8BE2;&#x7ED3;&#x679C;&#x5BFC;&#x51FA;&#x5230;&#x6587;&#x4EF6;" class="headerlink" title="&#x67E5;&#x8BE2;&#x7ED3;&#x679C;&#x5BFC;&#x51FA;&#x5230;&#x6587;&#x4EF6;"></a>&#x67E5;&#x8BE2;&#x7ED3;&#x679C;&#x5BFC;&#x51FA;&#x5230;&#x6587;&#x4EF6;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#直接执行SQL文件"><span class="nav-number">1.7.</span> <span class="nav-text"><a href="#&#x76F4;&#x63A5;&#x6267;&#x884C;SQL&#x6587;&#x4EF6;" class="headerlink" title="&#x76F4;&#x63A5;&#x6267;&#x884C;SQL&#x6587;&#x4EF6;"></a>&#x76F4;&#x63A5;&#x6267;&#x884C;SQL&#x6587;&#x4EF6;</span></a></li></ol></li></ol></div>
             
 
           </div>

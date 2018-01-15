@@ -276,6 +276,341 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/12/14/mysql-tutorial-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jack Peng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="笑傲江湖└JP┐">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/12/14/mysql-tutorial-2/" itemprop="url">MySQL通识-高可用</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-14T09:17:52+08:00">
+                2017-12-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MySQL/" itemprop="url" rel="index">
+                    <span itemprop="name">MySQL</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="二进制日志"><a href="#二进制日志" class="headerlink" title="二进制日志"></a>二进制日志</h2><p>准备两台MySQL服务器，版本越接近越好</p>
+<p>###　查看二进制日志状态</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">show variables like <span class="string">'log_bin'</span>;</span><br><span class="line">show variables like <span class="string">'%log_bin%'</span>;</span><br><span class="line">show variables like <span class="string">'binlog_format'</span>;</span><br></pre></td></tr></table></figure>
+<p>###　开启二进制日志<br>修改my.cnf，在[mysqld]下面增加log_bin=mysql_bin_log，重启MySQL后，你就会发现log_bin变为了ON。如果在my.cnf里面只设置log_bin，但是不指定file_name，然后重启数据库。你会发现二进制日志文件名称为${hostname}-bin 这样的格式。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[mysqld]</span><br><span class="line">log_bin=/mysql/bin_log/mysql_binlog</span><br></pre></td></tr></table></figure></p>
+<p>###　查看二进制日志文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">show binary logs;</span><br><span class="line">show master logs;</span><br><span class="line">show master status;</span><br></pre></td></tr></table></figure>
+<h3 id="切换二进制日志"><a href="#切换二进制日志" class="headerlink" title="切换二进制日志"></a>切换二进制日志</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">flush logs;</span><br></pre></td></tr></table></figure>
+<p>每次MySQL重启也会生成新的二进制日志文件。</p>
+<h3 id="删除二进制日志"><a href="#删除二进制日志" class="headerlink" title="删除二进制日志"></a>删除二进制日志</h3><p><code>purge binary logs to xxx;</code>表示删除某个日志之前的所有二进制日志文件。这个命令会修改index中相关数据：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">purge binary logs to <span class="string">'DB-Server-bin.000002'</span>;</span><br></pre></td></tr></table></figure></p>
+<p>清除某个时间点以前的二进制日志文件：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">purge binary logs before <span class="string">'2017-03-10 10:10:00'</span>;</span><br></pre></td></tr></table></figure></p>
+<p>清除7天前的二进制日志文件：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">purge master logs before date_sub( now( ), interval 7 day);</span><br></pre></td></tr></table></figure></p>
+<p>清除所有的二进制日志文件（当前不存在主从复制关系）:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">reset master;</span><br></pre></td></tr></table></figure></p>
+<p>也可以设置expire_logs_days参数，设置自动清理，其默认值为0,表示不启用过期自动删除功能，如果启用了自动清理功能，表示超出此天数的二进制日志文件将被自动删除，自动删除工作通常发生在MySQL启动时或FLUSH日志时。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">show variables like <span class="string">'expire_logs_days'</span>;</span><br></pre></td></tr></table></figure></p>
+<h3 id="查看二进制日志内容"><a href="#查看二进制日志内容" class="headerlink" title="查看二进制日志内容"></a>查看二进制日志内容</h3><h4 id="show-binlog-events"><a href="#show-binlog-events" class="headerlink" title="show binlog events"></a>show binlog events</h4><p>使用show binlog events方式可以获取当前以及指定binlog的日志，不适宜提取大量日志。<code>SHOW BINLOG EVENTS[IN &#39;log_name&#39;] [FROM pos] [LIMIT [offset,] row_count]</code>。生产环境不要执行这个命令，可能会导致卡死，应该使用limit限制查询大小：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">show</span> <span class="keyword">binlog</span> <span class="keyword">events</span>;</span><br><span class="line"><span class="keyword">show</span> <span class="keyword">binlog</span> <span class="keyword">events</span> <span class="keyword">in</span> <span class="string">'DB-Server-bin.000012'</span>;</span><br><span class="line"><span class="keyword">show</span> <span class="keyword">binlog</span> <span class="keyword">events</span> <span class="keyword">in</span> <span class="string">'DB-Server-bin.000012'</span> <span class="keyword">from</span> <span class="number">336</span>;</span><br></pre></td></tr></table></figure></p>
+<h4 id="mysqlbinlog"><a href="#mysqlbinlog" class="headerlink" title="mysqlbinlog"></a>mysqlbinlog</h4><p>当bin-log的模式设置为row时不仅日志长得快 并且查看执行的sql时 也稍微麻烦一点：1.干扰语句多；2生成sql的编码需要解码。直接mysqlbinlog出来的文件执行sql部分的sql显示为base64编码格式，故生成sql记录的时候不能用常规的办法去生成，需要加上相应的参数才能显示出sql语句<code>--base64-output=decode-rows -v</code>。<br>使用时可能会报错<code>mysqlbinlog: unknown variable &#39;default-character-set=utf8mb4&#39;</code>，原因是mysqlbinlog这个工具无法识别binlog中的配置中的default-character-set=utf8这个指令，解决的办法有两个:</p>
+<ol>
+<li>将/etc/my.cnf中配置的default-character-set = utf8mb4修改为character-set-server = utf8mb4 但是这种修改方法需要重启数据库, 在线上业务库中使用这种方法查看 binlog 日志并不划算</li>
+<li>mysqlbinlog –no-defaults mysql-bin.000256 完美解决;</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 提取指定的binlog日志  </span></span><br><span class="line">mysqlbinlog /opt/data/APP01bin.000001  </span><br><span class="line">mysqlbinlog /opt/data/APP01bin.000001|grep insert  </span><br><span class="line"></span><br><span class="line"><span class="comment"># 提取指定position位置的binlog日志  </span></span><br><span class="line">mysqlbinlog --start-position=<span class="string">"120"</span> --stop-position=<span class="string">"332"</span> /opt/data/APP01bin.000001  </span><br><span class="line">  </span><br><span class="line"><span class="comment"># 提取指定position位置的binlog日志并输出到压缩文件  </span></span><br><span class="line">mysqlbinlog --start-position=<span class="string">"120"</span> --stop-position=<span class="string">"332"</span> /opt/data/APP01bin.000001 |gzip &gt;extra_01.sql.gz  </span><br><span class="line">  </span><br><span class="line"><span class="comment"># 提取指定position位置的binlog日志导入数据库  </span></span><br><span class="line">mysqlbinlog --start-position=<span class="string">"120"</span> --stop-position=<span class="string">"332"</span> /opt/data/APP01bin.000001 | mysql -uroot -p  </span><br><span class="line">  </span><br><span class="line"><span class="comment"># 提取指定开始时间的binlog并输出到日志文件  </span></span><br><span class="line">mysqlbinlog --start-datetime=<span class="string">"2014-12-15 20:15:23"</span> /opt/data/APP01bin.000002 --result-file=extra02.sql  </span><br><span class="line">  </span><br><span class="line"><span class="comment"># 提取指定位置的多个binlog日志文件  </span></span><br><span class="line">mysqlbinlog --start-position=<span class="string">"120"</span> --stop-position=<span class="string">"332"</span> /opt/data/APP01bin.000001 /opt/data/APP01bin.000002|more  </span><br><span class="line">  </span><br><span class="line"><span class="comment"># 提取指定数据库binlog并转换字符集到UTF8  </span></span><br><span class="line">mysqlbinlog --database=<span class="built_in">test</span> --<span class="built_in">set</span>-charset=utf8 /opt/data/APP01bin.000001 /opt/data/APP01bin.000002 &gt;test.sql  </span><br><span class="line">  </span><br><span class="line"><span class="comment"># 远程提取日志，指定结束时间   </span></span><br><span class="line">mysqlbinlog -urobin -p -h192.168.1.116 -P3306 --stop-datetime=<span class="string">"2014-12-15 20:30:23"</span> --<span class="built_in">read</span>-from-remote-server mysql-bin.000033 |more  </span><br><span class="line">  </span><br><span class="line"><span class="comment"># 远程提取使用row格式的binlog日志并输出到本地文件  </span></span><br><span class="line">mysqlbinlog -urobin -p -P3606 -h192.168.1.177 --<span class="built_in">read</span>-from-remote-server -vv inst3606bin.000005 &gt;row.sql</span><br></pre></td></tr></table></figure>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/12/14/mysql-tutorial-3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jack Peng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="笑傲江湖└JP┐">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/12/14/mysql-tutorial-3/" itemprop="url">MySQL通识-SQL</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-14T09:17:52+08:00">
+                2017-12-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MySQL/" itemprop="url" rel="index">
+                    <span itemprop="name">MySQL</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="JOIN"><a href="#JOIN" class="headerlink" title="JOIN"></a>JOIN</h2><h3 id="INNER-JOIN"><a href="#INNER-JOIN" class="headerlink" title="INNER JOIN"></a>INNER JOIN</h3><img src="/2017/12/14/mysql-tutorial-3/inner_join.gif" title="INNER JOIN">
+<p>INNER JOIN（内连接,或等值连接）：获取两个表中字段匹配关系的记录。默认为INNER JOIN。</p>
+<h3 id="LEFT-JOIN"><a href="#LEFT-JOIN" class="headerlink" title="LEFT JOIN"></a>LEFT JOIN</h3><img src="/2017/12/14/mysql-tutorial-3/left_join.gif" title="LEFT JOIN">
+<p>LEFT JOIN（左连接）：获取左表所有记录，即使右表没有对应匹配的记录。</p>
+<h3 id="RIGHT-JOIN"><a href="#RIGHT-JOIN" class="headerlink" title="RIGHT JOIN"></a>RIGHT JOIN</h3><img src="/2017/12/14/mysql-tutorial-3/right_join.gif" title="RIGHT JOIN">
+<p>RIGHT JOIN（右连接）： 与 LEFT JOIN 相反，用于获取右表所有记录，即使左表没有对应匹配的记录。</p>
+<h2 id="GROUP-BY"><a href="#GROUP-BY" class="headerlink" title="GROUP BY"></a>GROUP BY</h2><p>分组依据为多条件组合成一个条件，当组合条件相同时为一组。</p>
+<h2 id="MySql避免重复插入记录"><a href="#MySql避免重复插入记录" class="headerlink" title="MySql避免重复插入记录"></a>MySql避免重复插入记录</h2><p>提供三种在mysql中避免重复插入记录方法，主要是讲到了ignore,Replace,ON DUPLICATE KEY UPDATE三种方法。</p>
+<h3 id="使用ignore关键字"><a href="#使用ignore关键字" class="headerlink" title="使用ignore关键字"></a>使用ignore关键字</h3><p>如果是用主键primary或者唯一索引unique区分了记录的唯一性,避免重复插入记录可以使用：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">IGNORE</span> <span class="keyword">INTO</span> <span class="string">`table_name`</span> (<span class="string">`email`</span>, <span class="string">`phone`</span>, <span class="string">`user_id`</span>) </span><br><span class="line"><span class="keyword">VALUES</span> (<span class="string">'test9@163.com'</span>, <span class="string">'99999'</span>, <span class="string">'9999'</span>);</span><br></pre></td></tr></table></figure></p>
+<p>这样当有重复记录就会忽略,执行后返回数字0。还有个应用就是复制表,避免重复记录：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">IGNORE</span> <span class="keyword">INTO</span> <span class="string">`table_1`</span> (<span class="string">`name`</span>) <span class="keyword">SELECT</span> <span class="string">`name`</span> <span class="keyword">FROM</span> <span class="string">`table_2`</span>;</span><br></pre></td></tr></table></figure></p>
+<h3 id="使用Replace"><a href="#使用Replace" class="headerlink" title="使用Replace"></a>使用Replace</h3><p>语法格式：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">REPLACE</span> <span class="keyword">INTO</span> <span class="string">`table_name`</span>(<span class="string">`col_name`</span>, ...) <span class="keyword">VALUES</span> (...);</span><br><span class="line"><span class="keyword">REPLACE</span> <span class="keyword">INTO</span> <span class="string">`table_name`</span> (<span class="string">`col_name`</span>, ...) <span class="keyword">SELECT</span> ...;</span><br><span class="line"><span class="keyword">REPLACE</span> <span class="keyword">INTO</span> <span class="string">`table_name`</span> <span class="keyword">SET</span> <span class="string">`col_name`</span>=<span class="string">'value'</span>,</span><br></pre></td></tr></table></figure></p>
+<p>REPLACE的运行与INSERT很相像,但是如果旧记录与新记录有相同的值，则在新记录被插入之前，旧记录被删除，即：</p>
+<ol>
+<li>尝试把新行插入到表中</li>
+<li>当因为对于主键或唯一关键字出现重复关键字错误而造成插入失败时：从表中删除含有重复关键字值的冲突行,再次尝试把新行插入到表中。旧记录与新记录有相同的值的判断标准就是：表有一个PRIMARY KEY或UNIQUE索引，否则，使用一个REPLACE语句没有意义。该语句会与INSERT相同，因为没有索引被用于确定是否新行复制了其它的行。</li>
+</ol>
+<p><strong>返回值：</strong><br>REPLACE语句会返回一个数，来指示受影响的行的数目。该数是被删除和被插入的行数的和。受影响的行数可以容易地确定是否REPLACE只添加了一行，或者是否REPLACE也替换了其它行：检查该数是否为1（添加）或更大（替换）。</p>
+<p>示例:(phone字段为唯一索引)<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">REPLACE</span> <span class="keyword">INTO</span> <span class="string">`table_name`</span> (<span class="string">`email`</span>, <span class="string">`phone`</span>, <span class="string">`user_id`</span>) </span><br><span class="line"><span class="keyword">VALUES</span> (<span class="string">'test569'</span>, <span class="string">'99999'</span>, <span class="string">'123'</span>);</span><br></pre></td></tr></table></figure></p>
+<p>另外,在 SQL Server 中可以这样处理：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">if not exists (<span class="keyword">select</span> phone <span class="keyword">from</span> t <span class="keyword">where</span> phone= <span class="string">'1'</span>)   </span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> t(phone, update_time) <span class="keyword">values</span>(<span class="string">'1'</span>, <span class="keyword">getdate</span>()) </span><br><span class="line"><span class="keyword">else</span>    </span><br><span class="line"><span class="keyword">update</span> t <span class="keyword">set</span> update_time = <span class="keyword">getdate</span>() <span class="keyword">where</span> phone= <span class="string">'1'</span></span><br></pre></td></tr></table></figure></p>
+<h3 id="ON-DUPLICATE-KEY-UPDATE"><a href="#ON-DUPLICATE-KEY-UPDATE" class="headerlink" title="ON DUPLICATE KEY UPDATE"></a>ON DUPLICATE KEY UPDATE</h3><p>如‍上所写，你也可以在INSERT INTO…..后面加上 ON DUPLICATE KEY UPDATE方法来实现。如果您指定了ON DUPLICATE KEY UPDATE，并且插入行后会导致在一个UNIQUE索引或PRIMARY KEY中出现重复值，则执行旧行UPDATE。例如，如果列a被定义为UNIQUE，并且包含值1，则以下两个语句具有相同的效果：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`table`</span> (<span class="string">`a`</span>, <span class="string">`b`</span>, <span class="string">`c`</span>) <span class="keyword">VALUES</span> (<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>) </span><br><span class="line"><span class="keyword">ON</span> <span class="keyword">DUPLICATE</span> <span class="keyword">KEY</span> <span class="keyword">UPDATE</span> <span class="string">`c`</span>=<span class="string">`c`</span>+<span class="number">1</span>; </span><br><span class="line"><span class="keyword">UPDATE</span> <span class="string">`table`</span> <span class="keyword">SET</span> <span class="string">`c`</span>=<span class="string">`c`</span>+<span class="number">1</span> <span class="keyword">WHERE</span> <span class="string">`a`</span>=<span class="number">1</span>;</span><br></pre></td></tr></table></figure></p>
+<p>如果行作为新记录被插入，则受影响行的值为1；如果原有的记录被更新，则受影响行的值为2。如果列b也是唯一列，则INSERT与此UPDATE语句相当：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">UPDATE</span> <span class="string">`table`</span> <span class="keyword">SET</span> <span class="string">`c`</span>=<span class="string">`c`</span>+<span class="number">1</span> <span class="keyword">WHERE</span> <span class="string">`a`</span>=<span class="number">1</span> <span class="keyword">OR</span> <span class="string">`b`</span>=<span class="number">2</span> <span class="keyword">LIMIT</span> <span class="number">1</span>;</span><br></pre></td></tr></table></figure></p>
+<p>如果a=1 OR b=2与多个行向匹配，则只有一个行被更新。通常，您应该尽量避免对带有多个唯一关键字的表使用ON DUPLICATE KEY子句。</p>
+<p>您可以在UPDATE子句中使用VALUES(col_name)函数从INSERT…UPDATE语句的INSERT部分引用列值。换句话说，如果没有发生重复关键字冲突，则UPDATE子句中的VALUES(col_name)可以引用被插入的col_name的值。本函数特别适用于多行插入。VALUES()函数只在INSERT…UPDATE语句中有意义，其它时候会返回NULL。<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`table`</span> (<span class="string">`a`</span>, <span class="string">`b`</span>, <span class="string">`c`</span>) <span class="keyword">VALUES</span> (<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>), (<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>) </span><br><span class="line"><span class="keyword">ON</span> <span class="keyword">DUPLICATE</span> <span class="keyword">KEY</span> <span class="keyword">UPDATE</span> <span class="string">`c`</span>=<span class="keyword">VALUES</span>(<span class="string">`a`</span>)+<span class="keyword">VALUES</span>(<span class="string">`b`</span>);</span><br></pre></td></tr></table></figure></p>
+<p>本语句与以下两个语句作用相同：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`table`</span> (<span class="string">`a`</span>, <span class="string">`b`</span>, <span class="string">`c`</span>) <span class="keyword">VALUES</span> (<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>) <span class="keyword">ON</span> <span class="keyword">DUPLICATE</span> <span class="keyword">KEY</span> <span class="keyword">UPDATE</span> <span class="string">`c`</span>=<span class="number">3</span>; </span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`table`</span> (<span class="string">`a`</span>, <span class="string">`b`</span>, <span class="string">`c`</span>) <span class="keyword">VALUES</span> (<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>) <span class="keyword">ON</span> <span class="keyword">DUPLICATE</span> <span class="keyword">KEY</span> <span class="keyword">UPDATE</span> c=<span class="number">9</span>;</span><br></pre></td></tr></table></figure></p>
+<p>注释：当您使用ON DUPLICATE KEY UPDATE时，DELAYED选项被忽略。</p>
+<p>示例：<br>这个例子是我在实际项目中用到的：是将一个表的数据导入到另外一个表中，数据的重复性就得考虑(如下)，唯一索引为：email：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`table_name1`</span> (<span class="string">`title`</span>, <span class="string">`first_name`</span>, <span class="string">`last_name`</span>, <span class="string">`email`</span>, <span class="string">`phone`</span>, </span><br><span class="line"><span class="string">`user_id`</span>, <span class="string">`role_id`</span>, <span class="string">`status`</span>, <span class="string">`campaign_id`</span>) </span><br><span class="line">    <span class="keyword">SELECT</span> <span class="string">''</span>, <span class="string">''</span>, <span class="string">''</span>, <span class="string">`table_name2`</span>.<span class="string">`email`</span>, <span class="string">`table_name2`</span>.<span class="string">`phone`</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, </span><br><span class="line"><span class="string">'pending'</span>, <span class="number">29</span> <span class="keyword">FROM</span> <span class="string">`table_name2`</span> </span><br><span class="line">    <span class="keyword">WHERE</span> <span class="string">`table_name2`</span>.<span class="string">`status`</span> = <span class="number">1</span> </span><br><span class="line"><span class="keyword">ON</span> <span class="keyword">DUPLICATE</span> <span class="keyword">KEY</span> <span class="keyword">UPDATE</span> <span class="string">`table_name1`</span>.<span class="string">`status`</span>=<span class="string">'pending'</span></span><br></pre></td></tr></table></figure></p>
+<p>再贴一个例子：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`class`</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> <span class="string">`class1`</span> </span><br><span class="line"><span class="keyword">ON</span> <span class="keyword">DUPLICATE</span> <span class="keyword">KEY</span> <span class="keyword">UPDATE</span> <span class="string">`class`</span>.<span class="string">`course`</span>=<span class="string">`class1`</span>.<span class="string">`course`</span></span><br></pre></td></tr></table></figure></p>
+<p>其它关键：DELAYED  做为快速插入，并不是很关心失效性，提高插入性能。<br>IGNORE  只关注主键对应记录是不存在，无则添加，有则忽略。</p>
+<p>更多信息请看:  <a href="http://dev.mysql.com/doc/refman/5.1/zh/sql-syntax.html#insert" target="_blank" rel="noopener">http://dev.mysql.com/doc/refman/5.1/zh/sql-syntax.html#insert</a></p>
+<p>特别说明：在MYSQL中UNIQUE索引将会对null字段失效，也就是说(a字段上建立唯一索引)：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> <span class="string">`test`</span> (<span class="string">`a`</span>) <span class="keyword">VALUES</span> (<span class="literal">NULL</span>);</span><br></pre></td></tr></table></figure></p>
+<p>是可以重复插入的（联合唯一索引也一样）。</p>
+<h2 id="MySQL关联更新"><a href="#MySQL关联更新" class="headerlink" title="MySQL关联更新"></a>MySQL关联更新</h2><p>对单表执行更新没有什么好说的，无非就是update table_name set col1 = xx,col2 = yy where col = zz，主要就是where条件的设置。有时候更新某个表可能会涉及到多张数据表，例如：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> table_1 <span class="keyword">set</span> score = score + <span class="number">5</span> <span class="keyword">where</span> uid <span class="keyword">in</span> (<span class="keyword">select</span> uid <span class="keyword">from</span> table_2 <span class="keyword">where</span> <span class="keyword">sid</span> = <span class="number">10</span>);</span><br></pre></td></tr></table></figure></p>
+<p>其实update也可以用到left join、inner join来进行关联，可能执行效率更高，把上面的sql替换成join的方式如下：<br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">update</span> table_1 t1 <span class="keyword">inner</span> <span class="keyword">join</span> table_2 t2 <span class="keyword">on</span> t1.uid = t2.uid <span class="keyword">set</span> score = score + <span class="number">5</span> <span class="keyword">where</span> t2.sid = <span class="number">10</span>;</span><br></pre></td></tr></table></figure></p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/12/12/linux-cache/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1560,336 +1895,11 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/11/29/netsafe-technology/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jack Peng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="笑傲江湖└JP┐">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/11/29/netsafe-technology/" itemprop="url">开发者的网络安全技术</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-29T15:13:18+08:00">
-                2017-11-29
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/网络安全/" itemprop="url" rel="index">
-                    <span itemprop="name">网络安全</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>本文主要对软件开发者相关的系统安全问题进行总结。</p>
-<h2 id="攻击类型"><a href="#攻击类型" class="headerlink" title="攻击类型"></a>攻击类型</h2><h3 id="XSS"><a href="#XSS" class="headerlink" title="XSS"></a>XSS</h3><h3 id="CSRF"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</h3><h4 id="产生原理"><a href="#产生原理" class="headerlink" title="产生原理"></a>产生原理</h4><img src="/2017/11/29/netsafe-technology/csrf_principle.png" title="CSRF原理图">
-<p>想要攻击成功，这三步缺一不可。</p>
-<ul>
-<li>第一，登录受害者网站。如果受害者网站是基于 cookie 的用户验证机制，那么当用户登录成功后，浏览器就会保存一份服务端的 SESSIONID。</li>
-<li>第二，这时候在同一个浏览器打开攻击者网站，虽然说它无法获取 SESSIONID 是什么（因为设置了 http only 的 cookie 是无法被 JavaScript 获取的），但是从浏览器向受害者网站发出的任何请求中，都会携带它的 cookie，无论是从哪个网站发出。</li>
-<li>第三，利用这个原理，在攻击者网站发出一个请求，命令受害者网站进行一些敏感操作。由于此时发出的请求是处于 session 中的，所以只要该用户有权限，那么任何请求都会被执行。</li>
-</ul>
-<p>比如，打开优酷，并登录。再打开攻击者网站，它里面有个 <code>&lt;img&gt;</code> 标签是这样的：</p>
-<pre><code class="html"><span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"http://api.youku.com/follow/123"</span> /&gt;</span>
-</code></pre>
-<p>这个 api 只是个例子，具体的 url 和参数都可以通过浏览器的开发者工具（Network 功能）事先确定。假如它的作用是让该登录的用户关注由 123 确定的一个节目或者用户，那么通过 CSRF 攻击，这个节目的关注量就会不断上升。</p>
-<p>解释两点。第一，为什么举这个例子，而不是银行这种和金钱有关的操作？很简单，因为它容易猜。对于攻击者来说，没有什么是一定能成功的，比如 SQL 注入，攻击者他不知道某网站的数据库是怎么设计的，但是他一般会通过个人经验去尝试，比如很多网站把用户的主键设置为 user_id，或 sys_id 等。</p>
-<p>银行的操作往往经过多重确认，比如图形验证码、手机验证码等，光靠 CSRF 完成一次攻击基本上是天方夜谭。但其他类型的网站往往不会刻意去防范这些问题。虽然金钱上的利益很难得到，但 CSRF 能办到的事情还是很多，比如利用别人发虚假微博、加好友等，这些都能对攻击者产生利益。</p>
-<p>第二，如何确保用户打开优酷之后，又打开攻击者网站？做不到。否则任何人打开优酷之后，都会莫名其妙地去关注某个节目了。但是你要知道，这个攻击成本仅仅是一条 API 调用而已，它在哪里都能出现，你从任何地方下载一张图片，让你请求这个地址，看也不看就点确定，请求不就发出去了吗？</p>
-<h4 id="防范手段"><a href="#防范手段" class="headerlink" title="防范手段"></a>防范手段</h4><p>对于如何防范 CSRF，一般有三种手段。</p>
-<h5 id="判断请求头Referer"><a href="#判断请求头Referer" class="headerlink" title="判断请求头Referer"></a>判断请求头Referer</h5><p>这个字段记录的是请求的来源。比如 <a href="http://www.example.com" target="_blank" rel="noopener">http://www.example.com</a> 上调用了百度的接口 <a href="http://api.map.baidu.com/service" target="_blank" rel="noopener">http://api.map.baidu.com/service</a> 那么在百度的服务端，就可以通过 Referer 判断这个请求是来自哪里。</p>
-<p>在实际应用中，这些跟业务逻辑无关的操作往往会放在拦截器中（或者说过滤器，不同技术使用的名词可能不同）。意思是说，在进入到业务逻辑之前，就应该要根据 Referer 的值来决定这个请求能不能处理。</p>
-<p>在 Java Servlet 中可以用 Filter（古老的技术）；用 Spring 的话可以建拦截器；在 Express 中是叫中间件，通过 request.get(‘referer’) 来取得这个值。每种技术它走的流程其实都一样。</p>
-<p>但要注意的是，Referer 是浏览器设置的，在浏览器兼容性大不相同的时代中，如果存在某种浏览器允许用户修改这个值，那么 CSRF 漏洞依然存在。</p>
-<h5 id="在请求参数中加入-csrf-token"><a href="#在请求参数中加入-csrf-token" class="headerlink" title="在请求参数中加入 csrf token"></a>在请求参数中加入 csrf token</h5><p>讨论 GET 和 POST 两种请求，对于 GET，其实也没什么需要防范的。为什么？因为 GET 在“约定”当中，被认为是查询操作，查询的意思就是，你查一次，查两次，无数次，结果都不会改变（用户得到的数据可能会变），这不会对数据库造成任何影响，所以不需要加其他额外的参数。</p>
-<blockquote>
-<p>所以这里要提醒各位的是，尽量遵从这些约定，不要在 GET 请求中出现 /delete, /update, /edit 这种单词。把“写”操作放到 POST 中。</p>
-</blockquote>
-<p>对于 POST，服务端在创建表单的时候可以加一个隐藏字段，也是通过某种加密算法得到的。在处理请求时，验证这个字段是否合法，如果合法就继续处理，否则就认为是恶意操作。</p>
-<pre><code class="html"><span class="tag">&lt;<span class="name">form</span> <span class="attr">method</span>=<span class="string">"post"</span> <span class="attr">action</span>=<span class="string">"/delete"</span>&gt;</span>
-  <span class="comment">&lt;!-- 其他字段 --&gt;</span>
-  <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"hidden"</span> <span class="attr">name</span>=<span class="string">"csrftoken"</span> <span class="attr">value</span>=<span class="string">"由服务端生成"</span>/&gt;</span>
-<span class="tag">&lt;/<span class="name">form</span>&gt;</span>
-</code></pre>
-<p>这个 html 片段由服务端生成，比如 JSP，PHP 等，对于 Node.js 的话可以是 Jade 。</p>
-<p>这的确是一个很好的防范措施，再增加一些处理的话，还能防止表单重复提交。</p>
-<p>可是对于一些新兴网站，很多都采用了“单页”的设计，或者退一步，无论是不是单页，它的 HTML 可能是由 JavaScript 拼接而成，并且表单也都是异步提交。所以这个办法有它的应用场景，也有局限性。</p>
-<h5 id="新增-HTTP-Header"><a href="#新增-HTTP-Header" class="headerlink" title="新增 HTTP Header"></a>新增 HTTP Header</h5><p>思想是，将 token 放在请求头中，服务端可以像获取 Referer 一样获取这个请求头，不同的是，这个 token 是由服务端生成的，所以攻击者他没办法猜。这篇文章的另一个重点——JWT——就是基于这个方式。抛开 JWT 不谈，它的工作原理是这样的:<br><img src="/2017/11/29/netsafe-technology/csrf_header.png" title="CSRF添加Header"></p>
-<p>解释一下这四个请求，类型都是 POST 。</p>
-<p>1.通过 /login 接口，用户登录，服务端传回一个 access_token，前端把它保存起来，可以是内存当中，如果你希望用来模拟 session 的话。也可以保存到 localStorage 中，这样可以实现自动登录。<br>2.调用 /delete 接口，参数是某样商品的 id。仔细看，在这个请求中，多了一个名为 Authoriaztion 的 header，它的值是之前从服务端传回来的 access_token，在前面加了一个“Bearer”（这是和服务端的约定，约定就是说，说好了加就一起加，不加就都不加……）<br>3.调用 /logout 接口，同样把 access_token 加在 header 中传过去。成功之后，服务端和前端都会把这个 token 置为失效，或直接删除。<br>4.再调用 /delete 接口，由于此时已经没有 access_token 了，所以服务端判断该请求没权限，返回 401 。</p>
-<p>各位有没有发现，从头至尾，整个过程没有涉及 cookie，所以 CSRF 是不可能发生的！</p>
-<h3 id="重放攻击"><a href="#重放攻击" class="headerlink" title="重放攻击"></a>重放攻击</h3>
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/11/20/hexo-jekyllrb-tutorial/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jack Peng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="笑傲江湖└JP┐">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/11/20/hexo-jekyllrb-tutorial/" itemprop="url">HEXO&Jekyllrb Tutorial</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-20T17:30:00+08:00">
-                2017-11-20
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/小技巧/" itemprop="url" rel="index">
-                    <span itemprop="name">小技巧</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <p>HEXO是一个静态BLOG APPS。</p>
-<h2 id="Hexo安装配置"><a href="#Hexo安装配置" class="headerlink" title="Hexo安装配置"></a>Hexo安装配置</h2><h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cnpm install hexo-cli -g</span><br></pre></td></tr></table></figure>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2017/11/20/hexo-jekyllrb-tutorial/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1939,7 +1949,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-count">22</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

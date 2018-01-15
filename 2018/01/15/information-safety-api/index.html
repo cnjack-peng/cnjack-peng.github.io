@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="方法getOrDefault如果指定的key存在，则返回该key对应的value，如果不存在，则返回指定的值。例子如下1System.out.println(map.getOrDefault(4, &quot;d&quot;)); forEach遍历Map中的所有Entry, 对key, value进行处理， 接收参数 (K, V) -&amp;gt; void, 例子如下12// 输出1a, 2b, 3cmap.forEa">
+<meta name="description" content="服务端对外开放API接口，尤其对移动应用开放接口的时候，更需要关注接口安全性的问题，要确保应用APP与API之间的安全通信，防止数据被恶意篡改等攻击。 安全考量点Token机制开放接口时最基本需要考虑到接口不应该被别人随意访问，而我也不能随意访问到其他用户的数据，从而保证用户与用户之间的数据隔离。这个时候我们就有必要引入Token机制了。具体的做法： 在用户成功登录时，系统可以返回客户端一个Tok">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java - ConcurrentHashMap">
-<meta property="og:url" content="http://keaimo.com/2018/01/15/java-concurrenthashmap/index.html">
+<meta property="og:title" content="开放接口API安全性">
+<meta property="og:url" content="http://keaimo.com/2018/01/15/information-safety-api/index.html">
 <meta property="og:site_name" content="笑傲江湖└JP┐">
-<meta property="og:description" content="方法getOrDefault如果指定的key存在，则返回该key对应的value，如果不存在，则返回指定的值。例子如下1System.out.println(map.getOrDefault(4, &quot;d&quot;)); forEach遍历Map中的所有Entry, 对key, value进行处理， 接收参数 (K, V) -&amp;gt; void, 例子如下12// 输出1a, 2b, 3cmap.forEa">
+<meta property="og:description" content="服务端对外开放API接口，尤其对移动应用开放接口的时候，更需要关注接口安全性的问题，要确保应用APP与API之间的安全通信，防止数据被恶意篡改等攻击。 安全考量点Token机制开放接口时最基本需要考虑到接口不应该被别人随意访问，而我也不能随意访问到其他用户的数据，从而保证用户与用户之间的数据隔离。这个时候我们就有必要引入Token机制了。具体的做法： 在用户成功登录时，系统可以返回客户端一个Tok">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-01-15T04:09:06.873Z">
+<meta property="og:updated_time" content="2018-01-15T07:43:15.467Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Java - ConcurrentHashMap">
-<meta name="twitter:description" content="方法getOrDefault如果指定的key存在，则返回该key对应的value，如果不存在，则返回指定的值。例子如下1System.out.println(map.getOrDefault(4, &quot;d&quot;)); forEach遍历Map中的所有Entry, 对key, value进行处理， 接收参数 (K, V) -&amp;gt; void, 例子如下12// 输出1a, 2b, 3cmap.forEa">
+<meta name="twitter:title" content="开放接口API安全性">
+<meta name="twitter:description" content="服务端对外开放API接口，尤其对移动应用开放接口的时候，更需要关注接口安全性的问题，要确保应用APP与API之间的安全通信，防止数据被恶意篡改等攻击。 安全考量点Token机制开放接口时最基本需要考虑到接口不应该被别人随意访问，而我也不能随意访问到其他用户的数据，从而保证用户与用户之间的数据隔离。这个时候我们就有必要引入Token机制了。具体的做法： 在用户成功登录时，系统可以返回客户端一个Tok">
 
 
 
@@ -119,13 +119,13 @@
 
 
 
-  <link rel="canonical" href="http://keaimo.com/2018/01/15/java-concurrenthashmap/"/>
+  <link rel="canonical" href="http://keaimo.com/2018/01/15/information-safety-api/"/>
 
 
 
 
 
-  <title>Java - ConcurrentHashMap | 笑傲江湖└JP┐</title>
+  <title>开放接口API安全性 | 笑傲江湖└JP┐</title>
   
 
 
@@ -276,7 +276,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2018/01/15/java-concurrenthashmap/">
+    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2018/01/15/information-safety-api/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jack Peng">
@@ -293,7 +293,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Java - ConcurrentHashMap</h1>
+          <h1 class="post-title" itemprop="name headline">开放接口API安全性</h1>
         
 
         <div class="post-meta">
@@ -305,7 +305,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-15T11:38:14+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-15T14:48:01+08:00">
                 2018-01-15
               </time>
             
@@ -328,8 +328,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/软件开发/" itemprop="url" rel="index">
-                    <span itemprop="name">软件开发</span>
+                  <a href="/categories/网络安全/" itemprop="url" rel="index">
+                    <span itemprop="name">网络安全</span>
                   </a>
                 </span>
 
@@ -365,27 +365,30 @@
       
 
       
-        <h2 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h2><h3 id="getOrDefault"><a href="#getOrDefault" class="headerlink" title="getOrDefault"></a>getOrDefault</h3><p>如果指定的key存在，则返回该key对应的value，如果不存在，则返回指定的值。例子如下<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">System.out.println(map.getOrDefault(<span class="number">4</span>, <span class="string">"d"</span>));</span><br></pre></td></tr></table></figure></p>
-<h3 id="forEach"><a href="#forEach" class="headerlink" title="forEach"></a>forEach</h3><p>遍历Map中的所有Entry, 对key, value进行处理， 接收参数 (K, V) -&gt; void, 例子如下<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 输出1a, 2b, 3c</span></span><br><span class="line">map.forEach((key, value) -&gt; System.out.println(key + value));</span><br></pre></td></tr></table></figure></p>
-<h3 id="replaceAll"><a href="#replaceAll" class="headerlink" title="replaceAll"></a>replaceAll</h3><p>替换Map中所有Entry的value值，这个值由旧的key和value计算得出，接收参数 (K, V) -&gt; V, 类似如下代码<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (Map.Entry&lt;K, V&gt; entry : map.entrySet())</span><br><span class="line">    entry.setValue(function.apply(entry.getKey(), entry.getValue()));</span><br></pre></td></tr></table></figure></p>
-<p>示例如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">map.replaceAll((key, value) -&gt; (key + <span class="number">1</span>) + value);</span><br><span class="line"><span class="comment">// 输出 12a 23b 34c</span></span><br><span class="line">map.forEach((key, value) -&gt; System.out.println(key + value));</span><br></pre></td></tr></table></figure></p>
-<h3 id="putIfAbsent"><a href="#putIfAbsent" class="headerlink" title="putIfAbsent"></a>putIfAbsent</h3><p>putIfAbsent用来原子性的获取键值，如果键值存在则返回原来的值，不存在设置为给定的值后返回null，类似如下代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">V v = map.get(key);</span><br><span class="line"><span class="keyword">if</span> (v == <span class="keyword">null</span>)</span><br><span class="line">    v = map.put(key, value);</span><br><span class="line"><span class="keyword">return</span> v;</span><br></pre></td></tr></table></figure></p>
-<p>这里需要注意的是，如果改key已经有值，则总是返回旧的值，并不会将你调用时传入的第二个参数set进去，这个方法通常用来初始化键值。示例代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">map.putIfAbsent(<span class="number">3</span>, <span class="string">"d"</span>);</span><br><span class="line">map.putIfAbsent(<span class="number">4</span>, <span class="string">"d"</span>);</span><br><span class="line"><span class="comment">// 输出 c</span></span><br><span class="line">System.out.println(map.get(<span class="number">3</span>));</span><br><span class="line"><span class="comment">// 输出 d</span></span><br><span class="line">System.out.println(map.get(<span class="number">4</span>));</span><br></pre></td></tr></table></figure></p>
-<h3 id="remove"><a href="#remove" class="headerlink" title="remove"></a>remove</h3><p>接收2个参数，key和value，如果key关联的value值与指定的value值相等（equals)，则删除这个元素，类似代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (map.containsKey(key) &amp;&amp; Objects.equals(map.get(key), value)) &#123;</span><br><span class="line">    map.remove(key);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125; <span class="keyword">else</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br></pre></td></tr></table></figure></p>
-<p>示例代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">map.remove(<span class="number">1</span>, <span class="string">"b"</span>);</span><br><span class="line"><span class="comment">// 未删除成功， 输出 a</span></span><br><span class="line">System.out.println(map.get(<span class="number">1</span>));</span><br><span class="line">map.remove(<span class="number">2</span>, <span class="string">"b"</span>);</span><br><span class="line"><span class="comment">// 删除成功，输出 null</span></span><br><span class="line">System.out.println(map.get(<span class="number">2</span>));</span><br></pre></td></tr></table></figure></p>
-<p>在多线程编程中，可以根据remove的结果（boolean）判断是否删除成功，从而进行业务处理，这个删除方法是线程安全的。</p>
-<h3 id="replace-K-key-V-oldValue-V-newValue"><a href="#replace-K-key-V-oldValue-V-newValue" class="headerlink" title="replace(K key, V oldValue, V newValue)"></a>replace(K key, V oldValue, V newValue)</h3><p>如果key关联的值与指定的oldValue的值相等，则替换成新的newValue，类似代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (map.containsKey(key) &amp;&amp; Objects.equals(map.get(key), value)) &#123;</span><br><span class="line">    map.put(key, newValue);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125; <span class="keyword">else</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br></pre></td></tr></table></figure></p>
-<p>示例代码如下<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">map.replace(<span class="number">3</span>, <span class="string">"a"</span>, <span class="string">"z"</span>);</span><br><span class="line"><span class="comment">// 未替换成功，输出 c</span></span><br><span class="line">System.out.println(map.get(<span class="number">3</span>));</span><br><span class="line">map.replace(<span class="number">1</span>, <span class="string">"a"</span>, <span class="string">"z"</span>);</span><br><span class="line"><span class="comment">// 替换成功， 输出 z</span></span><br><span class="line">System.out.println(map.get(<span class="number">1</span>));</span><br></pre></td></tr></table></figure></p>
-<h3 id="replace-K-key-V-value"><a href="#replace-K-key-V-value" class="headerlink" title="replace(K key, V value)"></a>replace(K key, V value)</h3><p>如果map中存在key，则替换成value值，否则返回null, 类似代码如下:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (map.containsKey(key)) &#123;</span><br><span class="line">    <span class="keyword">return</span> map.put(key, value);</span><br><span class="line">&#125; <span class="keyword">else</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br></pre></td></tr></table></figure></p>
-<p>示例代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 输出旧的值， a</span></span><br><span class="line">System.out.println(map.replace(<span class="number">1</span>, <span class="string">"aa"</span>));</span><br><span class="line"><span class="comment">// 替换成功，输出新的值， aa</span></span><br><span class="line">System.out.println(map.get(<span class="number">1</span>));</span><br><span class="line"><span class="comment">// 不存在key为4， 输出 null</span></span><br><span class="line">System.out.println(map.replace(<span class="number">4</span>, <span class="string">"d"</span>));</span><br><span class="line"><span class="comment">// 不存在key为4， 输出 null</span></span><br><span class="line">System.out.println(map.get(<span class="number">4</span>));</span><br></pre></td></tr></table></figure></p>
-<h3 id="computeIfAbsent"><a href="#computeIfAbsent" class="headerlink" title="computeIfAbsent"></a>computeIfAbsent</h3><p>如果指定的key不存在，则通过指定的K -&gt; V计算出新的值设置为key的值，类似代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (map.get(key) == <span class="keyword">null</span>) &#123;</span><br><span class="line">    V newValue = mappingFunction.apply(key);</span><br><span class="line">    <span class="keyword">if</span> (newValue != <span class="keyword">null</span>)</span><br><span class="line">        map.put(key, newValue);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>示例代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">map.computeIfAbsent(<span class="number">1</span>, key -&gt; key + <span class="string">" computed"</span>);</span><br><span class="line"><span class="comment">// 存在key为1，则不进行计算，输出值 a</span></span><br><span class="line">System.out.println(map.get(<span class="number">1</span>));</span><br><span class="line">map.computeIfAbsent(<span class="number">4</span>, key -&gt; key + <span class="string">" computed"</span>);</span><br><span class="line"><span class="comment">// 不存在key为4，则进行计算，输出值 4 computed</span></span><br><span class="line">System.out.println(map.get(<span class="number">4</span>));</span><br></pre></td></tr></table></figure></p>
-<h3 id="computeIfPresent"><a href="#computeIfPresent" class="headerlink" title="computeIfPresent"></a>computeIfPresent</h3><p>如果指定的key存在，则根据旧的key和value计算新的值newValue, 如果newValue不为null，则设置key新的值为newValue, 如果newValue为null, 则删除该key的值，类似代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (map.get(key) != <span class="keyword">null</span>) &#123;</span><br><span class="line">    V oldValue = map.get(key);</span><br><span class="line">    V newValue = remappingFunction.apply(key, oldValue);</span><br><span class="line">    <span class="keyword">if</span> (newValue != <span class="keyword">null</span>)</span><br><span class="line">        map.put(key, newValue);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        map.remove(key);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>示例代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">map.computeIfPresent(<span class="number">1</span>, (key, value) -&gt; (key + <span class="number">1</span>) + value);</span><br><span class="line"><span class="comment">// 存在key为1， 则根据旧的key和value计算新的值，输出 2a</span></span><br><span class="line">System.out.println(map.get(<span class="number">1</span>));</span><br><span class="line">map.computeIfPresent(<span class="number">2</span>, (key, value) -&gt; <span class="keyword">null</span>);</span><br><span class="line"><span class="comment">// 存在key为2， 根据旧的key和value计算得到null，删除该值，输出 null</span></span><br><span class="line">System.out.println(map.get(<span class="number">2</span>));</span><br></pre></td></tr></table></figure></p>
-<h3 id="compute"><a href="#compute" class="headerlink" title="compute"></a>compute</h3><p>compute方法是computeIfAbsent与computeIfPresent的综合体。</p>
-<h3 id="merge-K-key-V-value-BiFunction-lt-super-V-super-V-extends-V-gt-remappingFunction"><a href="#merge-K-key-V-value-BiFunction-lt-super-V-super-V-extends-V-gt-remappingFunction" class="headerlink" title="merge(K key, V value, BiFunction&lt;? super V, ? super V, ? extends V&gt; remappingFunction)"></a>merge(K key, V value, BiFunction&lt;? super V, ? super V, ? extends V&gt; remappingFunction)</h3><p>如果指定的key不存在，则设置指定的value值，否则根据key的旧的值oldvalue，value计算出新的值newValue, 如果newValue为null, 则删除该key，否则设置key的新值newValue。类似如下代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">V oldValue = map.get(key);</span><br><span class="line">V newValue = (oldValue == <span class="keyword">null</span>) ? value :</span><br><span class="line">        remappingFunction.apply(oldValue, value);</span><br><span class="line"><span class="keyword">if</span> (newValue == <span class="keyword">null</span>)</span><br><span class="line">    map.remove(key);</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    map.put(key, newValue);</span><br></pre></td></tr></table></figure></p>
-<p>示例代码如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 存在key为1， 输出 a merge</span></span><br><span class="line">System.out.println(map.merge(<span class="number">1</span>, <span class="string">" merge"</span>, (oldValue, newValue) -&gt; oldValue + newValue));</span><br><span class="line"><span class="comment">// 新值为null，删除key，输出 null</span></span><br><span class="line">System.out.println(map.merge(<span class="number">1</span>, <span class="string">" merge"</span>, (oldValue, newValue) -&gt; <span class="keyword">null</span>));</span><br><span class="line"><span class="comment">// 输出 " merge"</span></span><br><span class="line">System.out.println(map.merge(<span class="number">4</span>, <span class="string">" merge"</span>, (oldValue, newValue) -&gt; oldValue + newValue));</span><br></pre></td></tr></table></figure>
+        <p>服务端对外开放API接口，尤其对移动应用开放接口的时候，更需要关注接口安全性的问题，要确保应用APP与API之间的安全通信，防止数据被恶意篡改等攻击。</p>
+<h2 id="安全考量点"><a href="#安全考量点" class="headerlink" title="安全考量点"></a>安全考量点</h2><h3 id="Token机制"><a href="#Token机制" class="headerlink" title="Token机制"></a>Token机制</h3><p>开放接口时最基本需要考虑到接口不应该被别人随意访问，而我也不能随意访问到其他用户的数据，从而保证用户与用户之间的数据隔离。这个时候我们就有必要引入Token机制了。具体的做法： 在用户成功登录时，系统可以返回客户端一个Token，后续客户端调用服务端的接口，都需要带上Token，而服务端需要校验客户端Token的合法性。Token不一致的情况下，服务端需要拦截该请求。</p>
+<h3 id="对数据进行校验"><a href="#对数据进行校验" class="headerlink" title="对数据进行校验"></a>对数据进行校验</h3><p>服务端从某种层面来说需要验证接受到数据是否和客户端发来的数据是否一致，要验证数据在传输过程中有没有被注入攻击。这时候客户端和服务端就有必要做签名和验签。具体做法：<strong> 客户端对所有请求服务端接口参数做加密生成签名，并将签名作为请求参数一并传到服务端，服务端接受到请求同时要做验签的操作，对称加密对请求参数生成签名，并与客户端传过来的签名进行比对，如签名不一致，服务端需要拦截该请求</strong></p>
+<h3 id="过载保护"><a href="#过载保护" class="headerlink" title="过载保护"></a>过载保护</h3><p>服务端仍然需要识别一些恶意请求，防止接口被一些丧心病狂的人玩坏。对接口访问频率设置一定阈值，对超过阈值的请求进行屏蔽及预警。</p>
+<h3 id="异常封装"><a href="#异常封装" class="headerlink" title="异常封装"></a>异常封装</h3><p>服务端需要构建异常统一处理框架，将服务可能出现的异常做统一封装，返回固定的code与msg，防止程序堆栈信息暴露。</p>
+<h3 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h3><p>HTTPS能够有效防止中间人攻击，有效保证接口不被劫持，对数据窃取篡改做了安全防范。但HTTP升级HTTPS会带来更多的握手，而握手中的运算会带来更多的性能消耗。这也是不得不考虑的问题。</p>
+<p>总得来说，我们非常有必要在设计接口的同时考虑安全性的问题，根据业务特点，采用的安全策略也不全相同。当然大多数安全策略更多的都是提高安全门槛，并不能保证100%的安全，但该做的还是不能少。</p>
+<h2 id="Token签名sign的设计与实现"><a href="#Token签名sign的设计与实现" class="headerlink" title="Token签名sign的设计与实现"></a>Token签名sign的设计与实现</h2><p>对于敏感的api接口，需使用https协议,https是在http超文本传输协议加入SSL层，它在网络间通信是加密的，所以需要加密证书。https协议需要ca证书，一般需要交费。</p>
+<h3 id="签名的设计"><a href="#签名的设计" class="headerlink" title="签名的设计"></a>签名的设计</h3><p>原理：用户登录后向服务器提供用户认证信息（如账户和密码），服务器认证完后给客户端返回一个Token令牌，用户再次获取信息时，带上此令牌，如果令牌正取，则返回数据。对于获取Token信息后，访问用户相关接口，客户端请求的url需要带上如下参数：</p>
+<blockquote>
+<p>时间戳:        timestamp<br>Token令牌:    token</p>
+</blockquote>
+<p>然后将所有用户请求的参数按照字母排序（包括timestamp，token），然后使用MD5（可以加点盐）或者SHA1加密，全部大写，生成sign签名，这就是所说的url签名算法。然后登陆后每次调用用户信息时，带上sign，timestamp，token参数。例如：原请求<code>https://www.andy.cn/api/user/update/info.shtml?city=北京</code> （post和get都一样，对所有参数排序加密），加上时间戳和token后<code>https://www.andy.cn/api/user/update/info.shtml?city=北京&amp;timestamp=12445323134&amp;token=wefkfjdskfjewfjkjfdfnc</code>，然后根据url参数生成sign，最终的请求如<code>https://www.andy.cn/api/user/update/info.shtml?city=北京×tamp=12445323134&amp;token=wefkfjdskfjewfjkjfdfnc&amp;sign=FDK2434JKJFD334FDF2</code>，其最终的原理是减小明文的暴露次数，保证数据安全的访问。</p>
+<h3 id="具体实现"><a href="#具体实现" class="headerlink" title="具体实现"></a>具体实现</h3><p>API请求客户端想服务器端第一次发送用用户认证信息（用户名和密码），服务器端请求到改请求后，验证用户信息是否正确。如果正确：则返回一个唯一不重复的字符串（一般为UUID），然后在Redis（任意缓存服务器）中维护<code>Token —&gt; Uid</code>的用户信息关系，以便其他API对token的校验。如果错误：则返回错误码。</p>
+<p>服务器设计一个url请求拦截规则:</p>
+<ol>
+<li>判断是否包含timestamp，token，sign参数，如果不含有返回错误码。</li>
+<li>判断服务器接到请求的时间和参数中的时间戳是否相差很长一段时间（时间自定义如半个小时），如果超过则说明该url已经过期（如果url被盗，他改变了时间戳，但是会导致sign签名不相等）。</li>
+<li>判断token是否有效，根据请求过来的token，查询redis缓存中的uid，如果获取不到这说明该token已过期。</li>
+<li>根据用户请求的url参数，服务器端按照同样的规则生成sign签名，对比签名看是否相等，相等则放行。（url签名也无法100%保证其安全，也可以通过公钥AES对数据和url加密，但这样如果无法确保公钥丢失，所以签名只是很大程 度上保证安全）。</li>
+<li>此url拦截只需对获取身份认证的url放行（如登陆url），剩余所有的url都需拦截。</li>
+</ol>
+<p>对于用户登录我们需要创建token–uid的关系，用户退出时需要需删除<code>token –&gt; uid</code>的关系。</p>
+
       
     </div>
     
@@ -409,8 +412,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/01/11/regular-expressions/" rel="next" title="正则表达式必知必会">
-                <i class="fa fa-chevron-left"></i> 正则表达式必知必会
+              <a href="/2018/01/15/java-concurrenthashmap/" rel="next" title="Java - ConcurrentHashMap">
+                <i class="fa fa-chevron-left"></i> Java - ConcurrentHashMap
               </a>
             
           </div>
@@ -419,8 +422,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2018/01/15/information-safety-api/" rel="prev" title="开放接口API安全性">
-                开放接口API安全性 <i class="fa fa-chevron-right"></i>
+              <a href="/2018/01/15/java-concurrent-sense/" rel="prev" title="Java并发常识">
+                Java并发常识 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -579,7 +582,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#方法"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x65B9;&#x6CD5;" class="headerlink" title="&#x65B9;&#x6CD5;"></a>&#x65B9;&#x6CD5;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#getOrDefault"><span class="nav-number">1.1.</span> <span class="nav-text"><a href="#getOrDefault" class="headerlink" title="getOrDefault"></a>getOrDefault</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#forEach"><span class="nav-number">1.2.</span> <span class="nav-text"><a href="#forEach" class="headerlink" title="forEach"></a>forEach</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#replaceAll"><span class="nav-number">1.3.</span> <span class="nav-text"><a href="#replaceAll" class="headerlink" title="replaceAll"></a>replaceAll</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#putIfAbsent"><span class="nav-number">1.4.</span> <span class="nav-text"><a href="#putIfAbsent" class="headerlink" title="putIfAbsent"></a>putIfAbsent</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#remove"><span class="nav-number">1.5.</span> <span class="nav-text"><a href="#remove" class="headerlink" title="remove"></a>remove</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#replace-K-key-V-oldValue-V-newValue"><span class="nav-number">1.6.</span> <span class="nav-text"><a href="#replace-K-key-V-oldValue-V-newValue" class="headerlink" title="replace(K key, V oldValue, V newValue)"></a>replace(K key, V oldValue, V newValue)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#replace-K-key-V-value"><span class="nav-number">1.7.</span> <span class="nav-text"><a href="#replace-K-key-V-value" class="headerlink" title="replace(K key, V value)"></a>replace(K key, V value)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#computeIfAbsent"><span class="nav-number">1.8.</span> <span class="nav-text"><a href="#computeIfAbsent" class="headerlink" title="computeIfAbsent"></a>computeIfAbsent</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#computeIfPresent"><span class="nav-number">1.9.</span> <span class="nav-text"><a href="#computeIfPresent" class="headerlink" title="computeIfPresent"></a>computeIfPresent</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#compute"><span class="nav-number">1.10.</span> <span class="nav-text"><a href="#compute" class="headerlink" title="compute"></a>compute</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#merge-K-key-V-value-BiFunction-lt-super-V-super-V-extends-V-gt-remappingFunction"><span class="nav-number">1.11.</span> <span class="nav-text"><a href="#merge-K-key-V-value-BiFunction-lt-super-V-super-V-extends-V-gt-remappingFunction" class="headerlink" title="merge(K key, V value, BiFunction&lt;? super V, ? super V, ? extends V&gt; remappingFunction)"></a>merge(K key, V value, BiFunction&lt;? super V, ? super V, ? extends V&gt; remappingFunction)</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#安全考量点"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x5B89;&#x5168;&#x8003;&#x91CF;&#x70B9;" class="headerlink" title="&#x5B89;&#x5168;&#x8003;&#x91CF;&#x70B9;"></a>&#x5B89;&#x5168;&#x8003;&#x91CF;&#x70B9;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Token机制"><span class="nav-number">1.1.</span> <span class="nav-text"><a href="#Token&#x673A;&#x5236;" class="headerlink" title="Token&#x673A;&#x5236;"></a>Token&#x673A;&#x5236;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对数据进行校验"><span class="nav-number">1.2.</span> <span class="nav-text"><a href="#&#x5BF9;&#x6570;&#x636E;&#x8FDB;&#x884C;&#x6821;&#x9A8C;" class="headerlink" title="&#x5BF9;&#x6570;&#x636E;&#x8FDB;&#x884C;&#x6821;&#x9A8C;"></a>&#x5BF9;&#x6570;&#x636E;&#x8FDB;&#x884C;&#x6821;&#x9A8C;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#过载保护"><span class="nav-number">1.3.</span> <span class="nav-text"><a href="#&#x8FC7;&#x8F7D;&#x4FDD;&#x62A4;" class="headerlink" title="&#x8FC7;&#x8F7D;&#x4FDD;&#x62A4;"></a>&#x8FC7;&#x8F7D;&#x4FDD;&#x62A4;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#异常封装"><span class="nav-number">1.4.</span> <span class="nav-text"><a href="#&#x5F02;&#x5E38;&#x5C01;&#x88C5;" class="headerlink" title="&#x5F02;&#x5E38;&#x5C01;&#x88C5;"></a>&#x5F02;&#x5E38;&#x5C01;&#x88C5;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTTPS"><span class="nav-number">1.5.</span> <span class="nav-text"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Token签名sign的设计与实现"><span class="nav-number">2.</span> <span class="nav-text"><a href="#Token&#x7B7E;&#x540D;sign&#x7684;&#x8BBE;&#x8BA1;&#x4E0E;&#x5B9E;&#x73B0;" class="headerlink" title="Token&#x7B7E;&#x540D;sign&#x7684;&#x8BBE;&#x8BA1;&#x4E0E;&#x5B9E;&#x73B0;"></a>Token&#x7B7E;&#x540D;sign&#x7684;&#x8BBE;&#x8BA1;&#x4E0E;&#x5B9E;&#x73B0;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#签名的设计"><span class="nav-number">2.1.</span> <span class="nav-text"><a href="#&#x7B7E;&#x540D;&#x7684;&#x8BBE;&#x8BA1;" class="headerlink" title="&#x7B7E;&#x540D;&#x7684;&#x8BBE;&#x8BA1;"></a>&#x7B7E;&#x540D;&#x7684;&#x8BBE;&#x8BA1;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#具体实现"><span class="nav-number">2.2.</span> <span class="nav-text"><a href="#&#x5177;&#x4F53;&#x5B9E;&#x73B0;" class="headerlink" title="&#x5177;&#x4F53;&#x5B9E;&#x73B0;"></a>&#x5177;&#x4F53;&#x5B9E;&#x73B0;</span></a></li></ol></li></ol></div>
             
 
           </div>

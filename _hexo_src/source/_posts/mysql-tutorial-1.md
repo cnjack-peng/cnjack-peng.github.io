@@ -7,6 +7,23 @@ categories: MySQL
 
 ## 基础运维命令
 
+### 连接MySQL
+
+```bash
+--本地连接
+mysql -h localhost -u root -p123
+--远程连接
+mysql -h localhost -u root -p123
+```
+
+### 基本命令一览
+
+|命令|说明|
+|---|---|
+|show processlist|显示正在执行的SQL，显示完整SQL使用`show full processlist`|
+|show databases|显示所有数据库|
+
+
 ### 用户管理
 
 #### 查询MySQL所有用户：

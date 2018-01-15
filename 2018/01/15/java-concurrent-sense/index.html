@@ -79,17 +79,21 @@
 
 
 
-<meta name="description" content="方法getOrDefault如果指定的key存在，则返回该key对应的value，如果不存在，则返回指定的值。例子如下1System.out.println(map.getOrDefault(4, &quot;d&quot;)); forEach遍历Map中的所有Entry, 对key, value进行处理， 接收参数 (K, V) -&amp;gt; void, 例子如下12// 输出1a, 2b, 3cmap.forEa">
+<meta name="description" content="基本概念什么是并发并发(Concurrency)在我们的现实世界中随处可见，以至于我们常常忽略了它的存在，比方说你在工作（假设你是一名程序员，你的工作就是编程）的时候也可以听听自己喜欢的音乐，并且你的耳朵并不会因为手头的工作而忽略了声音的存在（当然，除非你自己有意的去忽略它，但你还是能够听得见声音，只是你的大脑可能不会去感受音乐的节奏），此时你的大脑既要控制你的双手敲击键盘，也要控制你的耳朵去感受">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java - ConcurrentHashMap">
-<meta property="og:url" content="http://keaimo.com/2018/01/15/java-concurrenthashmap/index.html">
+<meta property="og:title" content="Java并发常识">
+<meta property="og:url" content="http://keaimo.com/2018/01/15/java-concurrent-sense/index.html">
 <meta property="og:site_name" content="笑傲江湖└JP┐">
-<meta property="og:description" content="方法getOrDefault如果指定的key存在，则返回该key对应的value，如果不存在，则返回指定的值。例子如下1System.out.println(map.getOrDefault(4, &quot;d&quot;)); forEach遍历Map中的所有Entry, 对key, value进行处理， 接收参数 (K, V) -&amp;gt; void, 例子如下12// 输出1a, 2b, 3cmap.forEa">
+<meta property="og:description" content="基本概念什么是并发并发(Concurrency)在我们的现实世界中随处可见，以至于我们常常忽略了它的存在，比方说你在工作（假设你是一名程序员，你的工作就是编程）的时候也可以听听自己喜欢的音乐，并且你的耳朵并不会因为手头的工作而忽略了声音的存在（当然，除非你自己有意的去忽略它，但你还是能够听得见声音，只是你的大脑可能不会去感受音乐的节奏），此时你的大脑既要控制你的双手敲击键盘，也要控制你的耳朵去感受">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-01-15T04:09:06.873Z">
+<meta property="og:image" content="http://keaimo.com/2018/01/15/java-concurrent-sense/concurrent.png">
+<meta property="og:image" content="http://keaimo.com/2018/01/15/java-concurrent-sense/intel-concurrence.png">
+<meta property="og:image" content="http://keaimo.com/2018/01/15/java-concurrent-sense/intel-parallelism.png">
+<meta property="og:updated_time" content="2018-01-15T08:04:19.754Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Java - ConcurrentHashMap">
-<meta name="twitter:description" content="方法getOrDefault如果指定的key存在，则返回该key对应的value，如果不存在，则返回指定的值。例子如下1System.out.println(map.getOrDefault(4, &quot;d&quot;)); forEach遍历Map中的所有Entry, 对key, value进行处理， 接收参数 (K, V) -&amp;gt; void, 例子如下12// 输出1a, 2b, 3cmap.forEa">
+<meta name="twitter:title" content="Java并发常识">
+<meta name="twitter:description" content="基本概念什么是并发并发(Concurrency)在我们的现实世界中随处可见，以至于我们常常忽略了它的存在，比方说你在工作（假设你是一名程序员，你的工作就是编程）的时候也可以听听自己喜欢的音乐，并且你的耳朵并不会因为手头的工作而忽略了声音的存在（当然，除非你自己有意的去忽略它，但你还是能够听得见声音，只是你的大脑可能不会去感受音乐的节奏），此时你的大脑既要控制你的双手敲击键盘，也要控制你的耳朵去感受">
+<meta name="twitter:image" content="http://keaimo.com/2018/01/15/java-concurrent-sense/concurrent.png">
 
 
 
@@ -119,13 +123,13 @@
 
 
 
-  <link rel="canonical" href="http://keaimo.com/2018/01/15/java-concurrenthashmap/"/>
+  <link rel="canonical" href="http://keaimo.com/2018/01/15/java-concurrent-sense/"/>
 
 
 
 
 
-  <title>Java - ConcurrentHashMap | 笑傲江湖└JP┐</title>
+  <title>Java并发常识 | 笑傲江湖└JP┐</title>
   
 
 
@@ -276,7 +280,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2018/01/15/java-concurrenthashmap/">
+    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2018/01/15/java-concurrent-sense/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jack Peng">
@@ -293,7 +297,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Java - ConcurrentHashMap</h1>
+          <h1 class="post-title" itemprop="name headline">Java并发常识</h1>
         
 
         <div class="post-meta">
@@ -305,7 +309,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-15T11:38:14+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-15T15:45:05+08:00">
                 2018-01-15
               </time>
             
@@ -365,27 +369,39 @@
       
 
       
-        <h2 id="方法"><a href="#方法" class="headerlink" title="方法"></a>方法</h2><h3 id="getOrDefault"><a href="#getOrDefault" class="headerlink" title="getOrDefault"></a>getOrDefault</h3><p>如果指定的key存在，则返回该key对应的value，如果不存在，则返回指定的值。例子如下<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">System.out.println(map.getOrDefault(<span class="number">4</span>, <span class="string">"d"</span>));</span><br></pre></td></tr></table></figure></p>
-<h3 id="forEach"><a href="#forEach" class="headerlink" title="forEach"></a>forEach</h3><p>遍历Map中的所有Entry, 对key, value进行处理， 接收参数 (K, V) -&gt; void, 例子如下<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 输出1a, 2b, 3c</span></span><br><span class="line">map.forEach((key, value) -&gt; System.out.println(key + value));</span><br></pre></td></tr></table></figure></p>
-<h3 id="replaceAll"><a href="#replaceAll" class="headerlink" title="replaceAll"></a>replaceAll</h3><p>替换Map中所有Entry的value值，这个值由旧的key和value计算得出，接收参数 (K, V) -&gt; V, 类似如下代码<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> (Map.Entry&lt;K, V&gt; entry : map.entrySet())</span><br><span class="line">    entry.setValue(function.apply(entry.getKey(), entry.getValue()));</span><br></pre></td></tr></table></figure></p>
-<p>示例如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">map.replaceAll((key, value) -&gt; (key + <span class="number">1</span>) + value);</span><br><span class="line"><span class="comment">// 输出 12a 23b 34c</span></span><br><span class="line">map.forEach((key, value) -&gt; System.out.println(key + value));</span><br></pre></td></tr></table></figure></p>
-<h3 id="putIfAbsent"><a href="#putIfAbsent" class="headerlink" title="putIfAbsent"></a>putIfAbsent</h3><p>putIfAbsent用来原子性的获取键值，如果键值存在则返回原来的值，不存在设置为给定的值后返回null，类似如下代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">V v = map.get(key);</span><br><span class="line"><span class="keyword">if</span> (v == <span class="keyword">null</span>)</span><br><span class="line">    v = map.put(key, value);</span><br><span class="line"><span class="keyword">return</span> v;</span><br></pre></td></tr></table></figure></p>
-<p>这里需要注意的是，如果改key已经有值，则总是返回旧的值，并不会将你调用时传入的第二个参数set进去，这个方法通常用来初始化键值。示例代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">map.putIfAbsent(<span class="number">3</span>, <span class="string">"d"</span>);</span><br><span class="line">map.putIfAbsent(<span class="number">4</span>, <span class="string">"d"</span>);</span><br><span class="line"><span class="comment">// 输出 c</span></span><br><span class="line">System.out.println(map.get(<span class="number">3</span>));</span><br><span class="line"><span class="comment">// 输出 d</span></span><br><span class="line">System.out.println(map.get(<span class="number">4</span>));</span><br></pre></td></tr></table></figure></p>
-<h3 id="remove"><a href="#remove" class="headerlink" title="remove"></a>remove</h3><p>接收2个参数，key和value，如果key关联的value值与指定的value值相等（equals)，则删除这个元素，类似代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (map.containsKey(key) &amp;&amp; Objects.equals(map.get(key), value)) &#123;</span><br><span class="line">    map.remove(key);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125; <span class="keyword">else</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br></pre></td></tr></table></figure></p>
-<p>示例代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">map.remove(<span class="number">1</span>, <span class="string">"b"</span>);</span><br><span class="line"><span class="comment">// 未删除成功， 输出 a</span></span><br><span class="line">System.out.println(map.get(<span class="number">1</span>));</span><br><span class="line">map.remove(<span class="number">2</span>, <span class="string">"b"</span>);</span><br><span class="line"><span class="comment">// 删除成功，输出 null</span></span><br><span class="line">System.out.println(map.get(<span class="number">2</span>));</span><br></pre></td></tr></table></figure></p>
-<p>在多线程编程中，可以根据remove的结果（boolean）判断是否删除成功，从而进行业务处理，这个删除方法是线程安全的。</p>
-<h3 id="replace-K-key-V-oldValue-V-newValue"><a href="#replace-K-key-V-oldValue-V-newValue" class="headerlink" title="replace(K key, V oldValue, V newValue)"></a>replace(K key, V oldValue, V newValue)</h3><p>如果key关联的值与指定的oldValue的值相等，则替换成新的newValue，类似代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (map.containsKey(key) &amp;&amp; Objects.equals(map.get(key), value)) &#123;</span><br><span class="line">    map.put(key, newValue);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125; <span class="keyword">else</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">false</span>;</span><br></pre></td></tr></table></figure></p>
-<p>示例代码如下<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">map.replace(<span class="number">3</span>, <span class="string">"a"</span>, <span class="string">"z"</span>);</span><br><span class="line"><span class="comment">// 未替换成功，输出 c</span></span><br><span class="line">System.out.println(map.get(<span class="number">3</span>));</span><br><span class="line">map.replace(<span class="number">1</span>, <span class="string">"a"</span>, <span class="string">"z"</span>);</span><br><span class="line"><span class="comment">// 替换成功， 输出 z</span></span><br><span class="line">System.out.println(map.get(<span class="number">1</span>));</span><br></pre></td></tr></table></figure></p>
-<h3 id="replace-K-key-V-value"><a href="#replace-K-key-V-value" class="headerlink" title="replace(K key, V value)"></a>replace(K key, V value)</h3><p>如果map中存在key，则替换成value值，否则返回null, 类似代码如下:<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (map.containsKey(key)) &#123;</span><br><span class="line">    <span class="keyword">return</span> map.put(key, value);</span><br><span class="line">&#125; <span class="keyword">else</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br></pre></td></tr></table></figure></p>
-<p>示例代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 输出旧的值， a</span></span><br><span class="line">System.out.println(map.replace(<span class="number">1</span>, <span class="string">"aa"</span>));</span><br><span class="line"><span class="comment">// 替换成功，输出新的值， aa</span></span><br><span class="line">System.out.println(map.get(<span class="number">1</span>));</span><br><span class="line"><span class="comment">// 不存在key为4， 输出 null</span></span><br><span class="line">System.out.println(map.replace(<span class="number">4</span>, <span class="string">"d"</span>));</span><br><span class="line"><span class="comment">// 不存在key为4， 输出 null</span></span><br><span class="line">System.out.println(map.get(<span class="number">4</span>));</span><br></pre></td></tr></table></figure></p>
-<h3 id="computeIfAbsent"><a href="#computeIfAbsent" class="headerlink" title="computeIfAbsent"></a>computeIfAbsent</h3><p>如果指定的key不存在，则通过指定的K -&gt; V计算出新的值设置为key的值，类似代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (map.get(key) == <span class="keyword">null</span>) &#123;</span><br><span class="line">    V newValue = mappingFunction.apply(key);</span><br><span class="line">    <span class="keyword">if</span> (newValue != <span class="keyword">null</span>)</span><br><span class="line">        map.put(key, newValue);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>示例代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">map.computeIfAbsent(<span class="number">1</span>, key -&gt; key + <span class="string">" computed"</span>);</span><br><span class="line"><span class="comment">// 存在key为1，则不进行计算，输出值 a</span></span><br><span class="line">System.out.println(map.get(<span class="number">1</span>));</span><br><span class="line">map.computeIfAbsent(<span class="number">4</span>, key -&gt; key + <span class="string">" computed"</span>);</span><br><span class="line"><span class="comment">// 不存在key为4，则进行计算，输出值 4 computed</span></span><br><span class="line">System.out.println(map.get(<span class="number">4</span>));</span><br></pre></td></tr></table></figure></p>
-<h3 id="computeIfPresent"><a href="#computeIfPresent" class="headerlink" title="computeIfPresent"></a>computeIfPresent</h3><p>如果指定的key存在，则根据旧的key和value计算新的值newValue, 如果newValue不为null，则设置key新的值为newValue, 如果newValue为null, 则删除该key的值，类似代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (map.get(key) != <span class="keyword">null</span>) &#123;</span><br><span class="line">    V oldValue = map.get(key);</span><br><span class="line">    V newValue = remappingFunction.apply(key, oldValue);</span><br><span class="line">    <span class="keyword">if</span> (newValue != <span class="keyword">null</span>)</span><br><span class="line">        map.put(key, newValue);</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        map.remove(key);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>示例代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">map.computeIfPresent(<span class="number">1</span>, (key, value) -&gt; (key + <span class="number">1</span>) + value);</span><br><span class="line"><span class="comment">// 存在key为1， 则根据旧的key和value计算新的值，输出 2a</span></span><br><span class="line">System.out.println(map.get(<span class="number">1</span>));</span><br><span class="line">map.computeIfPresent(<span class="number">2</span>, (key, value) -&gt; <span class="keyword">null</span>);</span><br><span class="line"><span class="comment">// 存在key为2， 根据旧的key和value计算得到null，删除该值，输出 null</span></span><br><span class="line">System.out.println(map.get(<span class="number">2</span>));</span><br></pre></td></tr></table></figure></p>
-<h3 id="compute"><a href="#compute" class="headerlink" title="compute"></a>compute</h3><p>compute方法是computeIfAbsent与computeIfPresent的综合体。</p>
-<h3 id="merge-K-key-V-value-BiFunction-lt-super-V-super-V-extends-V-gt-remappingFunction"><a href="#merge-K-key-V-value-BiFunction-lt-super-V-super-V-extends-V-gt-remappingFunction" class="headerlink" title="merge(K key, V value, BiFunction&lt;? super V, ? super V, ? extends V&gt; remappingFunction)"></a>merge(K key, V value, BiFunction&lt;? super V, ? super V, ? extends V&gt; remappingFunction)</h3><p>如果指定的key不存在，则设置指定的value值，否则根据key的旧的值oldvalue，value计算出新的值newValue, 如果newValue为null, 则删除该key，否则设置key的新值newValue。类似如下代码：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">V oldValue = map.get(key);</span><br><span class="line">V newValue = (oldValue == <span class="keyword">null</span>) ? value :</span><br><span class="line">        remappingFunction.apply(oldValue, value);</span><br><span class="line"><span class="keyword">if</span> (newValue == <span class="keyword">null</span>)</span><br><span class="line">    map.remove(key);</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    map.put(key, newValue);</span><br></pre></td></tr></table></figure></p>
-<p>示例代码如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 存在key为1， 输出 a merge</span></span><br><span class="line">System.out.println(map.merge(<span class="number">1</span>, <span class="string">" merge"</span>, (oldValue, newValue) -&gt; oldValue + newValue));</span><br><span class="line"><span class="comment">// 新值为null，删除key，输出 null</span></span><br><span class="line">System.out.println(map.merge(<span class="number">1</span>, <span class="string">" merge"</span>, (oldValue, newValue) -&gt; <span class="keyword">null</span>));</span><br><span class="line"><span class="comment">// 输出 " merge"</span></span><br><span class="line">System.out.println(map.merge(<span class="number">4</span>, <span class="string">" merge"</span>, (oldValue, newValue) -&gt; oldValue + newValue));</span><br></pre></td></tr></table></figure>
+        <h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><h3 id="什么是并发"><a href="#什么是并发" class="headerlink" title="什么是并发"></a>什么是并发</h3><p>并发(Concurrency)在我们的现实世界中随处可见，以至于我们常常忽略了它的存在，比方说你在工作（假设你是一名程序员，你的工作就是编程）的时候也可以听听自己喜欢的音乐，并且你的耳朵并不会因为手头的工作而忽略了声音的存在（当然，除非你自己有意的去忽略它，但你还是能够听得见声音，只是你的大脑可能不会去感受音乐的节奏），此时你的大脑既要控制你的双手敲击键盘，也要控制你的耳朵去感受音乐。因此，在一定程度上，你的大脑就在并发地处理不同的事情，并且每个时刻都可能会侧重处理某件事情，比如某个时刻音乐达到高潮并且是你喜欢的旋律，你可能会放慢或者停止手边的工作，但在另外一个时刻你正在编写关键代码，需要全神贯注来避免 Bug 的出现，你可能会把声音调小一点或者干脆摘掉耳机。所以，我们的大脑就在并发地指导我们完成各种任务，或者换一种说法，我们需要处理的任务并发地征用我们的大脑，大脑就相当于计算机的 CPU，而待处理的任务就相当于计算机程序（更确切地说应该是进程或线程等执行实体）。</p>
+<p>不过在现实世界中，我们并不会严格定义什么是并发。而在计算机程序世界中，为了编写高性能的代码，我们应该理解什么是并发，并发的基本特性是什么，哪些问题可以使用并发编程来（高效地）解决，哪些情况下又应该尽量避免使用并发编程，我们在使用并发编程时需要注意一些什么问题，本章的将会给大家介绍并发的基本概念，带领大家学习并发编程的基本技巧。</p>
+<h3 id="并发与并行的联系和区别"><a href="#并发与并行的联系和区别" class="headerlink" title="并发与并行的联系和区别"></a>并发与并行的联系和区别</h3><p>与并发相近的另一个概念是并行(Parallel)。和并发所描述的情况一样，并行也是指两个或多个任务被同时执行。但是严格来讲，并发和并行的概念并是不等同的，两者存在很大的差别。下面我们来看看计算机科学家们是怎么区分并发和并行的。</p>
+<p><strong>Erlang的发明者Joe Armstrong</strong>在他的一篇博文中提到如何向一个 5 岁的小孩去介绍并发和并行的区别，并给出了下面一幅图：</p>
+<img src="/2018/01/15/java-concurrent-sense/concurrent.png" title="并发与并行">
+<p>直观来讲，并发是两个等待队列中的人同时去竞争一台咖啡机（当然，人是有理性懂礼貌的动物（也不排除某些很霸道的人插队的可能），两队列中的排队者也可能约定交替使用咖啡机，也可能是大家同时竞争咖啡机，谁先竞争到咖啡机谁使用，不过后一种的方法可能引发冲突，因为两个队列里面排在队列首位的人可能同时使用咖啡机），每个等待者在使用咖啡机之前不仅需要知道排在他前面那个人是否已经使用完了咖啡机，还需知道另一个队列中排在首位的人是否也正准备使用咖啡机；而并行是每个队列拥有自己的咖啡机，两个队列之间并没有竞争的关系，队列中的某个排队者只需等待队列前面的人使用完咖啡机，然后再轮到自己使用咖啡机。</p>
+<p>因此，并发意味着多个执行实体（比方说上面例子中的人）可能需要竞争资源（咖啡机），因此就不可避免带来竞争和同步的问题；而并行则是不同的执行实体拥有各自的资源，相互之间可能互不干扰。</p>
+<p><strong>Go发明者之一Rob Pike</strong>认为并发是程序本身的一种特性，程序被分为多个可独立执行的部分，而各个可独立执行的片段通过通信手段进行协调，而并行则是程序的计算过程（不同的计算过程可能相关联）同时执行。<br>Rob Pike 的观点是： 并发是一次处理(dealing with)很多事情，而并行是一次做(doing)很多事情.(注: 英文词汇的表达也很微妙)原文是如下：</p>
+<blockquote>
+<p>Concurrency is about dealing with lots of things at once.<br>Parallelism is about doing lots of things at once.</p>
+</blockquote>
+<p>前者是关于程序结构的，而后者是关于程序执行的,Rob认为：</p>
+<blockquote>
+<p>Concurrency provides a way to structure a solution to solve a problem that may (but not necessarily) be parallelizable.</p>
+</blockquote>
+<p>即我们可以利用并发的手段去构建一种解决方案来解决那些有可能被并行处理的问题。作者在本文中还提到，设计并发程序时应该将程序分为多个执行片段，使得每个片段可以独立执行。不同执行片段通过通信(Communication )来进行协调。因此Go的并发模型基于CSP: C. A. R. Hoare: Communicating Sequential Processes (CACM 1978)</p>
+<p><strong>Intel中文网站</strong>的一篇文章曾这样写道:</p>
+<blockquote>
+<p>并发（Concurrence）：指两个或两个以上的事件或活动在同一时间间隔内发生。并发的实质是单个物理 CPU(也可以多个物理CPU) 在若干道程序之间多路复用，并发可以对有限物理资源强制行使多用户共享以提高效率，如下图所示：</p>
+</blockquote>
+<img src="/2018/01/15/java-concurrent-sense/intel-concurrence.png" title="并发与并行">
+<blockquote>
+<p>并行（Parallelism）指两个或两个以上事件或活动在同一时刻发生。在多道程序环境下，并行性使多个程序同一时刻可在不同CPU上同时执行，如下图所示：</p>
+</blockquote>
+<img src="/2018/01/15/java-concurrent-sense/intel-parallelism.png" title="并发与并行">
+<p>此，该文认为并发与并行的区别是：并发是一个处理器同时处理多个任务，而并行多个处理器或者是多核的处理器同时处理多个不同的任务。前者是逻辑上的同时发生（simultaneous），而后者是物理上的同时发生。而两者的联系是：并行的事件或活动一定是并发的，但反之并发的事件或活动未必是并行的。并行性是并发性的特例，而并发性是并行性的扩展。</p>
+<h3 id="并发连接数"><a href="#并发连接数" class="headerlink" title="并发连接数"></a>并发连接数</h3><p>并发连接数-SBC（Simultaneous Browser Connections）指的是客户端向服务器发起请求，并建立了TCP连接。每秒钟服务器链接的总TCP数量，就是并发连接数。</p>
+<h3 id="请求数"><a href="#请求数" class="headerlink" title="请求数"></a>请求数</h3><p>请求数-QPS（Query Per Second）/RPS（Request Per Second），请求数有2个缩写，可以叫QPS也可以叫RPS。单位是每秒多少请求。Query=查询，也相当于请求。请求数指的是客户端在建立完连接后，向HTTP服务发出GET/POST/HEAD数据包，服务器返回了请求结果后有两种情况：</p>
+<ol>
+<li>http数据包头包含Close字样，关闭本次TCP连接；</li>
+<li>http数据包头包含Keep-Alive字样，本次连接不关闭，可继续通过该连接继续向http服务发送请求，用于减少TCP并发连接数。</li>
+</ol>
+
       
     </div>
     
@@ -409,8 +425,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/01/11/regular-expressions/" rel="next" title="正则表达式必知必会">
-                <i class="fa fa-chevron-left"></i> 正则表达式必知必会
+              <a href="/2018/01/15/information-safety-api/" rel="next" title="开放接口API安全性">
+                <i class="fa fa-chevron-left"></i> 开放接口API安全性
               </a>
             
           </div>
@@ -418,10 +434,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/01/15/information-safety-api/" rel="prev" title="开放接口API安全性">
-                开放接口API安全性 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -579,7 +591,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#方法"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x65B9;&#x6CD5;" class="headerlink" title="&#x65B9;&#x6CD5;"></a>&#x65B9;&#x6CD5;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#getOrDefault"><span class="nav-number">1.1.</span> <span class="nav-text"><a href="#getOrDefault" class="headerlink" title="getOrDefault"></a>getOrDefault</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#forEach"><span class="nav-number">1.2.</span> <span class="nav-text"><a href="#forEach" class="headerlink" title="forEach"></a>forEach</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#replaceAll"><span class="nav-number">1.3.</span> <span class="nav-text"><a href="#replaceAll" class="headerlink" title="replaceAll"></a>replaceAll</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#putIfAbsent"><span class="nav-number">1.4.</span> <span class="nav-text"><a href="#putIfAbsent" class="headerlink" title="putIfAbsent"></a>putIfAbsent</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#remove"><span class="nav-number">1.5.</span> <span class="nav-text"><a href="#remove" class="headerlink" title="remove"></a>remove</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#replace-K-key-V-oldValue-V-newValue"><span class="nav-number">1.6.</span> <span class="nav-text"><a href="#replace-K-key-V-oldValue-V-newValue" class="headerlink" title="replace(K key, V oldValue, V newValue)"></a>replace(K key, V oldValue, V newValue)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#replace-K-key-V-value"><span class="nav-number">1.7.</span> <span class="nav-text"><a href="#replace-K-key-V-value" class="headerlink" title="replace(K key, V value)"></a>replace(K key, V value)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#computeIfAbsent"><span class="nav-number">1.8.</span> <span class="nav-text"><a href="#computeIfAbsent" class="headerlink" title="computeIfAbsent"></a>computeIfAbsent</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#computeIfPresent"><span class="nav-number">1.9.</span> <span class="nav-text"><a href="#computeIfPresent" class="headerlink" title="computeIfPresent"></a>computeIfPresent</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#compute"><span class="nav-number">1.10.</span> <span class="nav-text"><a href="#compute" class="headerlink" title="compute"></a>compute</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#merge-K-key-V-value-BiFunction-lt-super-V-super-V-extends-V-gt-remappingFunction"><span class="nav-number">1.11.</span> <span class="nav-text"><a href="#merge-K-key-V-value-BiFunction-lt-super-V-super-V-extends-V-gt-remappingFunction" class="headerlink" title="merge(K key, V value, BiFunction&lt;? super V, ? super V, ? extends V&gt; remappingFunction)"></a>merge(K key, V value, BiFunction&lt;? super V, ? super V, ? extends V&gt; remappingFunction)</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x57FA;&#x672C;&#x6982;&#x5FF5;" class="headerlink" title="&#x57FA;&#x672C;&#x6982;&#x5FF5;"></a>&#x57FA;&#x672C;&#x6982;&#x5FF5;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是并发"><span class="nav-number">1.1.</span> <span class="nav-text"><a href="#&#x4EC0;&#x4E48;&#x662F;&#x5E76;&#x53D1;" class="headerlink" title="&#x4EC0;&#x4E48;&#x662F;&#x5E76;&#x53D1;"></a>&#x4EC0;&#x4E48;&#x662F;&#x5E76;&#x53D1;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#并发与并行的联系和区别"><span class="nav-number">1.2.</span> <span class="nav-text"><a href="#&#x5E76;&#x53D1;&#x4E0E;&#x5E76;&#x884C;&#x7684;&#x8054;&#x7CFB;&#x548C;&#x533A;&#x522B;" class="headerlink" title="&#x5E76;&#x53D1;&#x4E0E;&#x5E76;&#x884C;&#x7684;&#x8054;&#x7CFB;&#x548C;&#x533A;&#x522B;"></a>&#x5E76;&#x53D1;&#x4E0E;&#x5E76;&#x884C;&#x7684;&#x8054;&#x7CFB;&#x548C;&#x533A;&#x522B;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#并发连接数"><span class="nav-number">1.3.</span> <span class="nav-text"><a href="#&#x5E76;&#x53D1;&#x8FDE;&#x63A5;&#x6570;" class="headerlink" title="&#x5E76;&#x53D1;&#x8FDE;&#x63A5;&#x6570;"></a>&#x5E76;&#x53D1;&#x8FDE;&#x63A5;&#x6570;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#请求数"><span class="nav-number">1.4.</span> <span class="nav-text"><a href="#&#x8BF7;&#x6C42;&#x6570;" class="headerlink" title="&#x8BF7;&#x6C42;&#x6570;"></a>&#x8BF7;&#x6C42;&#x6570;</span></a></li></ol></li></ol></div>
             
 
           </div>
