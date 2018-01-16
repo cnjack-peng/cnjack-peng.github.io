@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="基础知识2PC协议二阶段提交协议(Two-phaseCommit)是分布式系统中较为经典的处理数据一致性的解决方案。在大型的集群环境中，对于单体微服务本身而言虽然能够通过代码质量、Mock测试等方法来确保自身服务的可用性，但是无法能够保证其他服务的可用性。当一个全链路的端到端业务操作，常常会跨多个节点、多个应用，为了能够保证全局事务的ACID特性，需要引入一个协调组件(这里称之为TM)来控制所有服">
+<meta property="og:type" content="article">
+<meta property="og:title" content="分布式事务">
+<meta property="og:url" content="http://keaimo.com/2018/01/15/distributed-transactions/index.html">
+<meta property="og:site_name" content="笑傲江湖└JP┐">
+<meta property="og:description" content="基础知识2PC协议二阶段提交协议(Two-phaseCommit)是分布式系统中较为经典的处理数据一致性的解决方案。在大型的集群环境中，对于单体微服务本身而言虽然能够通过代码质量、Mock测试等方法来确保自身服务的可用性，但是无法能够保证其他服务的可用性。当一个全链路的端到端业务操作，常常会跨多个节点、多个应用，为了能够保证全局事务的ACID特性，需要引入一个协调组件(这里称之为TM)来控制所有服">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://keaimo.com/2018/01/15/distributed-transactions/2pc.png">
+<meta property="og:updated_time" content="2018-01-15T09:40:47.262Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="分布式事务">
+<meta name="twitter:description" content="基础知识2PC协议二阶段提交协议(Two-phaseCommit)是分布式系统中较为经典的处理数据一致性的解决方案。在大型的集群环境中，对于单体微服务本身而言虽然能够通过代码质量、Mock测试等方法来确保自身服务的可用性，但是无法能够保证其他服务的可用性。当一个全链路的端到端业务操作，常常会跨多个节点、多个应用，为了能够保证全局事务的ACID特性，需要引入一个协调组件(这里称之为TM)来控制所有服">
+<meta name="twitter:image" content="http://keaimo.com/2018/01/15/distributed-transactions/2pc.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://keaimo.com/2018/01/15/distributed-transactions/"/>
+
+
+
+
+
+  <title>分布式事务 | 笑傲江湖└JP┐</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <!--<div class="headband"></div>-->
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">笑傲江湖└JP┐</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2018/01/15/distributed-transactions/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jack Peng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="笑傲江湖└JP┐">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">分布式事务</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-15T16:19:10+08:00">
+                2018-01-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/软件开发/" itemprop="url" rel="index">
+                    <span itemprop="name">软件开发</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><h2 id="2PC协议"><a href="#2PC协议" class="headerlink" title="2PC协议"></a>2PC协议</h2><p>二阶段提交协议(Two-phaseCommit)是分布式系统中较为经典的处理数据一致性的解决方案。在大型的集群环境中，对于单体微服务本身而言虽然能够通过代码质量、Mock测试等方法来确保自身服务的可用性，但是无法能够保证其他服务的可用性。当一个全链路的端到端业务操作，常常会跨多个节点、多个应用，为了能够保证全局事务的ACID特性，需要引入一个协调组件(这里称之为TM)来控制所有服务参与者(这里称之为RM)的操作结果，根据所有参与者的反馈结果来决定整个分布式事务究竟是提交还是回滚的结果。</p>
+<p><strong>第一阶段：称为准备(prepare)阶段</strong>。事务协调者向各个服务应用发送prepare请求，服务应用在得到请求后做预处理操作，预处理可能是做预检查，也可能是把请求临时存储，可以理解为是一种试探性地提交。下面是一般的步骤：</p>
+<blockquote>
+<ol>
+<li>事务协调者会问所有的参与者服务，是否可以提交操作。</li>
+<li>各个参与者开始事务执行的准备工作：如资源上锁，预留资源，写回滚/重试的log。</li>
+<li>参与者响应协调者，如果事务准备工作成功，则回应“可以提交”，否则回应拒绝提交。</li>
+</ol>
+</blockquote>
+<p><strong>第二阶段：称为提交(commit)/回滚(rollback)阶段</strong>。是指事务真正提交或者回滚的阶段。如果事务协调者发现事务参与者有一个在prepare阶段出现失败，则会要求所有的参与者进行回滚。如果协调者发现所有的参与者都prepare操作都是成功，那么他将向所有的参与者发出提交请求，这时所有参与者才会正式提交。由此保证了要求全部提交成功，要么全部失败。下面是具体步骤：</p>
+<blockquote>
+<ol>
+<li>如果所有的参与者都回应“可以提交”，那么协调者向所有参与者发送“正式提交”的命令。参与者完成正式提交，并释放所有资源，然后回应“完成”，协调者收集各个服务的“完成”回应后结束事务。</li>
+<li>如果有一个参与者回应“拒绝提交”，那么协调者向所有的参与者发送“回滚操作”，并释放所有的资源，然后回应“回滚完成”，协调者收集各个服务应用的“回滚”返回后，取消整体的分布式事务。</li>
+</ol>
+</blockquote>
+<p>下图为二阶段的成功和失败示例图：</p>
+<img src="/2018/01/15/distributed-transactions/2pc.png">
+<p>二阶段提交协议解决的是分布式系统/微服务架构中数据强一致性的问题，其原理简单，但缺点也是存在，主要缺点如下：</p>
+<blockquote>
+<ol>
+<li>单点问题：协调者在整个二阶段中的作用非常重要，一旦部署协调者组件服务的节点出现不可用宕机情况，那么会影响整个分布式系统的正常运行。</li>
+<li>同步阻塞：二阶段提交执行过程中，所有服务参与者需要服从协调者的统一调度，期间处于阻塞状态，会一定程度上影响整个系统的效率。</li>
+</ol>
+</blockquote>
+<p>这里暂且不谈2PC存在的同步阻塞、单点问题、脑裂等问题（上篇文章中有具体介绍），我们只讨论下数据一致性问题。作为一个分布式的一致性协议，我们主要关注他可能带来的一致性问题的。2PC在执行过程中可能发生协调者或者参与者突然宕机的情况，在不同时期宕机可能有不同的现象。</p>
+<p><strong> 情况一：协调者挂了，参与者没挂 </strong><br>这种情况其实比较好解决，只要找一个协调者的替代者。当他成为新的协调者的时候，询问所有参与者的最后那条事务的执行情况，他就可以知道是应该做什么样的操作了。所以，这种情况不会导致数据不一致。</p>
+<p><strong> 情况二：参与者挂了，协调者没挂 </strong></p>
+<p>这种情况其实也比较好解决。如果协调者挂了。那么之后的事情有两种情况：</p>
+<ol>
+<li>第一个是挂了就挂了，没有再恢复。那就挂了呗，反正不会导致数据一致性问题。</li>
+<li>第二个是挂了之后又恢复了，这时如果他有未执行完的事务操作，直接取消掉，然后询问协调者目前我应该怎么做，协调者就会比对自己的事务执行记录和该参与者的事务执行记录，告诉他应该怎么做来保持数据的一致性。</li>
+</ol>
+<p><strong> 情况三：参与者挂了，协调者也挂了 </strong></p>
+<p>这种情况比较复杂，我们分情况讨论。</p>
+<ol>
+<li>协调者和参与者在第一阶段挂了。 由于这时还没有执行commit操作，新选出来的协调者可以询问各个参与者的情况，再决定是进行commit还是roolback。因为还没有commit，所以不会导致数据一致性问题。</li>
+<li>第二阶段协调者和参与者挂了，挂了的这个参与者在挂之前并没有接收到协调者的指令，或者接收到指令之后还没来的及做commit或者roolback操作。 这种情况下，当新的协调者被选出来之后，他同样是询问所有的参与者的情况。只要有机器执行了abort（roolback）操作或者第一阶段返回的信息是No的话，那就直接执行roolback操作。如果没有人执行abort操作，但是有机器执行了commit操作，那么就直接执行commit操作。这样，当挂掉的参与者恢复之后，只要按照协调者的指示进行事务的commit还是roolback操作就可以了。因为挂掉的机器并没有做commit或者roolback操作，而没有挂掉的机器们和新的协调者又执行了同样的操作，那么这种情况不会导致数据不一致现象。</li>
+<li>第二阶段协调者和参与者挂了，挂了的这个参与者在挂之前已经执行了操作。但是由于他挂了，没有人知道他执行了什么操作。这种情况下，新的协调者被选出来之后，如果他想负起协调者的责任的话他就只能按照之前那种情况来执行commit或者roolback操作。这样新的协调者和所有没挂掉的参与者就保持了数据的一致性，我们假定他们执行了commit。但是，这个时候，那个挂掉的参与者恢复了怎么办，因为他之前已经执行完了之前的事务，如果他执行的是commit那还好，和其他的机器保持一致了，万一他执行的是roolback操作那？这不就导致数据的不一致性了么？虽然这个时候可以再通过手段让他和协调者通信，再想办法把数据搞成一致的，但是，这段时间内他的数据状态已经是不一致的了。</li>
+</ol>
+<p>所以，2PC协议中，如果出现协调者和参与者都挂了的情况，有可能导致数据不一致。为了解决这个问题，衍生除了3PC。</p>
+<h2 id="3PC协议"><a href="#3PC协议" class="headerlink" title="3PC协议"></a>3PC协议</h2><p>3PC(Three-phaseCommit)最关键要解决的就是协调者和参与者同时挂掉的问题，所以3PC把2PC的准备阶段再次一分为二，这样三阶段提交就有<code>CanCommit</code>、<code>PreCommit</code>、<code>DoCommit</code>三个阶段。在第一阶段，只是询问所有参与者是否可可以执行事务操作，并不在本阶段执行事务操作。当协调者收到所有的参与者都返回YES时，在第二阶段才执行事务操作，然后在第三阶段在执行commit或者rollback。</p>
+<p>举一个生活中类似三阶段提交的例子：</p>
+<blockquote>
+<p>班长要组织全班同学聚餐，由于大家毕业多年，所以要逐个打电话敲定时间，时间初定10.1日。然后开始逐个打电话。<br>班长：小A，我们想定在10.1号聚会，你有时间嘛？有时间你就说YES，没有你就说NO，然后我还会再去问其他人，具体时间地点我会再通知你，这段时间你可先去干你自己的事儿，不用一直等着我。（协调者询问事务是否可以执行，这一步不会锁定资源）<br>小A：好的，我有时间。（参与者反馈）<br>班长：小B，我们想定在10.1号聚会……不用一直等我。<br>班长收集完大家的时间情况了，一看大家都有时间，那么就再次通知大家。（协调者接收到所有YES指令）<br>班长：小A，我们确定了10.1号聚餐，你要把这一天的时间空出来，这一天你不能再安排其他的事儿了。然后我会逐个通知其他同学，通知完之后我会再来和你确认一下，还有啊，如果我没有特意给你打电话，你就10.1号那天来聚餐就行了。对了，你确定能来是吧？（协调者发送事务执行指令，这一步锁住资源。如果由于网络原因参与者在后面没有收到协调者的命令，他也会执行commit）<br>小A顺手在自己的日历上把10.1号这一天圈上了，然后跟班长说，我可以去。（参与者执行事务操作，反馈状态）<br>班长：小B，我们觉得了10.1号聚餐……你就10.1号那天来聚餐就行了。<br>班长通知完一圈之后。所有同学都跟他说：”我已经把10.1号这天空出来了”。于是，他在10.1号这一天又挨个打了一遍电话告诉他们：嘿，现在你们可以出门拉。。。。（协调者收到所有参与者的ACK响应，通知所有参与者执行事务的commit）<br>小A，小B：我已经出门拉。（执行commit操作，反馈状态）</p>
+</blockquote>
+<p><strong>3PC为什么比2PC好？</strong></p>
+<p>直接分析协调者和参与者都挂的情况。第二阶段协调者和参与者挂了，挂了的这个参与者在挂之前已经执行了操作。但是由于他挂了，没有人知道他执行了什么操作。这种情况下，当新的协调者被选出来之后，他同样是询问所有的参与者的情况来觉得是commit还是roolback。这看上去和二阶段提交一样啊？他是怎么解决一致性问题的呢？看上去和二阶段提交的那种数据不一致的情况的现象是一样的，但仔细分析所有参与者的状态的话就会发现其实并不一样。我们假设挂掉的那台参与者执行的操作是commit。那么其他没挂的操作者的状态应该是什么？他们的状态要么是prepare-commit要么是commit。因为3PC的第三阶段一旦有机器执行了commit，那必然第一阶段大家都是同意commit。所以，这时，新选举出来的协调者一旦发现未挂掉的参与者中有人处于commit状态或者是prepare-commit的话，那就执行commit操作。否则就执行rollback操作。这样挂掉的参与者恢复之后就能和其他机器保持数据一致性了。（为了简单的让大家理解，笔者这里简化了新选举出来的协调者执行操作的具体细节，真实情况比我描述的要复杂）</p>
+<p>简单概括一下就是，如果挂掉的那台机器已经执行了commit，那么协调者可以从所有未挂掉的参与者的状态中分析出来，并执行commit。如果挂掉的那个参与者执行了rollback，那么协调者和其他的参与者执行的肯定也是rollback操作。所以，再多引入一个阶段之后，3PC解决了2PC中存在的那种由于协调者和参与者同时挂掉有可能导致的数据一致性问题。</p>
+<p><strong>3PC存在的问题</strong></p>
+<p>在doCommit阶段，如果参与者无法及时接收到来自协调者的doCommit或者rebort请求时，会在等待超时之后，会继续进行事务的提交。所以，由于网络原因，协调者发送的abort响应没有及时被参与者接收到，那么参与者在等待超时之后执行了commit操作。这样就和其他接到abort命令并执行回滚的参与者之间存在数据不一致的情况。</p>
+<h2 id="最终一致"><a href="#最终一致" class="headerlink" title="最终一致"></a>最终一致</h2><p>最终一致依赖于可靠消息系统。</p>
+<h2 id="最大努力通知型"><a href="#最大努力通知型" class="headerlink" title="最大努力通知型"></a>最大努力通知型</h2><h2 id="TCC"><a href="#TCC" class="headerlink" title="TCC"></a>TCC</h2><h2 id="SAGA"><a href="#SAGA" class="headerlink" title="SAGA"></a>SAGA</h2>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/15/java-concurrent-sense/" rel="next" title="Java并发编程通识">
+                <i class="fa fa-chevron-left"></i> Java并发编程通识
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/16/java-compare-and-swap/" rel="prev" title="非阻塞同步算法与CAS无锁算法">
+                非阻塞同步算法与CAS无锁算法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Jack Peng" />
+            
+              <p class="site-author-name" itemprop="name">Jack Peng</p>
+              <p class="site-description motion-element" itemprop="description">自知者明，自强者胜。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/cnjack-peng" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:cnjack.peng@gmail.com" target="_blank" title="E-Mail">
+                    
+                      <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://weibo.com/cnjackpeng" target="_blank" title="Weibo">
+                    
+                      <i class="fa fa-fw fa-weibo"></i>Weibo</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基础知识"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x57FA;&#x7840;&#x77E5;&#x8BC6;" class="headerlink" title="&#x57FA;&#x7840;&#x77E5;&#x8BC6;"></a>&#x57FA;&#x7840;&#x77E5;&#x8BC6;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2PC协议"><span class="nav-number">2.</span> <span class="nav-text"><a href="#2PC&#x534F;&#x8BAE;" class="headerlink" title="2PC&#x534F;&#x8BAE;"></a>2PC&#x534F;&#x8BAE;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3PC协议"><span class="nav-number">3.</span> <span class="nav-text"><a href="#3PC&#x534F;&#x8BAE;" class="headerlink" title="3PC&#x534F;&#x8BAE;"></a>3PC&#x534F;&#x8BAE;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最终一致"><span class="nav-number">4.</span> <span class="nav-text"><a href="#&#x6700;&#x7EC8;&#x4E00;&#x81F4;" class="headerlink" title="&#x6700;&#x7EC8;&#x4E00;&#x81F4;"></a>&#x6700;&#x7EC8;&#x4E00;&#x81F4;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最大努力通知型"><span class="nav-number">5.</span> <span class="nav-text"><a href="#&#x6700;&#x5927;&#x52AA;&#x529B;&#x901A;&#x77E5;&#x578B;" class="headerlink" title="&#x6700;&#x5927;&#x52AA;&#x529B;&#x901A;&#x77E5;&#x578B;"></a>&#x6700;&#x5927;&#x52AA;&#x529B;&#x901A;&#x77E5;&#x578B;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TCC"><span class="nav-number">6.</span> <span class="nav-text"><a href="#TCC" class="headerlink" title="TCC"></a>TCC</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SAGA"><span class="nav-number">7.</span> <span class="nav-text"><a href="#SAGA" class="headerlink" title="SAGA"></a>SAGA</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jack Peng</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+<div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  访客数:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+  
+</body>
+</html>

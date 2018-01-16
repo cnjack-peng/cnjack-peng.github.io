@@ -81,7 +81,7 @@
 
 <meta name="description" content="基本概念什么是并发并发(Concurrency)在我们的现实世界中随处可见，以至于我们常常忽略了它的存在，比方说你在工作（假设你是一名程序员，你的工作就是编程）的时候也可以听听自己喜欢的音乐，并且你的耳朵并不会因为手头的工作而忽略了声音的存在（当然，除非你自己有意的去忽略它，但你还是能够听得见声音，只是你的大脑可能不会去感受音乐的节奏），此时你的大脑既要控制你的双手敲击键盘，也要控制你的耳朵去感受">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java并发常识">
+<meta property="og:title" content="Java并发编程通识">
 <meta property="og:url" content="http://keaimo.com/2018/01/15/java-concurrent-sense/index.html">
 <meta property="og:site_name" content="笑傲江湖└JP┐">
 <meta property="og:description" content="基本概念什么是并发并发(Concurrency)在我们的现实世界中随处可见，以至于我们常常忽略了它的存在，比方说你在工作（假设你是一名程序员，你的工作就是编程）的时候也可以听听自己喜欢的音乐，并且你的耳朵并不会因为手头的工作而忽略了声音的存在（当然，除非你自己有意的去忽略它，但你还是能够听得见声音，只是你的大脑可能不会去感受音乐的节奏），此时你的大脑既要控制你的双手敲击键盘，也要控制你的耳朵去感受">
@@ -89,9 +89,9 @@
 <meta property="og:image" content="http://keaimo.com/2018/01/15/java-concurrent-sense/concurrent.png">
 <meta property="og:image" content="http://keaimo.com/2018/01/15/java-concurrent-sense/intel-concurrence.png">
 <meta property="og:image" content="http://keaimo.com/2018/01/15/java-concurrent-sense/intel-parallelism.png">
-<meta property="og:updated_time" content="2018-01-15T08:04:19.754Z">
+<meta property="og:updated_time" content="2018-01-15T08:43:53.662Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Java并发常识">
+<meta name="twitter:title" content="Java并发编程通识">
 <meta name="twitter:description" content="基本概念什么是并发并发(Concurrency)在我们的现实世界中随处可见，以至于我们常常忽略了它的存在，比方说你在工作（假设你是一名程序员，你的工作就是编程）的时候也可以听听自己喜欢的音乐，并且你的耳朵并不会因为手头的工作而忽略了声音的存在（当然，除非你自己有意的去忽略它，但你还是能够听得见声音，只是你的大脑可能不会去感受音乐的节奏），此时你的大脑既要控制你的双手敲击键盘，也要控制你的耳朵去感受">
 <meta name="twitter:image" content="http://keaimo.com/2018/01/15/java-concurrent-sense/concurrent.png">
 
@@ -129,7 +129,7 @@
 
 
 
-  <title>Java并发常识 | 笑傲江湖└JP┐</title>
+  <title>Java并发编程通识 | 笑傲江湖└JP┐</title>
   
 
 
@@ -297,7 +297,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">Java并发常识</h1>
+          <h1 class="post-title" itemprop="name headline">Java并发编程通识</h1>
         
 
         <div class="post-meta">
@@ -395,12 +395,38 @@
 </blockquote>
 <img src="/2018/01/15/java-concurrent-sense/intel-parallelism.png" title="并发与并行">
 <p>此，该文认为并发与并行的区别是：并发是一个处理器同时处理多个任务，而并行多个处理器或者是多核的处理器同时处理多个不同的任务。前者是逻辑上的同时发生（simultaneous），而后者是物理上的同时发生。而两者的联系是：并行的事件或活动一定是并发的，但反之并发的事件或活动未必是并行的。并行性是并发性的特例，而并发性是并行性的扩展。</p>
-<h3 id="并发连接数"><a href="#并发连接数" class="headerlink" title="并发连接数"></a>并发连接数</h3><p>并发连接数-SBC（Simultaneous Browser Connections）指的是客户端向服务器发起请求，并建立了TCP连接。每秒钟服务器链接的总TCP数量，就是并发连接数。</p>
-<h3 id="请求数"><a href="#请求数" class="headerlink" title="请求数"></a>请求数</h3><p>请求数-QPS（Query Per Second）/RPS（Request Per Second），请求数有2个缩写，可以叫QPS也可以叫RPS。单位是每秒多少请求。Query=查询，也相当于请求。请求数指的是客户端在建立完连接后，向HTTP服务发出GET/POST/HEAD数据包，服务器返回了请求结果后有两种情况：</p>
-<ol>
-<li>http数据包头包含Close字样，关闭本次TCP连接；</li>
-<li>http数据包头包含Keep-Alive字样，本次连接不关闭，可继续通过该连接继续向http服务发送请求，用于减少TCP并发连接数。</li>
-</ol>
+<h2 id="互联网的高并发"><a href="#互联网的高并发" class="headerlink" title="互联网的高并发"></a>互联网的高并发</h2><p>高并发（High Concurrency）是互联网分布式系统架构设计中必须考虑的因素之一，它通常是指，通过设计保证系统能够同时并行处理很多请求。高并发相关常用的一些指标有响应时间（Response Time），吞吐量（Throughput），每秒查询率QPS（Query Per Second），并发用户数等。</p>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>响应时间</td>
+<td>系统对请求做出响应的时间。例如系统处理一个HTTP请求需要200ms，这个200ms就是系统的响应时间。</td>
+</tr>
+<tr>
+<td>吞吐量</td>
+<td>单位时间内处理的请求数量。</td>
+</tr>
+<tr>
+<td>请求数</td>
+<td>QPS（Query Per Second）/RPS（Request Per Second）每秒响应请求数。请求数指的是客户端在建立完连接后，向HTTP服务发出GET/POST/HEAD数据包。在互联网领域，这个指标和吞吐量区分的没有这么明显。</td>
+</tr>
+<tr>
+<td>并发用户数</td>
+<td>同时承载正常使用系统功能的用户数量。例如一个即时通讯系统，同时在线量一定程度上代表了系统的并发用户数。</td>
+</tr>
+<tr>
+<td>并发连接数</td>
+<td>SBC（Simultaneous Browser Connections）指的是客户端向服务器发起请求，并建立了TCP连接。每秒钟服务器链接的总TCP数量，就是并发连接数。</td>
+</tr>
+</tbody>
+</table>
+<p>面对互联网高并发的场景，常见的架构思路有负载均衡、异步处理、 限流阀（throttle）、批量处理、数据分区、数据镜像、缓存系统、CDN、排队系统等。</p>
 
       
     </div>
@@ -434,6 +460,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/15/distributed-transactions/" rel="prev" title="分布式事务">
+                分布式事务 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -514,7 +544,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-count">24</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -591,7 +621,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x57FA;&#x672C;&#x6982;&#x5FF5;" class="headerlink" title="&#x57FA;&#x672C;&#x6982;&#x5FF5;"></a>&#x57FA;&#x672C;&#x6982;&#x5FF5;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是并发"><span class="nav-number">1.1.</span> <span class="nav-text"><a href="#&#x4EC0;&#x4E48;&#x662F;&#x5E76;&#x53D1;" class="headerlink" title="&#x4EC0;&#x4E48;&#x662F;&#x5E76;&#x53D1;"></a>&#x4EC0;&#x4E48;&#x662F;&#x5E76;&#x53D1;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#并发与并行的联系和区别"><span class="nav-number">1.2.</span> <span class="nav-text"><a href="#&#x5E76;&#x53D1;&#x4E0E;&#x5E76;&#x884C;&#x7684;&#x8054;&#x7CFB;&#x548C;&#x533A;&#x522B;" class="headerlink" title="&#x5E76;&#x53D1;&#x4E0E;&#x5E76;&#x884C;&#x7684;&#x8054;&#x7CFB;&#x548C;&#x533A;&#x522B;"></a>&#x5E76;&#x53D1;&#x4E0E;&#x5E76;&#x884C;&#x7684;&#x8054;&#x7CFB;&#x548C;&#x533A;&#x522B;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#并发连接数"><span class="nav-number">1.3.</span> <span class="nav-text"><a href="#&#x5E76;&#x53D1;&#x8FDE;&#x63A5;&#x6570;" class="headerlink" title="&#x5E76;&#x53D1;&#x8FDE;&#x63A5;&#x6570;"></a>&#x5E76;&#x53D1;&#x8FDE;&#x63A5;&#x6570;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#请求数"><span class="nav-number">1.4.</span> <span class="nav-text"><a href="#&#x8BF7;&#x6C42;&#x6570;" class="headerlink" title="&#x8BF7;&#x6C42;&#x6570;"></a>&#x8BF7;&#x6C42;&#x6570;</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本概念"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x57FA;&#x672C;&#x6982;&#x5FF5;" class="headerlink" title="&#x57FA;&#x672C;&#x6982;&#x5FF5;"></a>&#x57FA;&#x672C;&#x6982;&#x5FF5;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是并发"><span class="nav-number">1.1.</span> <span class="nav-text"><a href="#&#x4EC0;&#x4E48;&#x662F;&#x5E76;&#x53D1;" class="headerlink" title="&#x4EC0;&#x4E48;&#x662F;&#x5E76;&#x53D1;"></a>&#x4EC0;&#x4E48;&#x662F;&#x5E76;&#x53D1;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#并发与并行的联系和区别"><span class="nav-number">1.2.</span> <span class="nav-text"><a href="#&#x5E76;&#x53D1;&#x4E0E;&#x5E76;&#x884C;&#x7684;&#x8054;&#x7CFB;&#x548C;&#x533A;&#x522B;" class="headerlink" title="&#x5E76;&#x53D1;&#x4E0E;&#x5E76;&#x884C;&#x7684;&#x8054;&#x7CFB;&#x548C;&#x533A;&#x522B;"></a>&#x5E76;&#x53D1;&#x4E0E;&#x5E76;&#x884C;&#x7684;&#x8054;&#x7CFB;&#x548C;&#x533A;&#x522B;</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#互联网的高并发"><span class="nav-number">2.</span> <span class="nav-text"><a href="#&#x4E92;&#x8054;&#x7F51;&#x7684;&#x9AD8;&#x5E76;&#x53D1;" class="headerlink" title="&#x4E92;&#x8054;&#x7F51;&#x7684;&#x9AD8;&#x5E76;&#x53D1;"></a>&#x4E92;&#x8054;&#x7F51;&#x7684;&#x9AD8;&#x5E76;&#x53D1;</span></a></li></ol></div>
             
 
           </div>

@@ -4,11 +4,64 @@
 
     
   <url>
-    <loc>http://keaimo.com/2018/01/15/java-concurrent-sense/</loc>
-    <lastmod>2018-01-15T08:04:19.754Z</lastmod>
+    <loc>http://keaimo.com/2018/01/16/java-compare-and-swap/</loc>
+    <lastmod>2018-01-16T02:05:16.436Z</lastmod>
     <data>
         <display>
-        <title>Java并发常识</title>
+        <title>非阻塞同步算法与CAS无锁算法</title>
+        <pubTime>2018-01-16T00:45:25.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="软件开发" url="http://keaimo.com/categories/%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://keaimo.com/2018/01/11/regular-expressions/</loc>
+    <lastmod>2018-01-15T10:08:13.586Z</lastmod>
+    <data>
+        <display>
+        <title>正则表达式必知必会</title>
+        <pubTime>2018-01-11T09:32:49.000Z</pubTime>
+        
+        <tag>软件开发</tag>
+         
+         
+           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://keaimo.com/2018/01/15/distributed-transactions/</loc>
+    <lastmod>2018-01-15T09:40:47.262Z</lastmod>
+    <data>
+        <display>
+        <title>分布式事务</title>
+        <pubTime>2018-01-15T08:19:10.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="软件开发" url="http://keaimo.com/categories/%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://keaimo.com/2018/01/15/java-concurrent-sense/</loc>
+    <lastmod>2018-01-15T08:43:53.662Z</lastmod>
+    <data>
+        <display>
+        <title>Java并发编程通识</title>
         <pubTime>2018-01-15T07:45:05.000Z</pubTime>
         
          
@@ -72,23 +125,6 @@
              
               <breadCrumb title="软件开发" url="http://keaimo.com/categories/%E8%BD%AF%E4%BB%B6%E5%BC%80%E5%8F%91/"/>
           
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://keaimo.com/2018/01/11/regular-expressions/</loc>
-    <lastmod>2018-01-15T03:56:05.172Z</lastmod>
-    <data>
-        <display>
-        <title>正则表达式必知必会</title>
-        <pubTime>2018-01-11T09:32:49.000Z</pubTime>
-        
-        <tag>软件开发</tag>
-         
-         
-           
         </display>
     </data>
     </url>

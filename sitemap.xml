@@ -2,9 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://keaimo.com/2018/01/16/java-compare-and-swap/</loc>
+    
+    <lastmod>2018-01-16T02:05:16.436Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://keaimo.com/2018/01/11/regular-expressions/</loc>
+    
+    <lastmod>2018-01-15T10:08:13.586Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://keaimo.com/2018/01/15/distributed-transactions/</loc>
+    
+    <lastmod>2018-01-15T09:40:47.262Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://keaimo.com/2018/01/15/java-concurrent-sense/</loc>
     
-    <lastmod>2018-01-15T08:04:19.754Z</lastmod>
+    <lastmod>2018-01-15T08:43:53.662Z</lastmod>
     
   </url>
   
@@ -26,13 +47,6 @@
     <loc>http://keaimo.com/2018/01/15/java-concurrenthashmap/</loc>
     
     <lastmod>2018-01-15T04:09:06.873Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://keaimo.com/2018/01/11/regular-expressions/</loc>
-    
-    <lastmod>2018-01-15T03:56:05.172Z</lastmod>
     
   </url>
   
