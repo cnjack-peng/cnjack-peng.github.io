@@ -134,7 +134,53 @@ INSERT INTO `test` (`a`) VALUES (NULL);
 
 ## MySQL关联更新
 
-对单表执行更新没有什么好说的，无非就是update table_name set col1 = xx,col2 = yy where col = zz，主要就是where条件的设置。有时候更新某个表可能会涉及到多张数据表，例如：
+假定我们有两张表，一张表为Product表存放产品信息，其中有产品价格列Price；另外一张表是ProductPrice表，我们要将ProductPrice表中的价格字段Price更新为Price表中价格字段的80%。在Mysql中我们有几种手段可以做到这一点。
+
+### update table1 t1, table2 ts ...
+
+```sql
+UPDATE product p, productPrice pp
+SET pp.price = pp.price * 0.8
+WHERE p.productId = pp.productId
+AND p.dateCreated < '2004-01-01'
+```
+
+### inner join更新
+
+```sql
+UPDATE product p
+INNER JOIN productPrice pp
+ON p.productId = pp.productId
+SET pp.price = pp.price * 0.8
+WHERE p.dateCreated < '2004-01-01'
+```
+
+### left outer join
+
+我们也可以使用left outer join来做多表update，比方说如果ProductPrice表中没有产品价格记录的话，将Product表的isDeleted字段置为1，如下sql语句：
+```sql
+UPDATE product p
+LEFT JOIN productPrice pp
+ON p.productId = pp.productId
+SET p.deleted = 1
+WHERE pp.productId IS null
+```
+
+### 同时更新2张表
+
+面的几个例子都是两张表之间做关联，但是只更新一张表中的记录，其实是可以同时更新两张表的，如下sql：
+```sql
+UPDATE product p
+INNER JOIN productPrice pp
+ON p.productId = pp.productId
+SET pp.price = pp.price * 0.8,
+p.dateUpdate = CURDATE()
+WHERE p.dateCreated < '2004-01-01'
+```
+
+### 等价示例
+
+对单表执行更新没有什么好说的，无非就是`update table_name set col1 = xx,col2 = yy where col = zz`，主要就是where条件的设置。有时候更新某个表可能会涉及到多张数据表，例如：
 ```sql
 update table_1 set score = score + 5 where uid in (select uid from table_2 where sid = 10);
 ```
@@ -143,3 +189,4 @@ update table_1 set score = score + 5 where uid in (select uid from table_2 where
 ```sql
 update table_1 t1 inner join table_2 t2 on t1.uid = t2.uid set score = score + 5 where t2.sid = 10;
 ```
+

@@ -218,6 +218,15 @@ public class SingletonDemo {
 }
 ```
 
+讨论下volatile关键字的必要性,如果没有volatile关键字,问题可能会出在singleton = new Singleton();这句,用伪代码表示：
+```bash
+inst = allocat()； // 分配内存  
+sSingleton = inst;      // 赋值
+constructor(inst); // 真正执行构造函数 
+```
+
+如果不加volatile，可能会由于虚拟机的优化等导致赋值操作先执行,而构造函数还没完成,导致其他线程访问得到singleton变量不为null,但初始化还未完成,导致程序崩溃。
+
 ### 为什么AtomicXXX具有原子性和可见性
 
 就拿AtomicLong来说，它既解决了上述的volatile的原子性没有保证的问题，又具有可见性。它是利用CAS（比较并交换）指令实现的。 其实AtomicLong的源码里也用到了volatile，但只是用来读取或写入，见源码：

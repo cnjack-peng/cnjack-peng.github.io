@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="正则表达式是计算机科学的一个概念。正则表达式使用单个字符串来描述、匹配一系列匹配某个句法规则的字符串。在很多文本编辑器里，正则表达式通常被用来检索、替换那些匹配某个模式的文本。正则表达式的语法中的关键概念有：元字符、量词、字符边界、选择表达式、分组与引用等。 元字符[]量词字符边界选择表达式分组##引用">
+<meta name="description" content="正则表达式是计算机科学的一个概念。正则表达式使用单个字符串来描述、匹配一系列匹配某个句法规则的字符串。在很多文本编辑器里，正则表达式通常被用来检索、替换那些匹配某个模式的文本。正则表达式的语法中的关键概念有：元字符、量词、字符边界、选择表达式、分组与引用等。 元字符   代码 说明     . 匹配除换行符以外的任意字符   \w 匹配字母或数字或下划线或汉字   \s 匹配任意的空白符   \d">
 <meta name="keywords" content="软件开发">
 <meta property="og:type" content="article">
 <meta property="og:title" content="正则表达式必知必会">
 <meta property="og:url" content="http://keaimo.com/2018/01/11/regular-expressions/index.html">
 <meta property="og:site_name" content="笑傲江湖└JP┐">
-<meta property="og:description" content="正则表达式是计算机科学的一个概念。正则表达式使用单个字符串来描述、匹配一系列匹配某个句法规则的字符串。在很多文本编辑器里，正则表达式通常被用来检索、替换那些匹配某个模式的文本。正则表达式的语法中的关键概念有：元字符、量词、字符边界、选择表达式、分组与引用等。 元字符[]量词字符边界选择表达式分组##引用">
+<meta property="og:description" content="正则表达式是计算机科学的一个概念。正则表达式使用单个字符串来描述、匹配一系列匹配某个句法规则的字符串。在很多文本编辑器里，正则表达式通常被用来检索、替换那些匹配某个模式的文本。正则表达式的语法中的关键概念有：元字符、量词、字符边界、选择表达式、分组与引用等。 元字符   代码 说明     . 匹配除换行符以外的任意字符   \w 匹配字母或数字或下划线或汉字   \s 匹配任意的空白符   \d">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-01-15T10:08:13.586Z">
+<meta property="og:updated_time" content="2018-01-16T08:30:21.130Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="正则表达式必知必会">
-<meta name="twitter:description" content="正则表达式是计算机科学的一个概念。正则表达式使用单个字符串来描述、匹配一系列匹配某个句法规则的字符串。在很多文本编辑器里，正则表达式通常被用来检索、替换那些匹配某个模式的文本。正则表达式的语法中的关键概念有：元字符、量词、字符边界、选择表达式、分组与引用等。 元字符[]量词字符边界选择表达式分组##引用">
+<meta name="twitter:description" content="正则表达式是计算机科学的一个概念。正则表达式使用单个字符串来描述、匹配一系列匹配某个句法规则的字符串。在很多文本编辑器里，正则表达式通常被用来检索、替换那些匹配某个模式的文本。正则表达式的语法中的关键概念有：元字符、量词、字符边界、选择表达式、分组与引用等。 元字符   代码 说明     . 匹配除换行符以外的任意字符   \w 匹配字母或数字或下划线或汉字   \s 匹配任意的空白符   \d">
 
 
 
@@ -345,8 +345,222 @@
 
       
         <p>正则表达式是计算机科学的一个概念。正则表达式使用单个字符串来描述、匹配一系列匹配某个句法规则的字符串。在很多文本编辑器里，正则表达式通常被用来检索、替换那些匹配某个模式的文本。正则表达式的语法中的关键概念有：元字符、量词、字符边界、选择表达式、分组与引用等。</p>
-<h2 id="元字符"><a href="#元字符" class="headerlink" title="元字符"></a>元字符</h2><h2 id=""><a href="#" class="headerlink" title="[]"></a>[]</h2><h2 id="量词"><a href="#量词" class="headerlink" title="量词"></a>量词</h2><h2 id="字符边界"><a href="#字符边界" class="headerlink" title="字符边界"></a>字符边界</h2><h2 id="选择表达式"><a href="#选择表达式" class="headerlink" title="选择表达式"></a>选择表达式</h2><h2 id="分组"><a href="#分组" class="headerlink" title="分组"></a>分组</h2><p>##引用</p>
-
+<h2 id="元字符"><a href="#元字符" class="headerlink" title="元字符"></a>元字符</h2><table>
+<thead>
+<tr>
+<th>代码</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>.</td>
+<td>匹配除换行符以外的任意字符</td>
+</tr>
+<tr>
+<td>\w</td>
+<td>匹配字母或数字或下划线或汉字</td>
+</tr>
+<tr>
+<td>\s</td>
+<td>匹配任意的空白符</td>
+</tr>
+<tr>
+<td>\d</td>
+<td>匹配数字</td>
+</tr>
+<tr>
+<td>\b</td>
+<td>匹配单词的开始或结束</td>
+</tr>
+<tr>
+<td>^</td>
+<td>匹配字符串的开始</td>
+</tr>
+<tr>
+<td>$</td>
+<td>匹配字符串的结束</td>
+</tr>
+</tbody>
+</table>
+<h2 id="转义字符"><a href="#转义字符" class="headerlink" title="转义字符"></a>转义字符</h2><p>\是转义字符，其后面的字符会代表不同的意思，转义字符主要有三个作用：</p>
+<ol>
+<li>是为了匹配不方便显示的特殊字符，比如换行，tab符号等</li>
+<li>正则中预先定义了一些代表特殊意义的字符，比如\w等</li>
+<li>在正则中某些字符有特殊含义(比如下面说到的)，转义字符可以让其显示自身的含义</li>
+</ol>
+<p>下面是常用转义字符列表：</p>
+<table>
+<thead>
+<tr>
+<th>转义字符</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>\n</td>
+<td>匹配换行符</td>
+</tr>
+<tr>
+<td>\r</td>
+<td>匹配回车符</td>
+</tr>
+<tr>
+<td>\t</td>
+<td>匹配制表符，也就是tab键</td>
+</tr>
+<tr>
+<td>\v</td>
+<td>匹配垂直制表符</td>
+</tr>
+<tr>
+<td>\x20</td>
+<td>20是2位16进制数字，代表对应的字符</td>
+</tr>
+<tr>
+<td>\u002B</td>
+<td>002B是4位16进制数字，代表对应的字符</td>
+</tr>
+<tr>
+<td>\u002B</td>
+<td>002B是4位16进制数字，代表对应的字符</td>
+</tr>
+<tr>
+<td>\w</td>
+<td>匹配任何一个字母或者数字或者下划线</td>
+</tr>
+<tr>
+<td>\W</td>
+<td>匹配任何一个字母或者数字或者下划线以外的字符</td>
+</tr>
+<tr>
+<td>\s</td>
+<td>匹配空白字符，如空格，tab等</td>
+</tr>
+<tr>
+<td>\S</td>
+<td>匹配非空白字符</td>
+</tr>
+<tr>
+<td>\d</td>
+<td>匹配数字字符，0~9</td>
+</tr>
+<tr>
+<td>\D</td>
+<td>匹配非数字字符</td>
+</tr>
+<tr>
+<td>\b</td>
+<td>匹配单词的边界</td>
+</tr>
+<tr>
+<td>\B</td>
+<td>匹配非单词边界</td>
+</tr>
+<tr>
+<td>\</td>
+<td>匹配\本身</td>
+</tr>
+</tbody>
+</table>
+<h2 id=""><a href="#" class="headerlink" title="[]"></a>[]</h2><p>有时我们需要匹配一类字符，字符集可以实现这个功能，字符集的语法用<code>[]</code>分隔，下面的代码能够匹配a或b或c：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[abc]</span><br></pre></td></tr></table></figure></p>
+<p>如果要表示字符很多，可以使用-表示一个范围内的字符，下面两个功能相同：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[0123456789]</span><br><span class="line">[0-9]</span><br></pre></td></tr></table></figure></p>
+<p>在前面添加^，可表示非的意思，下面的代码能够匹配abc之外的任意字符：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[^abc]</span><br></pre></td></tr></table></figure></p>
+<p>其实正则还内置了一些字符集，在上面的转义字符有提到，下面给出内置字符集对应的自定义字符集：</p>
+<table>
+<thead>
+<tr>
+<th>字符</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>.</td>
+<td>匹配除了换行符（\n）以外的任意一个字符 = [^\n]</td>
+</tr>
+<tr>
+<td>\w</td>
+<td>[0-9a-zA-Z_]</td>
+</tr>
+<tr>
+<td>\W</td>
+<td>[^0-9a-zA-Z_]</td>
+</tr>
+<tr>
+<td>\s</td>
+<td>[ \t\n\v]</td>
+</tr>
+<tr>
+<td>\S</td>
+<td>[^ \t\n\v]</td>
+</tr>
+<tr>
+<td>\d</td>
+<td>[0-9]</td>
+</tr>
+<tr>
+<td>\D</td>
+<td>[^0-9]</td>
+</tr>
+</tbody>
+</table>
+<h2 id="量词"><a href="#量词" class="headerlink" title="量词"></a>量词</h2><p>如果我们有三个苹果，我们可以说自己有个3个苹果，也可以说有一个苹果，一个苹果，一个苹果，每种语言都有量词的概念。如果需要匹配多次某个字符，正则也提供了量词的功能，正则中的量词有多个，如<code>?</code>、<code>+</code>、<code>*</code>、<code>{n}</code>、<code>{m,n}</code>、<code>{m,}</code></p>
+<table>
+<thead>
+<tr>
+<th>量词</th>
+<th>释义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>{n}</td>
+<td>匹配n次，比如a{2}，匹配aa</td>
+</tr>
+<tr>
+<td>{m, n}</td>
+<td>匹配m-n次，优先匹配n次，比如a{1,3}，可以匹配aaa、aa、a</td>
+</tr>
+<tr>
+<td>{m,}</td>
+<td>匹配m-∞次，优先匹配∞次，比如a{1,}，可以匹配aaaa…</td>
+</tr>
+<tr>
+<td>?</td>
+<td>匹配0次或1次，优先匹配1次，相当于{0,1}</td>
+</tr>
+<tr>
+<td>+</td>
+<td>匹配1-n次，优先匹配n次，相当于{1,}</td>
+</tr>
+<tr>
+<td>*</td>
+<td>匹配0-n次，优先匹配n次，相当于{0,}</td>
+</tr>
+</tbody>
+</table>
+<p>正则默认和人心一样是贪婪的，也就是常说的贪婪模式，凡是表示范围的量词，都优先匹配上限而不是下限:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a&#123;1, 3&#125; // 匹配字符串&apos;aaa&apos;的话，会匹配aaa而不是a</span><br></pre></td></tr></table></figure></p>
+<p>有时候这不是我们想要的结果，可以在量词后面加上?，就可以开启非贪婪模式<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">a&#123;1, 3&#125;? // 匹配字符串&apos;aaa&apos;的话，会匹配a而不是aaa</span><br></pre></td></tr></table></figure></p>
+<h2 id="字符边界"><a href="#字符边界" class="headerlink" title="字符边界"></a>字符边界</h2><p>有时我们会有边界的匹配要求，比如以xxx开头，以xxx结尾。<code>^</code>在<code>[]</code>外表示匹配开头的意思：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">^abc // 可以匹配abc，但是不能匹配aabc</span><br></pre></td></tr></table></figure></p>
+<p><code>$</code>表示匹配结尾的意思:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">abc$ // 可以匹配abc，但是不能匹配abcc</span><br></pre></td></tr></table></figure></p>
+<p>上面提到的\b表示单词的边界：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">abc\b // 可以匹配 abc ，但是不能匹配 abcc</span><br></pre></td></tr></table></figure></p>
+<h2 id="选择表达式"><a href="#选择表达式" class="headerlink" title="选择表达式"></a>选择表达式</h2><p>有时我们想匹配x或者y，如果x和y是单个字符，可以使用字符集，<code>[abc]</code>可以匹配a或b或c，如果x和y是多个字符，字符集就无能为力了，此时就要用到分组。正则中用<code>|</code>来表示分组，<code>a|b</code>表示匹配a或者b的意思：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">123|456|789 // 匹配 123 或 456 或 789</span><br></pre></td></tr></table></figure></p>
+<h2 id="分组"><a href="#分组" class="headerlink" title="分组"></a>分组</h2><p>分组是正则中非常强大的一个功能，可以让上面提到的量词作用于一组字符，而非单个字符，分组的语法是圆括号包裹(xxx)：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(abc)&#123;2&#125; // 匹配abcabc</span><br></pre></td></tr></table></figure></p>
+<p>分组不能放在<code>[]</code>中，分组中还可以使用选择表达式：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(123|456)&#123;2&#125; // 匹配 123123、456456、123456、456123</span><br></pre></td></tr></table></figure></p>
+<p>和分组相关的概念还有一个捕获分组和非捕获分组，分组默认都是捕获的，在分组的<code>(</code>后面添加<code>?:</code>可以让分组变为非捕获分组，非捕获分组可以提高性能和简化逻辑：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&apos;123&apos;.match(/(?:123)/) // 返回 [&apos;123&apos;]</span><br><span class="line">&apos;123&apos;.match(/(123)/)  // 返回 [&apos;123&apos;, &apos;123&apos;]</span><br></pre></td></tr></table></figure></p>
+<h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><p>和分组相关的另一个概念是引用，比如在匹配html标签时，通常希望<code>&lt;xxx&gt;&lt;/xxx&gt;</code>后面的<code>xxx</code>能够和前面保持一致。引用的语法是<code>\数字</code>，数字代表引用前面第几个捕获分组，注意非捕获分组不能被引用：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;([a-z]+)&gt;&lt;\/\1&gt; // 可以匹配 `&lt;span&gt;&lt;/span&gt;` 或 `&lt;div&gt;&lt;/div&gt;`等</span><br></pre></td></tr></table></figure></p>
+<h2 id="预搜索"><a href="#预搜索" class="headerlink" title="预搜索"></a>预搜索</h2><p>如果你想匹配xxx前不能是yyy，或者xxx后不能是yyy，那就要用到预搜索，js只支持正向预搜索，也就是xxx后面必须是yyy，或者xxx后面不能是yyy：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">1(?=2) // 可以匹配12，不能匹配22</span><br><span class="line">1(?!2) // 可有匹配22，不能匹配12</span><br></pre></td></tr></table></figure></p>
+<p><strong>(?:pattern)</strong></p>
+<p>匹配 pattern 但不获取匹配结果，这是一个非获取匹配，不进行存储供以后使用。这在使用 “或” 字符 (|) 来组合一个模式的各个部分是很有用。例如， <code>&#39;industr(?:y|ies)</code> 就是一个比 <code>&#39;industry|industries&#39;</code> 更简略的表达式。</p>
+<p><strong>(?=pattern)</strong></p>
+<p>正向预查，在任何匹配 pattern 的字符串开始处匹配查找字符串。这是一个非获取匹配，也就是说，该匹配不需要获取供以后使用。例如， <code>&#39;Windows (?=95|98|NT|2000)&#39;</code> 能匹配 <code>&quot;Windows 2000&quot;</code> 中的 <code>&quot;Windows&quot;</code> ，但不能匹配 <code>&quot;Windows 3.1&quot;</code> 中的 “Windows”。预查不消耗字符，也就是说，在一个匹配发生后，在最后一次匹配之后立即开始下一次匹配的搜索，而不是从包含预查的字符之后开始。</p>
+<p><strong>(?!pattern)</strong></p>
+<p>负向预查，在任 何不匹配的字符串开始处匹配查找字符串。这是一个非获取匹配，也就是说，该匹配不需要获取供以后使用。例如<code>&#39;Windows (?!95|98|NT|2000)&#39;</code> 能匹配 <code>&quot;Windows 3.1&quot;</code> 中的 <code>&quot;Windows&quot;</code>，但不能匹配 <code>&quot;Windows 2000&quot;</code> 中的 <code>&quot;Windows&quot;</code>。预查不消耗字符，也就是说，在一个匹配发生后，在最后一次匹配之后立即开始下一次匹配的搜索，而不是从包含预查的字符之后开始。 </p>
+<h2 id="修饰符"><a href="#修饰符" class="headerlink" title="修饰符"></a>修饰符</h2><p>默认正则是区分大小写，这可能并不是我们想要的，正则提供了修饰符的功能，修复的语法如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/xxx/gi // 最后面的g和i就是两个修饰符</span><br></pre></td></tr></table></figure></p>
+<p><code>g</code> 正则遇到第一个匹配的字符就会结束，加上全局修复符，可以让其匹配到结束<br><code>i</code> 正则默认是区分大小写的，i可以忽略大小写<br><code>m</code> 正则默认情况下，^和$只能匹配字符串的开始和结尾，m修饰符可以让^和$匹配行首和行尾</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">/jing$/ // 能够匹配 &apos;yanhaijing，不能匹配 &apos;yanhaijing\n&apos;</span><br><span class="line">/jing$/m // 能够匹配 &apos;yanhaijing， 能够匹配 &apos;yanhaijing\n&apos;</span><br><span class="line"></span><br><span class="line">/^jing/ // 能够匹配 &apos;jing&apos;，不能匹配 &apos;\njing&apos;</span><br><span class="line">/^jing/m // 能够匹配 &apos;jing&apos;，能够匹配 &apos;\njing&apos;</span><br></pre></td></tr></table></figure>
       
     </div>
     
@@ -546,7 +760,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#元字符"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x5143;&#x5B57;&#x7B26;" class="headerlink" title="&#x5143;&#x5B57;&#x7B26;"></a>&#x5143;&#x5B57;&#x7B26;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#"><span class="nav-number">2.</span> <span class="nav-text"><a href="#" class="headerlink" title="[]"></a>[]</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#量词"><span class="nav-number">3.</span> <span class="nav-text"><a href="#&#x91CF;&#x8BCD;" class="headerlink" title="&#x91CF;&#x8BCD;"></a>&#x91CF;&#x8BCD;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#字符边界"><span class="nav-number">4.</span> <span class="nav-text"><a href="#&#x5B57;&#x7B26;&#x8FB9;&#x754C;" class="headerlink" title="&#x5B57;&#x7B26;&#x8FB9;&#x754C;"></a>&#x5B57;&#x7B26;&#x8FB9;&#x754C;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#选择表达式"><span class="nav-number">5.</span> <span class="nav-text"><a href="#&#x9009;&#x62E9;&#x8868;&#x8FBE;&#x5F0F;" class="headerlink" title="&#x9009;&#x62E9;&#x8868;&#x8FBE;&#x5F0F;"></a>&#x9009;&#x62E9;&#x8868;&#x8FBE;&#x5F0F;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分组"><span class="nav-number">6.</span> <span class="nav-text"><a href="#&#x5206;&#x7EC4;" class="headerlink" title="&#x5206;&#x7EC4;"></a>&#x5206;&#x7EC4;</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#元字符"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x5143;&#x5B57;&#x7B26;" class="headerlink" title="&#x5143;&#x5B57;&#x7B26;"></a>&#x5143;&#x5B57;&#x7B26;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#转义字符"><span class="nav-number">2.</span> <span class="nav-text"><a href="#&#x8F6C;&#x4E49;&#x5B57;&#x7B26;" class="headerlink" title="&#x8F6C;&#x4E49;&#x5B57;&#x7B26;"></a>&#x8F6C;&#x4E49;&#x5B57;&#x7B26;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#"><span class="nav-number">3.</span> <span class="nav-text"><a href="#" class="headerlink" title="[]"></a>[]</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#量词"><span class="nav-number">4.</span> <span class="nav-text"><a href="#&#x91CF;&#x8BCD;" class="headerlink" title="&#x91CF;&#x8BCD;"></a>&#x91CF;&#x8BCD;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#字符边界"><span class="nav-number">5.</span> <span class="nav-text"><a href="#&#x5B57;&#x7B26;&#x8FB9;&#x754C;" class="headerlink" title="&#x5B57;&#x7B26;&#x8FB9;&#x754C;"></a>&#x5B57;&#x7B26;&#x8FB9;&#x754C;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#选择表达式"><span class="nav-number">6.</span> <span class="nav-text"><a href="#&#x9009;&#x62E9;&#x8868;&#x8FBE;&#x5F0F;" class="headerlink" title="&#x9009;&#x62E9;&#x8868;&#x8FBE;&#x5F0F;"></a>&#x9009;&#x62E9;&#x8868;&#x8FBE;&#x5F0F;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分组"><span class="nav-number">7.</span> <span class="nav-text"><a href="#&#x5206;&#x7EC4;" class="headerlink" title="&#x5206;&#x7EC4;"></a>&#x5206;&#x7EC4;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#引用"><span class="nav-number">8.</span> <span class="nav-text"><a href="#&#x5F15;&#x7528;" class="headerlink" title="&#x5F15;&#x7528;"></a>&#x5F15;&#x7528;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#预搜索"><span class="nav-number">9.</span> <span class="nav-text"><a href="#&#x9884;&#x641C;&#x7D22;" class="headerlink" title="&#x9884;&#x641C;&#x7D22;"></a>&#x9884;&#x641C;&#x7D22;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#修饰符"><span class="nav-number">10.</span> <span class="nav-text"><a href="#&#x4FEE;&#x9970;&#x7B26;" class="headerlink" title="&#x4FEE;&#x9970;&#x7B26;"></a>&#x4FEE;&#x9970;&#x7B26;</span></a></li></ol></div>
             
 
           </div>
