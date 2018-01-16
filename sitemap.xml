@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://keaimo.com/about/index.html</loc>
+    
+    <lastmod>2018-01-16T02:08:49.461Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://keaimo.com/2018/01/16/java-compare-and-swap/</loc>
     
     <lastmod>2018-01-16T02:05:16.436Z</lastmod>
@@ -110,13 +117,6 @@
     <loc>http://keaimo.com/2017/12/19/facebook-haystack/</loc>
     
     <lastmod>2017-12-19T08:49:12.739Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://keaimo.com/about/index.html</loc>
-    
-    <lastmod>2017-12-19T07:02:25.767Z</lastmod>
     
   </url>
   
