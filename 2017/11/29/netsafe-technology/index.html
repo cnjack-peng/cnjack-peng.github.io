@@ -81,16 +81,20 @@
 
 <meta name="description" content="本文主要对软件开发者相关的系统安全问题进行总结。 攻击类型XSSCSRF产生原理 想要攻击成功，这三步缺一不可。  第一，登录受害者网站。如果受害者网站是基于 cookie 的用户验证机制，那么当用户登录成功后，浏览器就会保存一份服务端的 SESSIONID。 第二，这时候在同一个浏览器打开攻击者网站，虽然说它无法获取 SESSIONID 是什么（因为设置了 http only 的 cookie">
 <meta property="og:type" content="article">
-<meta property="og:title" content="开发者的网络安全技术">
+<meta property="og:title" content="网络安全基础知识">
 <meta property="og:url" content="http://keaimo.com/2017/11/29/netsafe-technology/index.html">
 <meta property="og:site_name" content="笑傲江湖└JP┐">
 <meta property="og:description" content="本文主要对软件开发者相关的系统安全问题进行总结。 攻击类型XSSCSRF产生原理 想要攻击成功，这三步缺一不可。  第一，登录受害者网站。如果受害者网站是基于 cookie 的用户验证机制，那么当用户登录成功后，浏览器就会保存一份服务端的 SESSIONID。 第二，这时候在同一个浏览器打开攻击者网站，虽然说它无法获取 SESSIONID 是什么（因为设置了 http only 的 cookie">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://keaimo.com/2017/11/29/netsafe-technology/csrf_principle.png">
 <meta property="og:image" content="http://keaimo.com/2017/11/29/netsafe-technology/csrf_header.png">
-<meta property="og:updated_time" content="2017-11-29T07:13:35.131Z">
+<meta property="og:image" content="http://keaimo.com/2017/11/29/netsafe-technology/jiajiemi.png">
+<meta property="og:image" content="http://keaimo.com/2017/11/29/netsafe-technology/jiaoyibaowen.png">
+<meta property="og:image" content="http://keaimo.com/2017/11/29/netsafe-technology/miyaotixi.png">
+<meta property="og:image" content="http://keaimo.com/2017/11/29/netsafe-technology/genghuanmiyao.png">
+<meta property="og:updated_time" content="2018-01-17T07:38:25.454Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="开发者的网络安全技术">
+<meta name="twitter:title" content="网络安全基础知识">
 <meta name="twitter:description" content="本文主要对软件开发者相关的系统安全问题进行总结。 攻击类型XSSCSRF产生原理 想要攻击成功，这三步缺一不可。  第一，登录受害者网站。如果受害者网站是基于 cookie 的用户验证机制，那么当用户登录成功后，浏览器就会保存一份服务端的 SESSIONID。 第二，这时候在同一个浏览器打开攻击者网站，虽然说它无法获取 SESSIONID 是什么（因为设置了 http only 的 cookie">
 <meta name="twitter:image" content="http://keaimo.com/2017/11/29/netsafe-technology/csrf_principle.png">
 
@@ -128,7 +132,7 @@
 
 
 
-  <title>开发者的网络安全技术 | 笑傲江湖└JP┐</title>
+  <title>网络安全基础知识 | 笑傲江湖└JP┐</title>
   
 
 
@@ -296,7 +300,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">开发者的网络安全技术</h1>
+          <h1 class="post-title" itemprop="name headline">网络安全基础知识</h1>
         
 
         <div class="post-meta">
@@ -377,35 +381,90 @@
 <li>第三，利用这个原理，在攻击者网站发出一个请求，命令受害者网站进行一些敏感操作。由于此时发出的请求是处于 session 中的，所以只要该用户有权限，那么任何请求都会被执行。</li>
 </ul>
 <p>比如，打开优酷，并登录。再打开攻击者网站，它里面有个 <code>&lt;img&gt;</code> 标签是这样的：</p>
-<pre><code class="html"><span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"http://api.youku.com/follow/123"</span> /&gt;</span>
-</code></pre>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">img</span> <span class="attr">src</span>=<span class="string">"http://api.youku.com/follow/123"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
 <p>这个 api 只是个例子，具体的 url 和参数都可以通过浏览器的开发者工具（Network 功能）事先确定。假如它的作用是让该登录的用户关注由 123 确定的一个节目或者用户，那么通过 CSRF 攻击，这个节目的关注量就会不断上升。</p>
 <p>解释两点。第一，为什么举这个例子，而不是银行这种和金钱有关的操作？很简单，因为它容易猜。对于攻击者来说，没有什么是一定能成功的，比如 SQL 注入，攻击者他不知道某网站的数据库是怎么设计的，但是他一般会通过个人经验去尝试，比如很多网站把用户的主键设置为 user_id，或 sys_id 等。</p>
 <p>银行的操作往往经过多重确认，比如图形验证码、手机验证码等，光靠 CSRF 完成一次攻击基本上是天方夜谭。但其他类型的网站往往不会刻意去防范这些问题。虽然金钱上的利益很难得到，但 CSRF 能办到的事情还是很多，比如利用别人发虚假微博、加好友等，这些都能对攻击者产生利益。</p>
 <p>第二，如何确保用户打开优酷之后，又打开攻击者网站？做不到。否则任何人打开优酷之后，都会莫名其妙地去关注某个节目了。但是你要知道，这个攻击成本仅仅是一条 API 调用而已，它在哪里都能出现，你从任何地方下载一张图片，让你请求这个地址，看也不看就点确定，请求不就发出去了吗？</p>
 <h4 id="防范手段"><a href="#防范手段" class="headerlink" title="防范手段"></a>防范手段</h4><p>对于如何防范 CSRF，一般有三种手段。</p>
-<h5 id="判断请求头Referer"><a href="#判断请求头Referer" class="headerlink" title="判断请求头Referer"></a>判断请求头Referer</h5><p>这个字段记录的是请求的来源。比如 <a href="http://www.example.com" target="_blank" rel="noopener">http://www.example.com</a> 上调用了百度的接口 <a href="http://api.map.baidu.com/service" target="_blank" rel="noopener">http://api.map.baidu.com/service</a> 那么在百度的服务端，就可以通过 Referer 判断这个请求是来自哪里。</p>
-<p>在实际应用中，这些跟业务逻辑无关的操作往往会放在拦截器中（或者说过滤器，不同技术使用的名词可能不同）。意思是说，在进入到业务逻辑之前，就应该要根据 Referer 的值来决定这个请求能不能处理。</p>
-<p>在 Java Servlet 中可以用 Filter（古老的技术）；用 Spring 的话可以建拦截器；在 Express 中是叫中间件，通过 request.get(‘referer’) 来取得这个值。每种技术它走的流程其实都一样。</p>
-<p>但要注意的是，Referer 是浏览器设置的，在浏览器兼容性大不相同的时代中，如果存在某种浏览器允许用户修改这个值，那么 CSRF 漏洞依然存在。</p>
+<h5 id="判断请求头Referer"><a href="#判断请求头Referer" class="headerlink" title="判断请求头Referer"></a>判断请求头Referer</h5><p>这个字段记录的是请求的来源。比如 <a href="http://www.example.com" target="_blank" rel="noopener">http://www.example.com</a> 上调用了百度的接口 <a href="http://api.map.baidu.com/service" target="_blank" rel="noopener">http://api.map.baidu.com/service</a> 那么在百度的服务端，就可以通过 Referer 判断这个请求是来自哪里。在实际应用中，这些跟业务逻辑无关的操作往往会放在拦截器中（或者说过滤器，不同技术使用的名词可能不同）。意思是说，在进入到业务逻辑之前，就应该要根据 Referer 的值来决定这个请求能不能处理。在 Java Servlet 中可以用 Filter（古老的技术）；用 Spring 的话可以建拦截器；在 Express 中是叫中间件，通过 request.get(‘referer’) 来取得这个值。每种技术它走的流程其实都一样。但要注意的是，Referer 是浏览器设置的，在浏览器兼容性大不相同的时代中，如果存在某种浏览器允许用户修改这个值，那么 CSRF 漏洞依然存在。</p>
 <h5 id="在请求参数中加入-csrf-token"><a href="#在请求参数中加入-csrf-token" class="headerlink" title="在请求参数中加入 csrf token"></a>在请求参数中加入 csrf token</h5><p>讨论 GET 和 POST 两种请求，对于 GET，其实也没什么需要防范的。为什么？因为 GET 在“约定”当中，被认为是查询操作，查询的意思就是，你查一次，查两次，无数次，结果都不会改变（用户得到的数据可能会变），这不会对数据库造成任何影响，所以不需要加其他额外的参数。</p>
 <blockquote>
 <p>所以这里要提醒各位的是，尽量遵从这些约定，不要在 GET 请求中出现 /delete, /update, /edit 这种单词。把“写”操作放到 POST 中。</p>
 </blockquote>
 <p>对于 POST，服务端在创建表单的时候可以加一个隐藏字段，也是通过某种加密算法得到的。在处理请求时，验证这个字段是否合法，如果合法就继续处理，否则就认为是恶意操作。</p>
-<pre><code class="html"><span class="tag">&lt;<span class="name">form</span> <span class="attr">method</span>=<span class="string">"post"</span> <span class="attr">action</span>=<span class="string">"/delete"</span>&gt;</span>
-  <span class="comment">&lt;!-- 其他字段 --&gt;</span>
-  <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"hidden"</span> <span class="attr">name</span>=<span class="string">"csrftoken"</span> <span class="attr">value</span>=<span class="string">"由服务端生成"</span>/&gt;</span>
-<span class="tag">&lt;/<span class="name">form</span>&gt;</span>
-</code></pre>
-<p>这个 html 片段由服务端生成，比如 JSP，PHP 等，对于 Node.js 的话可以是 Jade 。</p>
-<p>这的确是一个很好的防范措施，再增加一些处理的话，还能防止表单重复提交。</p>
-<p>可是对于一些新兴网站，很多都采用了“单页”的设计，或者退一步，无论是不是单页，它的 HTML 可能是由 JavaScript 拼接而成，并且表单也都是异步提交。所以这个办法有它的应用场景，也有局限性。</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">form</span> <span class="attr">method</span>=<span class="string">"post"</span> <span class="attr">action</span>=<span class="string">"/delete"</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- 其他字段 --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">input</span> <span class="attr">type</span>=<span class="string">"hidden"</span> <span class="attr">name</span>=<span class="string">"csrftoken"</span> <span class="attr">value</span>=<span class="string">"由服务端生成"</span>/&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">form</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这个 html 片段由服务端生成，比如 JSP，PHP 等，对于 Node.js 的话可以是 Jade 。这的确是一个很好的防范措施，再增加一些处理的话，还能防止表单重复提交。可是对于一些新兴网站，很多都采用了“单页”的设计，或者退一步，无论是不是单页，它的 HTML 可能是由 JavaScript 拼接而成，并且表单也都是异步提交。所以这个办法有它的应用场景，也有局限性。</p>
 <h5 id="新增-HTTP-Header"><a href="#新增-HTTP-Header" class="headerlink" title="新增 HTTP Header"></a>新增 HTTP Header</h5><p>思想是，将 token 放在请求头中，服务端可以像获取 Referer 一样获取这个请求头，不同的是，这个 token 是由服务端生成的，所以攻击者他没办法猜。这篇文章的另一个重点——JWT——就是基于这个方式。抛开 JWT 不谈，它的工作原理是这样的:<br><img src="/2017/11/29/netsafe-technology/csrf_header.png" title="CSRF添加Header"></p>
 <p>解释一下这四个请求，类型都是 POST 。</p>
-<p>1.通过 /login 接口，用户登录，服务端传回一个 access_token，前端把它保存起来，可以是内存当中，如果你希望用来模拟 session 的话。也可以保存到 localStorage 中，这样可以实现自动登录。<br>2.调用 /delete 接口，参数是某样商品的 id。仔细看，在这个请求中，多了一个名为 Authoriaztion 的 header，它的值是之前从服务端传回来的 access_token，在前面加了一个“Bearer”（这是和服务端的约定，约定就是说，说好了加就一起加，不加就都不加……）<br>3.调用 /logout 接口，同样把 access_token 加在 header 中传过去。成功之后，服务端和前端都会把这个 token 置为失效，或直接删除。<br>4.再调用 /delete 接口，由于此时已经没有 access_token 了，所以服务端判断该请求没权限，返回 401 。</p>
+<ol>
+<li>通过 /login 接口，用户登录，服务端传回一个 access_token，前端把它保存起来，可以是内存当中，如果你希望用来模拟 session 的话。也可以保存到 localStorage 中，这样可以实现自动登录。</li>
+<li>调用 /delete 接口，参数是某样商品的 id。仔细看，在这个请求中，多了一个名为 Authoriaztion 的 header，它的值是之前从服务端传回来的 access_token，在前面加了一个“Bearer”（这是和服务端的约定，约定就是说，说好了加就一起加，不加就都不加……）</li>
+<li>调用 /logout 接口，同样把 access_token 加在 header 中传过去。成功之后，服务端和前端都会把这个 token 置为失效，或直接删除。</li>
+<li>再调用 /delete 接口，由于此时已经没有 access_token 了，所以服务端判断该请求没权限，返回 401 。</li>
+</ol>
 <p>各位有没有发现，从头至尾，整个过程没有涉及 cookie，所以 CSRF 是不可能发生的！</p>
-<h3 id="重放攻击"><a href="#重放攻击" class="headerlink" title="重放攻击"></a>重放攻击</h3>
+<h3 id="重放攻击"><a href="#重放攻击" class="headerlink" title="重放攻击"></a>重放攻击</h3><h2 id="加密机"><a href="#加密机" class="headerlink" title="加密机"></a>加密机</h2><p>加密机解决信息的CIA问题，提供应用层加密、传输层、IP层加密（网络层）、数据链路层加密，主要应用于金融、社保等行业。96年，根据相关领导部门指示，由中国电子科技集团30研究所和总参56所研究生产加密机。分别推出型号：SJL05型（30所）、SJL06型（56所）。30所发起成立成都卫士通公司，推广SJL05型加密机；56所（军队不能经商）与江南科友合作，推广SJL06型。国内加密机厂商有江南天安等。美国Taclane、SafeNet公司也是加密机的生产厂商。</p>
+<table>
+<thead>
+<tr>
+<th>网络层</th>
+<th>传输内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>物理层</td>
+<td>高低电平:纯物理信号</td>
+</tr>
+<tr>
+<td>数据链路层</td>
+<td>数据帧:帧头+IP数据包+帧尾 (帧头包括源和目标主机MAC地址及类型，帧尾是校验字),这一层的加密需要在OS网卡驱动层进行处理(Windows:NDIS，在Linux上可以直接使用Socket操作数据链路层)</td>
+</tr>
+<tr>
+<td>网络层</td>
+<td>IP数据包:IP头部+TCP数据信息(IP头包括源和目标主机IP地址、类型、生存期等)</td>
+</tr>
+<tr>
+<td>传输层</td>
+<td>TCP数据信息:TCP头部+实际数据 (TCP头包括源和目标主机端口号、顺序号、确认号、校验字等)UDP数据信息:UDP报头+实际数据（UDP报头包括目标端口号、数据报长度、校验值）</td>
+</tr>
+</tbody>
+</table>
+<p>相关的网络安全技术还有IPSEC等。</p>
+<h2 id="端到端加密"><a href="#端到端加密" class="headerlink" title="端到端加密"></a>端到端加密</h2><p>端到端加密 (End-to-end encryption，E2EE)是一个只有参与通讯的用户可以读取信息的通信系统。总的来说，它可以防止潜在的窃听者——包括 电信供应商、互联网服务供应商甚至是该通讯系统的提供者——获取能够用以解密通讯的密钥。此类系统被设计为可以防止潜在的监视 或篡改企图，因为没有密钥的第三方难以破译系统中传输或储存的数据。 举例来说，使用端到端加密的通讯提供商，将无法将其客户的通讯数据提供给当局。</p>
+<h3 id="密钥交换"><a href="#密钥交换" class="headerlink" title="密钥交换"></a>密钥交换</h3><p>在一个端到端加密的系统中，用于加解密的密钥必须被、且仅被参与通讯的各方掌握。为实现这一目的，端到端加密系统可以使用事先预定好的一串字符（称为“预共享密钥”）来加密数据（如PGP），也可以使用该字符串生成一次性密码来进行加密（如DUKPT）。此外，参与通讯的各方还可以通过协商（Diffie–Hellman迪菲-赫尔曼密钥交换协议）创建密钥（如OTR）。</p>
+<h3 id="中间人攻击"><a href="#中间人攻击" class="headerlink" title="中间人攻击"></a>中间人攻击</h3><p>端到端加密能确保数据安全保密地传输于通讯的两端之间。但对于不怀好意的窃听者而言，与其尝试破解加密，不如冒充的消息接受方（例如，在密钥交换期间冒名顶替，或是设法将收件人公布的公共密钥替换成自己的）来得方便，因为此后，发信人发出的信息将以一个窃听者掌握的密钥进行加密。在获取解密的信息后，监听者还可以冒充发信人，与实际的接收者进行密钥交换、发送讯息，以避免通讯双方察觉异常。由于攻击者处在通讯双方之间，因此这种攻击方式被称为中间人攻击的。</p>
+<p>大多数端到端加密协议都设计了某种形式的终端认证机制，专门用来防御中间人攻击，例如依靠<code>数字证书认证机构</code>或<code>信任网络</code>进行验证。其他的技术包括的针对用户公钥或预共享密钥生成密码哈希（设备指纹）。 通讯各方可以通过外部（out-of-band）通信渠道来校验这一指纹，便可确认通讯的完整性和真实性（但不能保证机密性），之后再展开真实对话。如果指纹匹配的话，理论上可以确认不存在中间人攻击。</p>
+<p>为了方便人工检查，指纹通常会显示为 十六进制字符串。 这些字符串通常会编排成特定格式并编组，以提高可读性。例如，128位MD5指纹会显示如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">43:51:43:a1：b5：fc：8b：b7：0a:3a：a9：b1：0f:66:73:a8</span><br></pre></td></tr></table></figure></p>
+<h3 id="终端安全"><a href="#终端安全" class="headerlink" title="终端安全"></a>终端安全</h3><p>端到端加密并不能避免终端本身的安全风险。每个用户的计算机等设备上仍然存在密钥被盗（以进行中间人攻击），或是是被解密的信息被读取的可能性。 即使是最完美的加密通信，他的安全性仍然受制于两端“邮箱”的安全性。 提升端点安全性的手段主要有：将密钥的产生、储存和加解密操作独立到一个小的智能卡上，例如Google Project Vault。然而，由于明文输入和输出仍然对于用户设备来说依旧是可见的，因此恶意软件仍然可以实时窃听用户的对话。一个更强大的方式是将所有敏感数据隔离到一台由网闸完全限制的计算机上。</p>
+<p>美国和以色列开发的“震网”病毒成功地通过离线渠道进入并瘫痪了伊朗在纳坦兹建设的核设施。为了避免恶意软件导致的密钥泄漏、一种方法是将可信计算基分散在两个单向连接的计算机上，以避免恶意软件感染及其导致的敏感数据泄漏。</p>
+<h2 id="金融行业密钥体系相关知识"><a href="#金融行业密钥体系相关知识" class="headerlink" title="金融行业密钥体系相关知识"></a>金融行业密钥体系相关知识</h2><p>参照中国银联的密钥安全标准，各密钥长度至少 128bit。上层密钥提供对下层密钥的保护或维护。所有的密钥或数据保护都采用3DES。 TMK为终端主密钥，用来加密、解密需要传输的工作密钥TAK或TPK，实现工作密钥联机传送。要求每台POS终端的TMK不同，该TMK通过MK加密后保持在数据库中。<br>TAK、TPK为工作密钥，是最底层的数据加密密钥，也是更新最频繁的密钥，包括TAK和TPK，TAK为终端信息完整性密钥，TPK为PIN保护密钥，这两个密钥的更新都是通过联机交易即签到来完成，使用TMK加密后进行传送。 在增加终端资料时，系统将通过加密机为每个终端随机产生不同的TMK，并获取TMK密文（通过MK加密）写入联机系统数据库的终端表中，同时该TMK需要传送给POS终端应用才能正常工作。</p>
+<h3 id="密钥基础知识"><a href="#密钥基础知识" class="headerlink" title="密钥基础知识"></a>密钥基础知识</h3><p>我们知道金融行业有很多数据要在网络上传递，包括从前置到主机，从自助终端到前置等，这些数据在网络上传来传去，我们很容易就会想到安全性的问题，如果这些数据被人窃取或拦截下来，那我们怎么敢在银行存钱了。这个问题在计算机出现时就被前人考虑到了，所以出现了很多各种各样的加解密技术。抛开这些不管，假设当初由我们自己来设计怎样解决数据被窃取的情况。假设我们有一段数据，是ATM取款的报文，包括一个人的磁卡号、密码、取款金额，现在需要将这些数据从一台ATM机器传到前置机处理，这些数据是比较机密的，如果被人窃取了，就可以用该卡号和密码把账户中的钱取走。</p>
+<p>首先，我们可以想到用专用的银行内部网络，外面的人无法获得网络的访问权。这个仔细想想显然不可行的，因为一是不能保证外人一定没办法进入银行内部网络，二是银行内部人员作案是没法防止的。 接着，我们很容易想到，既然保证数据不被窃取的可能性很小，那我们何不变换一下思路，数据避免不了被窃取，那我如果将数据处理下，让你即使窃取到数据，也是一些无用的乱码。这个想法比较接近现在的做法了，当前置机接收到了数据，它肯定是对数据进行反处理，即与ATM端完全步骤相反的数据处理，即可得到明文的数据。我们再进一步想想，如果因为某种原因，报文中的取款金额被改变了，这样就会导致ATM出的钱和前置扣账记录的钱不一致的情况，看来我们必须加上一个验证机制，当前置机收到ATM发送的一个报文时，能够确认报文中的数据在网络传输过程中没有被更改过。怎样实现？最简单的，对通讯数据每一位进行异或，得到0或1，把0或1放在在通讯数据后面，算是加上一个奇偶校验位，收到数据同样对数据每位进行异或，得到0或1，再判断下收到数据最后一位与算出来的是否一致。这种方式太简单了，对于上面提到的ATM到前置机的报文来说，没什么用处，不过我们可以将对数据每一位异或的算法改成一个比较复杂点的。因为DES算法已经出来了很多年了，并且在金融行业也有广泛的应用，我们使用DES算法进行处理，来解决上面的问题。</p>
+<p>DES算法（此处指单DES）的入口参数有三个：Key、Data、Mode。其中Key为8个字节共64位，是DES算法的工作密钥；Data也为8个字节64位，是要被加密或被解密的数据；Mode为DES的工作方式，有两种：加密或解密。DES算法是这样工作的：如Mode为加密，则用Key去把数据Data进行加密，生成Data的密码形式（64位）作为DES的输出结果；如Mode为解密，则用Key去把密码形式的数据Data解密，还原为Data的明码形式（64位）作为DES的输出结果。在通信网络的两端，双方约定一致的Key，在通信的源点用Key对核心数据进行DES加密，然后以密码形式在公共通信网中传输到通信网络的终点，数据到达目的地后，用同样的Key对密码数据进行解密，便再现了明码形式的核心数据。这样，便保证了核心数据在公共通信网中传输的安全性和可靠性。通过定期在通信网络的源端和目的端同时改用新的Key，能更进一步提高数据的保密性。</p>
+<img src="/2017/11/29/netsafe-technology/jiajiemi.png">
+<p>我们用一个Key对前面提到的报文进行DES算法，得到加密后的64位数据，放到报文的最后，跟报文一起送到前置机，前置机收到报文后，同样用Key对数据（不包括最后的64位加密数据）进行DES加密，得出64位的数据，用该数据与ATM发送过来的报文最后的64位数据比较，如果两个数据相同，说明报文没有中途被更改过。</p>
+<p>再进一步，因为DES只能够对64位的数据进行加密，一个报文可不止64位，哪我们怎么处理呢？只对报文开头的64位加密？这个是显然不够的。我们可以这样，先对报文的开始64位加密，接着对报文第二个64位加密，依次类推，不过这有问题，因为每个64位都会得到同样长度的加密后的数据，我不能把这些数据都放到报文的后面（报文的长度就变成两倍长了）。换个思路，我先对报文第一个64位加密，得到64位的加密后数据data1，接着再拿加密后的data1与报文第二个64位数据进行按位异或，得到同样长64位的数据data2，我再用Key对data2加密，得到加密后的数据data3，再拿data3与报文第三个64位数据进行按位异或，同样的处理依次类推。直到最后会得到一个64位的数据，将这个数据放到报文的最后发到前置机，这样报文的长度只增加了64位而已。这个算法就叫做MAC算法，<strong>MAC是一种校验算法</strong>。</p>
+<p>好了，到目前为止我们已经知道了什么是MAC算法，为什么需要它，接着我们再看看经常被提起的另外一个名词。在上面说到MAC算法的时候，我们会注意到其中进行DES加密算法时提到了一个Key，这个用来参与MAC计算的Key就常被称为MacKey（MAK）。</p>
+<p>我们继续来处理ATM和前置机间网络数据传输的问题。前面提到的MAC算法对传送的报文进行了处理，保证了在网络传输过程中数据不会被有意或无意的篡改，但是，我们再进一步想想，如果仍然是上面提到的一个取款报文，如果想作案的话，我不改报文的内容，而只是截取报文的内容，因为内容里面有卡号和密码，都是明文的形式，很容易就看出来哪些内容是卡号、哪些内容是密码。有了卡号和密码，找个读卡器就能够很快的制出一张磁卡，然后拿这个磁卡可以随便取钱了，根本不需要修改报文，这样你就算前置机对报文的MAC校验通过了，也只是保证了报文没被改动过，对于防止作案没有实质上的帮助。那我们很容易想到，再加上一道加密，这次我把整个取款的报文都用DES加密，将明文全部转换成密文，然后送到前置机，这下好了吧。即使你把报文截取了也没用，你拿着这些密文也没有用，你也没有DES的密钥来解密它，只有前置机才知道密钥。这是个好主意，确实防止了卡号和密码等被人获知的危险。这也是现在普遍采取的做法，不过我们需要对这个做法进行一些改进。</p>
+<p>首先，我们要知道用DES对数据加解密是耗时间的，速度是比较慢的。我们来想想，整个取款报文有必要每个数据都DES加密吗？比如报文中的什么流水号、ATM号等信息，对它们加密没什么意义，进一步讲，取款金额加密也没意义，假设你取500块，但是你将报文改成了100块，导致主机只把你账户扣100块钱，你白赚了400块。这个听起来挺划算的，实际上是不可行的，因为这样造成了账务上的短款，银行当然会查账的，根据ATM记录的硬件出钞张数和主机扣款金额，肯定会把你查出来的，那这种掩耳盗铃的做法，下场显而易见。</p>
+<p>我们来考虑一个报文中到底什么信息是需要加密的，目前一般的做法是只对账号和密码进行加密（也有只对密码加密的），其他的内容不加密的。对账号和密码加密有个术语，叫PinBlock，即PIN块，就是对账号和密码进行DES加密处理后的一个密文数据块。既然使用了DES算法来加密账号和密码，则必然有个Key来加密，那么我们就把这个Key称为PinKey（PIK），就是专门来加密用户账户和密码的Key。至于怎样进行加密形成最后的密文PinBlock，有很多标准的，比如IBM3624、ANSI、ISO、DIEBOLD等标准，其实它们大同小异，就是在对报文中的密码进行一个预处理，再用PinKey来DES加密，主要的差别就是怎样预处理而已，比如有的是密码后面补F，补够16 位，就是类似这样的预处理。到这里我们应该理解PinKey和PinBlock了。通过PinKey和MacKey对报文进行了两重处理，基本上报文就是安全的了。</p>
+<img src="/2017/11/29/netsafe-technology/jiaoyibaowen.png">
+<p>如果我们对DES算法比较了解，就会知道，如果想对加密后的密文解密，必须要知道Key才行，所以说Key一定要保密。怎样来保密Key呢？我们前面提到的无论是算MAC还是算PIN块，都是直接拿明文的Key来计算的，那么这个Key很容易被窃取的，比如有人在机器上装了个黑客程序，只要检测到你在用Key加密数据，就把明文的Key获取了。</p>
+<p>这样看来，我们还要对PinKey和MacKey本身进行加密，不要让人知道了。怎样实现，同样是DES算法大显身手的地方。我再找个Key对PinKey和MacKey进行一次加密，这样你就看不到PinKey和MacKey的明文了，好，解决问题了。这时用来对PinKey和MacKey进行加密的Key就被我们称为MasterKey，即主密钥，用来加密其他密钥的密钥。不过，那MasterKey怎么办，它是明文啊。再找个Key来加密MasterKey，那最终无论处理多少道，最后的那个Key肯定是明文，这样看来，安全的问题还没有解决。</p>
+<p>既然此路不通，那我们需要换个思维角度，仔细想想怎样处理明文的MasterKey。黑客程序只能窃取软件上的东西，如果我把MasterKey放到硬件加密机里面，黑客是没能力跑到硬件加密机里面把MasterKey取出来的。这样只需要把加密级别最高的MasterKey放到硬件加密机里面，问题就解决了。这时存储在硬件加密机中受硬件设备保护的MasterKey（MK）就称为主密钥（根密钥），加解密PinKey和MacKey同时又受主密钥加密保护的密钥称为次主密钥（Member Master Key，MMK）。</p>
+<p>还有个名词经常被提到，就是3DES。为什么要提出3DES的概念呢？其实推出3DES是因为原来的单DES算法随着计算机硬件的速度提升，已经出现被破解的可能性（DES算法中只用到64位密钥中的其中56位，而第8、16、24、……64位8个位并未参与DES运算，而56位长的密钥通过组合变化，其穷举空间最大为256，这意味着如果一台超高速计算机的速度是每一秒钟检测一亿个密钥，则它穷举完全部密钥只需要23年的时间，随着运算速度的不断提升，穷举用时会更短），所以将算法基于DES进行了改进，即对一块数据用三个不同的密钥进行三次加密，使强度更高。但是对于我们理解金融行业的密钥及加密机制来说，用什么算法都一样，不同算法的差别只是在于对数据进行移位变换等处理的方法不同而已。</p>
+<h3 id="密钥体系结构"><a href="#密钥体系结构" class="headerlink" title="密钥体系结构"></a>密钥体系结构</h3><p>不同的信息需要使用不同的密钥加密，密钥分层的好处是有利于密钥的更新和传送，同时保证了密钥的安全性。当其中一级密钥的安全出现问题时，并不会影响其他信息的安全性。 下图以江南科友SJL06加密机为例，介绍硬件加密机的三层密钥结构：</p>
+<img src="/2017/11/29/netsafe-technology/miyaotixi.png">
+<p><strong>第一层，加密机主密钥（Master Key - MK）</strong>，是保存在硬件加密机内的由三个成分合成的一对最上层密钥，其作用是将所有存放在本地的其它密钥和加密数据进行加密，在硬件加密机以外的地方不会以明文形式存放，是三级密钥体系中最高级别的密钥。硬件加密机投入运行时，必须先产生和装载MK。由于DES算法依靠某一个密钥进行加密，同时所有密钥和数据都经由MK进行加密，所以MK必须通过一种安全的方法生成和维护。MK由三个成分（32位十六进制数）组成，需要银行三位主要的密钥管理人员参与产生，一般采用“背对背”形式依次录入，记录checkvalue，分开安全保存明文分量。MK以密文形式存储在加密机黑匣子中，且永远不以明文形式出现。一旦硬件加密机受到非授权的操作，主密钥会自动销毁。</p>
+<p><strong>第二层，次主密钥（BMK、ZMK）</strong>，又被称为密钥加密密钥或密钥交换密钥（Key-encrypting Key或Key Exchange Key）。它的作用是加密在通讯线路上需要传递的工作密钥，从而实现工作密钥的自动分配。它可以在共享网络中两个（或多个）通讯网点之间进行人工分配且保持双方的对称性。次主密钥由两个成分（32位十六进制数）组成，其产生是由两位密钥管理员用“背对背”的方式共同完成。对于SJL06 RACAL型加密机（雷卡），次主密钥为ZMK（Zone Master Key），需要密钥管理员记录ZMK密钥密文和checkvalue，并将ZMK密文（从第一位“X”后的所有32位16进制数）录入加密机外部的主机数据库中保存；对于SJL06 JK&amp;IC型加密机（金卡），次主密钥为BMK（Bank Master Key），是以索引方式通过MK加密直接保存在硬件加密机中。</p>
+<p><strong>第三层，通常称为工作密钥或数据加密密钥</strong>，包括信息完整性密钥(MAK)、PIN保护密钥(PIK)、终端密钥(TMK)，它的作用是加密各种不同的数据，从而实现数据的保密，信息的认证，以及数字签名的功能。这些数据密钥在本地存放时,处于次主密钥的加密之下或直接保存在硬件加密机中。工作密钥需要经常性地定期更换，通常每天更换一次或在系统启动时更换新密钥。</p>
+<p>如下图为终端更换密钥流程（终端维护人员需要持有传输密钥IC）：<br><img src="/2017/11/29/netsafe-technology/genghuanmiyao.png"></p>
+<h3 id="硬件加密与软件加密的比较"><a href="#硬件加密与软件加密的比较" class="headerlink" title="硬件加密与软件加密的比较"></a>硬件加密与软件加密的比较</h3><p>软件加密是不依靠硬件使用程序软件来实现的对数据的加密技术，而硬件加密是依靠硬件设备对传输的数据进行加密的技术。两者的相同点为：使用的加密算法相同，并且密钥体系也相同。</p>
+<p><strong>两者的不同点为：</strong> 软件加密时很多重要的信息（如用来做密码运算的密钥，或客户的PIN）都会在某时间清晰的出现于计算机的内存或磁盘上，而对计算机数据安全有一定研究的不法分子便有机会把这些资料读取、修改或删除，破坏系统的安全性。 硬件加密所有密码运算都在加密机内完成，在完整的加解密过程中，仅在硬件加密设备内部出现密钥和PIN的明文，有效防止了密钥和PIN的泄露，并且在受到非法攻击时，加密机内部保护的密钥会自动销毁。</p>
+<p>鉴于软件加密不能提供一种有效的机制保护密钥和客户密码PIN的存储安全，国际银行卡组织（VISA、万事达）以及我国的银联组织均作出了在金融系统中必须使用硬件加密设备的规定。</p>
+
       
     </div>
     
@@ -522,7 +581,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-count">25</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -599,7 +658,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#攻击类型"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x653B;&#x51FB;&#x7C7B;&#x578B;" class="headerlink" title="&#x653B;&#x51FB;&#x7C7B;&#x578B;"></a>&#x653B;&#x51FB;&#x7C7B;&#x578B;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#XSS"><span class="nav-number">1.1.</span> <span class="nav-text"><a href="#XSS" class="headerlink" title="XSS"></a>XSS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CSRF"><span class="nav-number">1.2.</span> <span class="nav-text"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#产生原理"><span class="nav-number">1.2.1.</span> <span class="nav-text"><a href="#&#x4EA7;&#x751F;&#x539F;&#x7406;" class="headerlink" title="&#x4EA7;&#x751F;&#x539F;&#x7406;"></a>&#x4EA7;&#x751F;&#x539F;&#x7406;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#防范手段"><span class="nav-number">1.2.2.</span> <span class="nav-text"><a href="#&#x9632;&#x8303;&#x624B;&#x6BB5;" class="headerlink" title="&#x9632;&#x8303;&#x624B;&#x6BB5;"></a>&#x9632;&#x8303;&#x624B;&#x6BB5;</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#判断请求头Referer"><span class="nav-number">1.2.2.1.</span> <span class="nav-text"><a href="#&#x5224;&#x65AD;&#x8BF7;&#x6C42;&#x5934;Referer" class="headerlink" title="&#x5224;&#x65AD;&#x8BF7;&#x6C42;&#x5934;Referer"></a>&#x5224;&#x65AD;&#x8BF7;&#x6C42;&#x5934;Referer</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#在请求参数中加入-csrf-token"><span class="nav-number">1.2.2.2.</span> <span class="nav-text"><a href="#&#x5728;&#x8BF7;&#x6C42;&#x53C2;&#x6570;&#x4E2D;&#x52A0;&#x5165;-csrf-token" class="headerlink" title="&#x5728;&#x8BF7;&#x6C42;&#x53C2;&#x6570;&#x4E2D;&#x52A0;&#x5165; csrf token"></a>&#x5728;&#x8BF7;&#x6C42;&#x53C2;&#x6570;&#x4E2D;&#x52A0;&#x5165; csrf token</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#新增-HTTP-Header"><span class="nav-number">1.2.2.3.</span> <span class="nav-text"><a href="#&#x65B0;&#x589E;-HTTP-Header" class="headerlink" title="&#x65B0;&#x589E; HTTP Header"></a>&#x65B0;&#x589E; HTTP Header</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重放攻击"><span class="nav-number">1.3.</span> <span class="nav-text"><a href="#&#x91CD;&#x653E;&#x653B;&#x51FB;" class="headerlink" title="&#x91CD;&#x653E;&#x653B;&#x51FB;"></a>&#x91CD;&#x653E;&#x653B;&#x51FB;</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#攻击类型"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x653B;&#x51FB;&#x7C7B;&#x578B;" class="headerlink" title="&#x653B;&#x51FB;&#x7C7B;&#x578B;"></a>&#x653B;&#x51FB;&#x7C7B;&#x578B;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#XSS"><span class="nav-number">1.1.</span> <span class="nav-text"><a href="#XSS" class="headerlink" title="XSS"></a>XSS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CSRF"><span class="nav-number">1.2.</span> <span class="nav-text"><a href="#CSRF" class="headerlink" title="CSRF"></a>CSRF</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#产生原理"><span class="nav-number">1.2.1.</span> <span class="nav-text"><a href="#&#x4EA7;&#x751F;&#x539F;&#x7406;" class="headerlink" title="&#x4EA7;&#x751F;&#x539F;&#x7406;"></a>&#x4EA7;&#x751F;&#x539F;&#x7406;</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#防范手段"><span class="nav-number">1.2.2.</span> <span class="nav-text"><a href="#&#x9632;&#x8303;&#x624B;&#x6BB5;" class="headerlink" title="&#x9632;&#x8303;&#x624B;&#x6BB5;"></a>&#x9632;&#x8303;&#x624B;&#x6BB5;</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#判断请求头Referer"><span class="nav-number">1.2.2.1.</span> <span class="nav-text"><a href="#&#x5224;&#x65AD;&#x8BF7;&#x6C42;&#x5934;Referer" class="headerlink" title="&#x5224;&#x65AD;&#x8BF7;&#x6C42;&#x5934;Referer"></a>&#x5224;&#x65AD;&#x8BF7;&#x6C42;&#x5934;Referer</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#在请求参数中加入-csrf-token"><span class="nav-number">1.2.2.2.</span> <span class="nav-text"><a href="#&#x5728;&#x8BF7;&#x6C42;&#x53C2;&#x6570;&#x4E2D;&#x52A0;&#x5165;-csrf-token" class="headerlink" title="&#x5728;&#x8BF7;&#x6C42;&#x53C2;&#x6570;&#x4E2D;&#x52A0;&#x5165; csrf token"></a>&#x5728;&#x8BF7;&#x6C42;&#x53C2;&#x6570;&#x4E2D;&#x52A0;&#x5165; csrf token</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#新增-HTTP-Header"><span class="nav-number">1.2.2.3.</span> <span class="nav-text"><a href="#&#x65B0;&#x589E;-HTTP-Header" class="headerlink" title="&#x65B0;&#x589E; HTTP Header"></a>&#x65B0;&#x589E; HTTP Header</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#重放攻击"><span class="nav-number">1.3.</span> <span class="nav-text"><a href="#&#x91CD;&#x653E;&#x653B;&#x51FB;" class="headerlink" title="&#x91CD;&#x653E;&#x653B;&#x51FB;"></a>&#x91CD;&#x653E;&#x653B;&#x51FB;</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#加密机"><span class="nav-number">2.</span> <span class="nav-text"><a href="#&#x52A0;&#x5BC6;&#x673A;" class="headerlink" title="&#x52A0;&#x5BC6;&#x673A;"></a>&#x52A0;&#x5BC6;&#x673A;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#端到端加密"><span class="nav-number">3.</span> <span class="nav-text"><a href="#&#x7AEF;&#x5230;&#x7AEF;&#x52A0;&#x5BC6;" class="headerlink" title="&#x7AEF;&#x5230;&#x7AEF;&#x52A0;&#x5BC6;"></a>&#x7AEF;&#x5230;&#x7AEF;&#x52A0;&#x5BC6;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#密钥交换"><span class="nav-number">3.1.</span> <span class="nav-text"><a href="#&#x5BC6;&#x94A5;&#x4EA4;&#x6362;" class="headerlink" title="&#x5BC6;&#x94A5;&#x4EA4;&#x6362;"></a>&#x5BC6;&#x94A5;&#x4EA4;&#x6362;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#中间人攻击"><span class="nav-number">3.2.</span> <span class="nav-text"><a href="#&#x4E2D;&#x95F4;&#x4EBA;&#x653B;&#x51FB;" class="headerlink" title="&#x4E2D;&#x95F4;&#x4EBA;&#x653B;&#x51FB;"></a>&#x4E2D;&#x95F4;&#x4EBA;&#x653B;&#x51FB;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#终端安全"><span class="nav-number">3.3.</span> <span class="nav-text"><a href="#&#x7EC8;&#x7AEF;&#x5B89;&#x5168;" class="headerlink" title="&#x7EC8;&#x7AEF;&#x5B89;&#x5168;"></a>&#x7EC8;&#x7AEF;&#x5B89;&#x5168;</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#金融行业密钥体系相关知识"><span class="nav-number">4.</span> <span class="nav-text"><a href="#&#x91D1;&#x878D;&#x884C;&#x4E1A;&#x5BC6;&#x94A5;&#x4F53;&#x7CFB;&#x76F8;&#x5173;&#x77E5;&#x8BC6;" class="headerlink" title="&#x91D1;&#x878D;&#x884C;&#x4E1A;&#x5BC6;&#x94A5;&#x4F53;&#x7CFB;&#x76F8;&#x5173;&#x77E5;&#x8BC6;"></a>&#x91D1;&#x878D;&#x884C;&#x4E1A;&#x5BC6;&#x94A5;&#x4F53;&#x7CFB;&#x76F8;&#x5173;&#x77E5;&#x8BC6;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#密钥基础知识"><span class="nav-number">4.1.</span> <span class="nav-text"><a href="#&#x5BC6;&#x94A5;&#x57FA;&#x7840;&#x77E5;&#x8BC6;" class="headerlink" title="&#x5BC6;&#x94A5;&#x57FA;&#x7840;&#x77E5;&#x8BC6;"></a>&#x5BC6;&#x94A5;&#x57FA;&#x7840;&#x77E5;&#x8BC6;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#密钥体系结构"><span class="nav-number">4.2.</span> <span class="nav-text"><a href="#&#x5BC6;&#x94A5;&#x4F53;&#x7CFB;&#x7ED3;&#x6784;" class="headerlink" title="&#x5BC6;&#x94A5;&#x4F53;&#x7CFB;&#x7ED3;&#x6784;"></a>&#x5BC6;&#x94A5;&#x4F53;&#x7CFB;&#x7ED3;&#x6784;</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#硬件加密与软件加密的比较"><span class="nav-number">4.3.</span> <span class="nav-text"><a href="#&#x786C;&#x4EF6;&#x52A0;&#x5BC6;&#x4E0E;&#x8F6F;&#x4EF6;&#x52A0;&#x5BC6;&#x7684;&#x6BD4;&#x8F83;" class="headerlink" title="&#x786C;&#x4EF6;&#x52A0;&#x5BC6;&#x4E0E;&#x8F6F;&#x4EF6;&#x52A0;&#x5BC6;&#x7684;&#x6BD4;&#x8F83;"></a>&#x786C;&#x4EF6;&#x52A0;&#x5BC6;&#x4E0E;&#x8F6F;&#x4EF6;&#x52A0;&#x5BC6;&#x7684;&#x6BD4;&#x8F83;</span></a></li></ol></li></ol></div>
             
 
           </div>
