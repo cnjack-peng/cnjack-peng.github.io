@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://keaimo.com/2017/12/08/linux-ops-base/</loc>
+    
+    <lastmod>2018-01-18T06:14:43.573Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://keaimo.com/2017/11/29/netsafe-technology/</loc>
     
     <lastmod>2018-01-17T07:38:25.454Z</lastmod>
@@ -96,13 +103,6 @@
     <loc>http://keaimo.com/2018/01/02/java-jdbc-timeout/</loc>
     
     <lastmod>2018-01-02T09:18:36.061Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://keaimo.com/2017/12/08/linux-ops-base/</loc>
-    
-    <lastmod>2018-01-02T05:42:12.936Z</lastmod>
     
   </url>
   

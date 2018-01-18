@@ -79,17 +79,17 @@
 
 
 
-<meta name="description" content="磁盘管理查看文件(夹)所在分区(挂载点)1234df /pathcat /etc/mtabmountfdisk -l 查找大文件/文件夹：1234find . -type f -size +800Mfind . -type f -size +800M  -print0 | xargs -0 ls -lfind . -type f -size +800M  -print0 | xargs -0 du">
+<meta name="description" content="常用命令   命令 用法     ls ls -lha (以mb为单位显示)    磁盘管理查看文件(夹)所在分区(挂载点)1234df /pathcat /etc/mtabmountfdisk -l 查找大文件/文件夹：1234find . -type f -size +800Mfind . -type f -size +800M  -print0 | xargs -0 ls -lfind .">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux运维基础">
 <meta property="og:url" content="http://keaimo.com/2017/12/08/linux-ops-base/index.html">
 <meta property="og:site_name" content="笑傲江湖└JP┐">
-<meta property="og:description" content="磁盘管理查看文件(夹)所在分区(挂载点)1234df /pathcat /etc/mtabmountfdisk -l 查找大文件/文件夹：1234find . -type f -size +800Mfind . -type f -size +800M  -print0 | xargs -0 ls -lfind . -type f -size +800M  -print0 | xargs -0 du">
+<meta property="og:description" content="常用命令   命令 用法     ls ls -lha (以mb为单位显示)    磁盘管理查看文件(夹)所在分区(挂载点)1234df /pathcat /etc/mtabmountfdisk -l 查找大文件/文件夹：1234find . -type f -size +800Mfind . -type f -size +800M  -print0 | xargs -0 ls -lfind .">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-01-02T05:42:12.936Z">
+<meta property="og:updated_time" content="2018-01-18T06:14:43.573Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux运维基础">
-<meta name="twitter:description" content="磁盘管理查看文件(夹)所在分区(挂载点)1234df /pathcat /etc/mtabmountfdisk -l 查找大文件/文件夹：1234find . -type f -size +800Mfind . -type f -size +800M  -print0 | xargs -0 ls -lfind . -type f -size +800M  -print0 | xargs -0 du">
+<meta name="twitter:description" content="常用命令   命令 用法     ls ls -lha (以mb为单位显示)    磁盘管理查看文件(夹)所在分区(挂载点)1234df /pathcat /etc/mtabmountfdisk -l 查找大文件/文件夹：1234find . -type f -size +800Mfind . -type f -size +800M  -print0 | xargs -0 ls -lfind .">
 
 
 
@@ -365,7 +365,21 @@
       
 
       
-        <h2 id="磁盘管理"><a href="#磁盘管理" class="headerlink" title="磁盘管理"></a>磁盘管理</h2><p>查看文件(夹)所在分区(挂载点)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">df /path</span><br><span class="line">cat /etc/mtab</span><br><span class="line">mount</span><br><span class="line">fdisk -l</span><br></pre></td></tr></table></figure></p>
+        <h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>用法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ls</td>
+<td>ls -lha (以mb为单位显示)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="磁盘管理"><a href="#磁盘管理" class="headerlink" title="磁盘管理"></a>磁盘管理</h2><p>查看文件(夹)所在分区(挂载点)<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">df /path</span><br><span class="line">cat /etc/mtab</span><br><span class="line">mount</span><br><span class="line">fdisk -l</span><br></pre></td></tr></table></figure></p>
 <p>查找大文件/文件夹：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">find . -<span class="built_in">type</span> f -size +800M</span><br><span class="line">find . -<span class="built_in">type</span> f -size +800M  -print0 | xargs -0 ls -l</span><br><span class="line">find . -<span class="built_in">type</span> f -size +800M  -print0 | xargs -0 du -h</span><br><span class="line">find . -<span class="built_in">type</span> f -size +800M  -print0 | xargs -0 du -h | sort -nr</span><br></pre></td></tr></table></figure></p>
 <h2 id="运行状态"><a href="#运行状态" class="headerlink" title="运行状态"></a>运行状态</h2><p>TOP查看系统运行情况：</p>
 <ul>
@@ -569,7 +583,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#磁盘管理"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x78C1;&#x76D8;&#x7BA1;&#x7406;" class="headerlink" title="&#x78C1;&#x76D8;&#x7BA1;&#x7406;"></a>&#x78C1;&#x76D8;&#x7BA1;&#x7406;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#运行状态"><span class="nav-number">2.</span> <span class="nav-text"><a href="#&#x8FD0;&#x884C;&#x72B6;&#x6001;" class="headerlink" title="&#x8FD0;&#x884C;&#x72B6;&#x6001;"></a>&#x8FD0;&#x884C;&#x72B6;&#x6001;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NFS"><span class="nav-number">3.</span> <span class="nav-text"><a href="#NFS" class="headerlink" title="NFS"></a>NFS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络安全"><span class="nav-number">4.</span> <span class="nav-text"><a href="#&#x7F51;&#x7EDC;&#x5B89;&#x5168;" class="headerlink" title="&#x7F51;&#x7EDC;&#x5B89;&#x5168;"></a>&#x7F51;&#x7EDC;&#x5B89;&#x5168;</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#常用命令"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x5E38;&#x7528;&#x547D;&#x4EE4;" class="headerlink" title="&#x5E38;&#x7528;&#x547D;&#x4EE4;"></a>&#x5E38;&#x7528;&#x547D;&#x4EE4;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#磁盘管理"><span class="nav-number">2.</span> <span class="nav-text"><a href="#&#x78C1;&#x76D8;&#x7BA1;&#x7406;" class="headerlink" title="&#x78C1;&#x76D8;&#x7BA1;&#x7406;"></a>&#x78C1;&#x76D8;&#x7BA1;&#x7406;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#运行状态"><span class="nav-number">3.</span> <span class="nav-text"><a href="#&#x8FD0;&#x884C;&#x72B6;&#x6001;" class="headerlink" title="&#x8FD0;&#x884C;&#x72B6;&#x6001;"></a>&#x8FD0;&#x884C;&#x72B6;&#x6001;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#NFS"><span class="nav-number">4.</span> <span class="nav-text"><a href="#NFS" class="headerlink" title="NFS"></a>NFS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#网络安全"><span class="nav-number">5.</span> <span class="nav-text"><a href="#&#x7F51;&#x7EDC;&#x5B89;&#x5168;" class="headerlink" title="&#x7F51;&#x7EDC;&#x5B89;&#x5168;"></a>&#x7F51;&#x7EDC;&#x5B89;&#x5168;</span></a></li></ol></div>
             
 
           </div>
