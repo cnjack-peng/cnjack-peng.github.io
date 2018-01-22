@@ -276,6 +276,214 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2018/01/22/java-threadpoolexecutor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jack Peng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="笑傲江湖└JP┐">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/22/java-threadpoolexecutor/" itemprop="url">Java - ThreadPoolExecutor</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-22T15:48:29+08:00">
+                2018-01-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/软件开发/" itemprop="url" rel="index">
+                    <span itemprop="name">软件开发</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><ol>
+<li>ThreadPoolExecutor作为java.util.concurrent包对外提供基础实现，以内部线程池的形式对外提供管理任务执行，线程调度，线程池管理等等服务； </li>
+<li>Executors方法提供的线程服务，都是通过参数设置来实现不同的线程池机制； </li>
+<li>先来了解其线程池管理的机制，有助于正确使用，避免错误使用导致严重故障。同时可以根据自己的需求实现自己的线程池； </li>
+</ol>
+<h2 id="核心构造方法讲解"><a href="#核心构造方法讲解" class="headerlink" title="核心构造方法讲解"></a>核心构造方法讲解</h2><p>下面是ThreadPoolExecutor最核心的构造方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ThreadPoolExecutor</span><span class="params">(<span class="keyword">int</span> corePoolSize,  </span></span></span><br><span class="line"><span class="function"><span class="params">                              <span class="keyword">int</span> maximumPoolSize,  </span></span></span><br><span class="line"><span class="function"><span class="params">                              <span class="keyword">long</span> keepAliveTime,  </span></span></span><br><span class="line"><span class="function"><span class="params">                              TimeUnit unit,  </span></span></span><br><span class="line"><span class="function"><span class="params">                              BlockingQueue&lt;Runnable&gt; workQueue,  </span></span></span><br><span class="line"><span class="function"><span class="params">                              ThreadFactory threadFactory,  </span></span></span><br><span class="line"><span class="function"><span class="params">                              RejectedExecutionHandler handler)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">if</span> (corePoolSize &lt; <span class="number">0</span> ||  </span><br><span class="line">            maximumPoolSize &lt;= <span class="number">0</span> ||  </span><br><span class="line">            maximumPoolSize &lt; corePoolSize ||  </span><br><span class="line">            keepAliveTime &lt; <span class="number">0</span>)  </span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException();  </span><br><span class="line">        <span class="keyword">if</span> (workQueue == <span class="keyword">null</span> || threadFactory == <span class="keyword">null</span> || handler == <span class="keyword">null</span>)  </span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();  </span><br><span class="line">        <span class="keyword">this</span>.corePoolSize = corePoolSize;  </span><br><span class="line">        <span class="keyword">this</span>.maximumPoolSize = maximumPoolSize;  </span><br><span class="line">        <span class="keyword">this</span>.workQueue = workQueue;  </span><br><span class="line">        <span class="keyword">this</span>.keepAliveTime = unit.toNanos(keepAliveTime);  </span><br><span class="line">        <span class="keyword">this</span>.threadFactory = threadFactory;  </span><br><span class="line">        <span class="keyword">this</span>.handler = handler;  </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>构造方法参数讲解:</p>
+<table>
+<thead>
+<tr>
+<th>参数名</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>corePoolSize</td>
+<td>核心线程池大小</td>
+</tr>
+<tr>
+<td>maximumPoolSize</td>
+<td>最大线程池大小</td>
+</tr>
+<tr>
+<td>keepAliveTime</td>
+<td>线程池中超过corePoolSize数目的空闲线程最大存活时间；可以allowCoreThreadTimeOut(true)使得核心线程有效时间</td>
+</tr>
+<tr>
+<td>TimeUnit</td>
+<td>keepAliveTime时间单位</td>
+</tr>
+<tr>
+<td>workQueue</td>
+<td>阻塞任务队列</td>
+</tr>
+<tr>
+<td>threadFactory</td>
+<td>新建线程工厂</td>
+</tr>
+<tr>
+<td>RejectedExecutionHandler</td>
+<td>当提交任务数超过maxmumPoolSize+workQueue之和时，任务会交给RejectedExecutionHandler来处理</td>
+</tr>
+</tbody>
+</table>
+<p><strong>重点讲解：</strong><br>其中比较容易让人误解的是：corePoolSize，maximumPoolSize，workQueue之间关系。 </p>
+<ol>
+<li>当线程池小于corePoolSize时，新提交任务将创建一个新线程执行任务，即使此时线程池中存在空闲线程。 </li>
+<li>当线程池达到corePoolSize时，新提交任务将被放入workQueue中，等待线程池中任务调度执行 </li>
+<li>当workQueue已满，且maximumPoolSize&gt;corePoolSize时，新提交任务会创建新线程执行任务 </li>
+<li>当提交任务数超过maximumPoolSize时，新提交任务由RejectedExecutionHandler处理 </li>
+<li>当线程池中超过corePoolSize线程，空闲时间达到keepAliveTime时，关闭空闲线程 </li>
+<li>当设置allowCoreThreadTimeOut(true)时，线程池中corePoolSize线程空闲时间达到keepAliveTime也将关闭 </li>
+</ol>
+<p><strong>线程管理机制图示：</strong><br><img src="/2018/01/22/java-threadpoolexecutor/img1.png"></p>
+<h2 id="Executors提供的线程池配置方案"><a href="#Executors提供的线程池配置方案" class="headerlink" title="Executors提供的线程池配置方案"></a>Executors提供的线程池配置方案</h2><p>1、构造一个固定线程数目的线程池，配置的corePoolSize与maximumPoolSize大小相同，同时使用了一个无界LinkedBlockingQueue存放阻塞任务，因此多余的任务将存在再阻塞队列，不会由RejectedExecutionHandler处理<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newFixedThreadPool</span><span class="params">(<span class="keyword">int</span> nThreads)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ThreadPoolExecutor(nThreads, nThreads,  </span><br><span class="line">                                      <span class="number">0L</span>, TimeUnit.MILLISECONDS,  </span><br><span class="line">                                      <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;());  </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>2、构造一个缓冲功能的线程池，配置corePoolSize=0，maximumPoolSize=Integer.MAX_VALUE，keepAliveTime=60s,以及一个无容量的阻塞队列 SynchronousQueue，因此任务提交之后，将会创建新的线程执行；线程空闲超过60s将会销毁<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newCachedThreadPool</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ThreadPoolExecutor(<span class="number">0</span>, Integer.MAX_VALUE,  </span><br><span class="line">                                      <span class="number">60L</span>, TimeUnit.SECONDS,  </span><br><span class="line">                                      <span class="keyword">new</span> SynchronousQueue&lt;Runnable&gt;());  </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>3、构造一个只支持一个线程的线程池，配置corePoolSize=maximumPoolSize=1，无界阻塞队列LinkedBlockingQueue；保证任务由一个线程串行执行<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newSingleThreadExecutor</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> FinalizableDelegatedExecutorService  </span><br><span class="line">            (<span class="keyword">new</span> ThreadPoolExecutor(<span class="number">1</span>, <span class="number">1</span>,  </span><br><span class="line">                                    <span class="number">0L</span>, TimeUnit.MILLISECONDS,  </span><br><span class="line">                                    <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;()));  </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>4、构造有定时功能的线程池，配置corePoolSize，无界延迟阻塞队列DelayedWorkQueue；有意思的是：maximumPoolSize=Integer.MAX_VALUE，由于DelayedWorkQueue是无界队列，所以这个值是没有意义的<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ScheduledExecutorService <span class="title">newScheduledThreadPool</span><span class="params">(<span class="keyword">int</span> corePoolSize)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ScheduledThreadPoolExecutor(corePoolSize);  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ScheduledExecutorService <span class="title">newScheduledThreadPool</span><span class="params">(  </span></span></span><br><span class="line"><span class="function"><span class="params">            <span class="keyword">int</span> corePoolSize, ThreadFactory threadFactory)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ScheduledThreadPoolExecutor(corePoolSize, threadFactory);  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">ScheduledThreadPoolExecutor</span><span class="params">(<span class="keyword">int</span> corePoolSize,  </span></span></span><br><span class="line"><span class="function"><span class="params">                             ThreadFactory threadFactory)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">super</span>(corePoolSize, Integer.MAX_VALUE, <span class="number">0</span>, TimeUnit.NANOSECONDS,  </span><br><span class="line">              <span class="keyword">new</span> DelayedWorkQueue(), threadFactory);  </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="定制属于自己的非阻塞线程池"><a href="#定制属于自己的非阻塞线程池" class="headerlink" title="定制属于自己的非阻塞线程池"></a>定制属于自己的非阻塞线程池</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.ArrayBlockingQueue;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ExecutorService;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.RejectedExecutionHandler;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ThreadFactory;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ThreadPoolExecutor;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicInteger;  </span><br><span class="line">  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomThreadPoolExecutor</span> </span>&#123;  </span><br><span class="line">  </span><br><span class="line">      </span><br><span class="line">    <span class="keyword">private</span> ThreadPoolExecutor pool = <span class="keyword">null</span>;  </span><br><span class="line">      </span><br><span class="line">      </span><br><span class="line">    <span class="comment">/** </span></span><br><span class="line"><span class="comment">     * 线程池初始化方法 </span></span><br><span class="line"><span class="comment">     *  </span></span><br><span class="line"><span class="comment">     * corePoolSize 核心线程池大小----10 </span></span><br><span class="line"><span class="comment">     * maximumPoolSize 最大线程池大小----30 </span></span><br><span class="line"><span class="comment">     * keepAliveTime 线程池中超过corePoolSize数目的空闲线程最大存活时间----30+单位TimeUnit </span></span><br><span class="line"><span class="comment">     * TimeUnit keepAliveTime时间单位----TimeUnit.MINUTES </span></span><br><span class="line"><span class="comment">     * workQueue 阻塞队列----new ArrayBlockingQueue&lt;Runnable&gt;(10)====10容量的阻塞队列 </span></span><br><span class="line"><span class="comment">     * threadFactory 新建线程工厂----new CustomThreadFactory()====定制的线程工厂 </span></span><br><span class="line"><span class="comment">     * rejectedExecutionHandler 当提交任务数超过maxmumPoolSize+workQueue之和时, </span></span><br><span class="line"><span class="comment">     *                          即当提交第41个任务时(前面线程都没有执行完,此测试方法中用sleep(100)), </span></span><br><span class="line"><span class="comment">     *                                任务会交给RejectedExecutionHandler来处理 </span></span><br><span class="line"><span class="comment">     */</span>  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        pool = <span class="keyword">new</span> ThreadPoolExecutor(  </span><br><span class="line">                <span class="number">10</span>,  </span><br><span class="line">                <span class="number">30</span>,  </span><br><span class="line">                <span class="number">30</span>,  </span><br><span class="line">                TimeUnit.MINUTES,  </span><br><span class="line">                <span class="keyword">new</span> ArrayBlockingQueue&lt;Runnable&gt;(<span class="number">10</span>),  </span><br><span class="line">                <span class="keyword">new</span> CustomThreadFactory(),  </span><br><span class="line">                <span class="keyword">new</span> CustomRejectedExecutionHandler());  </span><br><span class="line">    &#125;  </span><br><span class="line">  </span><br><span class="line">      </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destory</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">if</span>(pool != <span class="keyword">null</span>) &#123;  </span><br><span class="line">            pool.shutdownNow();  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">      </span><br><span class="line">      </span><br><span class="line">    <span class="function"><span class="keyword">public</span> ExecutorService <span class="title">getCustomThreadPoolExecutor</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.pool;  </span><br><span class="line">    &#125;  </span><br><span class="line">      </span><br><span class="line">    <span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomThreadFactory</span> <span class="keyword">implements</span> <span class="title">ThreadFactory</span> </span>&#123;  </span><br><span class="line">  </span><br><span class="line">        <span class="keyword">private</span> AtomicInteger count = <span class="keyword">new</span> AtomicInteger(<span class="number">0</span>);  </span><br><span class="line">          </span><br><span class="line">        <span class="meta">@Override</span>  </span><br><span class="line">        <span class="function"><span class="keyword">public</span> Thread <span class="title">newThread</span><span class="params">(Runnable r)</span> </span>&#123;  </span><br><span class="line">            Thread t = <span class="keyword">new</span> Thread(r);  </span><br><span class="line">            String threadName = CustomThreadPoolExecutor.class.getSimpleName() + count.addAndGet(<span class="number">1</span>);  </span><br><span class="line">            System.out.println(threadName);  </span><br><span class="line">            t.setName(threadName);  </span><br><span class="line">            <span class="keyword">return</span> t;  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">      </span><br><span class="line">      </span><br><span class="line">    <span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomRejectedExecutionHandler</span> <span class="keyword">implements</span> <span class="title">RejectedExecutionHandler</span> </span>&#123;  </span><br><span class="line">  </span><br><span class="line">        <span class="meta">@Override</span>  </span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">rejectedExecution</span><span class="params">(Runnable r, ThreadPoolExecutor executor)</span> </span>&#123;  </span><br><span class="line">            <span class="comment">// 记录异常  </span></span><br><span class="line">            <span class="comment">// 报警处理等  </span></span><br><span class="line">            System.out.println(<span class="string">"error............."</span>);  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">      </span><br><span class="line">      </span><br><span class="line">      </span><br><span class="line">    <span class="comment">// 测试构造的线程池  </span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;  </span><br><span class="line">        CustomThreadPoolExecutor exec = <span class="keyword">new</span> CustomThreadPoolExecutor();  </span><br><span class="line">        <span class="comment">// 1.初始化  </span></span><br><span class="line">        exec.init();  </span><br><span class="line">          </span><br><span class="line">        ExecutorService pool = exec.getCustomThreadPoolExecutor();  </span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>; i&lt;<span class="number">100</span>; i++) &#123;  </span><br><span class="line">            System.out.println(<span class="string">"提交第"</span> + i + <span class="string">"个任务!"</span>);  </span><br><span class="line">            pool.execute(<span class="keyword">new</span> Runnable() &#123;  </span><br><span class="line">                <span class="meta">@Override</span>  </span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;  </span><br><span class="line">                    <span class="keyword">try</span> &#123;  </span><br><span class="line">                        Thread.sleep(<span class="number">3000</span>);  </span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;  </span><br><span class="line">                        e.printStackTrace();  </span><br><span class="line">                    &#125;  </span><br><span class="line">                    System.out.println(<span class="string">"running====="</span>);  </span><br><span class="line">                &#125;  </span><br><span class="line">            &#125;);  </span><br><span class="line">        &#125;  </span><br><span class="line">          </span><br><span class="line">          </span><br><span class="line">          </span><br><span class="line">        <span class="comment">// 2.销毁----此处不能销毁,因为任务没有提交执行完,如果销毁线程池,任务也就无法执行了  </span></span><br><span class="line">        <span class="comment">// exec.destory();  </span></span><br><span class="line">          </span><br><span class="line">        <span class="keyword">try</span> &#123;  </span><br><span class="line">            Thread.sleep(<span class="number">10000</span>);  </span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;  </span><br><span class="line">            e.printStackTrace();  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>方法中建立一个核心线程数为30个，缓冲队列有10个的线程池。每个线程任务，执行时会先睡眠3秒，保证提交10任务时，线程数目被占用完，再提交30任务时，阻塞队列被占用完，，这样提交第41个任务是，会交给CustomRejectedExecutionHandler 异常处理类来处理。 </p>
+<p>提交任务的代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(Runnable command)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">if</span> (command == <span class="keyword">null</span>)  </span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();  </span><br><span class="line">        <span class="comment">/* </span></span><br><span class="line"><span class="comment">         * Proceed in 3 steps: </span></span><br><span class="line"><span class="comment">         * </span></span><br><span class="line"><span class="comment">         * 1. If fewer than corePoolSize threads are running, try to </span></span><br><span class="line"><span class="comment">         * start a new thread with the given command as its first </span></span><br><span class="line"><span class="comment">         * task.  The call to addWorker atomically checks runState and </span></span><br><span class="line"><span class="comment">         * workerCount, and so prevents false alarms that would add </span></span><br><span class="line"><span class="comment">         * threads when it shouldn't, by returning false. </span></span><br><span class="line"><span class="comment">         * </span></span><br><span class="line"><span class="comment">         * 2. If a task can be successfully queued, then we still need </span></span><br><span class="line"><span class="comment">         * to double-check whether we should have added a thread </span></span><br><span class="line"><span class="comment">         * (because existing ones died since last checking) or that </span></span><br><span class="line"><span class="comment">         * the pool shut down since entry into this method. So we </span></span><br><span class="line"><span class="comment">         * recheck state and if necessary roll back the enqueuing if </span></span><br><span class="line"><span class="comment">         * stopped, or start a new thread if there are none. </span></span><br><span class="line"><span class="comment">         * </span></span><br><span class="line"><span class="comment">         * 3. If we cannot queue task, then we try to add a new </span></span><br><span class="line"><span class="comment">         * thread.  If it fails, we know we are shut down or saturated </span></span><br><span class="line"><span class="comment">         * and so reject the task. </span></span><br><span class="line"><span class="comment">         */</span>  </span><br><span class="line">        <span class="keyword">int</span> c = ctl.get();  </span><br><span class="line">        <span class="keyword">if</span> (workerCountOf(c) &lt; corePoolSize) &#123;  </span><br><span class="line">            <span class="keyword">if</span> (addWorker(command, <span class="keyword">true</span>))  </span><br><span class="line">                <span class="keyword">return</span>;  </span><br><span class="line">            c = ctl.get();  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">if</span> (isRunning(c) &amp;&amp; workQueue.offer(command)) &#123;  </span><br><span class="line">            <span class="keyword">int</span> recheck = ctl.get();  </span><br><span class="line">            <span class="keyword">if</span> (! isRunning(recheck) &amp;&amp; remove(command))  </span><br><span class="line">                reject(command);  </span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (workerCountOf(recheck) == <span class="number">0</span>)  </span><br><span class="line">                addWorker(<span class="keyword">null</span>, <span class="keyword">false</span>);  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (!addWorker(command, <span class="keyword">false</span>))  </span><br><span class="line">            reject(command);  </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p>注意：41以后提交的任务就不能正常处理了，因为，execute中提交到任务队列是用的offer方法，如上面代码，这个方法是非阻塞的，所以就会交给CustomRejectedExecutionHandler 来处理，所以对于大数据量的任务来说，这种线程池，如果不设置队列长度会OOM，设置队列长度，会有任务得不到处理，接下来我们构建一个阻塞的自定义线程池 </p>
+<h2 id="定制属于自己的阻塞线程池"><a href="#定制属于自己的阻塞线程池" class="headerlink" title="定制属于自己的阻塞线程池"></a>定制属于自己的阻塞线程池</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.ArrayBlockingQueue;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ExecutorService;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.RejectedExecutionHandler;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ThreadFactory;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ThreadPoolExecutor;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;  </span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicInteger;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomThreadPoolExecutor</span> </span>&#123;    </span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">    <span class="keyword">private</span> ThreadPoolExecutor pool = <span class="keyword">null</span>;    </span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">    <span class="comment">/**  </span></span><br><span class="line"><span class="comment">     * 线程池初始化方法  </span></span><br><span class="line"><span class="comment">     *   </span></span><br><span class="line"><span class="comment">     * corePoolSize 核心线程池大小----1  </span></span><br><span class="line"><span class="comment">     * maximumPoolSize 最大线程池大小----3  </span></span><br><span class="line"><span class="comment">     * keepAliveTime 线程池中超过corePoolSize数目的空闲线程最大存活时间----30+单位TimeUnit  </span></span><br><span class="line"><span class="comment">     * TimeUnit keepAliveTime时间单位----TimeUnit.MINUTES  </span></span><br><span class="line"><span class="comment">     * workQueue 阻塞队列----new ArrayBlockingQueue&lt;Runnable&gt;(5)====5容量的阻塞队列  </span></span><br><span class="line"><span class="comment">     * threadFactory 新建线程工厂----new CustomThreadFactory()====定制的线程工厂  </span></span><br><span class="line"><span class="comment">     * rejectedExecutionHandler 当提交任务数超过maxmumPoolSize+workQueue之和时,  </span></span><br><span class="line"><span class="comment">     *                          即当提交第41个任务时(前面线程都没有执行完,此测试方法中用sleep(100)),  </span></span><br><span class="line"><span class="comment">     *                                任务会交给RejectedExecutionHandler来处理  </span></span><br><span class="line"><span class="comment">     */</span>    </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;    </span><br><span class="line">        pool = <span class="keyword">new</span> ThreadPoolExecutor(    </span><br><span class="line">                <span class="number">1</span>,    </span><br><span class="line">                <span class="number">3</span>,    </span><br><span class="line">                <span class="number">30</span>,    </span><br><span class="line">                TimeUnit.MINUTES,    </span><br><span class="line">                <span class="keyword">new</span> ArrayBlockingQueue&lt;Runnable&gt;(<span class="number">5</span>),    </span><br><span class="line">                <span class="keyword">new</span> CustomThreadFactory(),    </span><br><span class="line">                <span class="keyword">new</span> CustomRejectedExecutionHandler());    </span><br><span class="line">    &#125;    </span><br><span class="line">    </span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">destory</span><span class="params">()</span> </span>&#123;    </span><br><span class="line">        <span class="keyword">if</span>(pool != <span class="keyword">null</span>) &#123;    </span><br><span class="line">            pool.shutdownNow();    </span><br><span class="line">        &#125;    </span><br><span class="line">    &#125;    </span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">    <span class="function"><span class="keyword">public</span> ExecutorService <span class="title">getCustomThreadPoolExecutor</span><span class="params">()</span> </span>&#123;    </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">this</span>.pool;    </span><br><span class="line">    &#125;    </span><br><span class="line">        </span><br><span class="line">    <span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomThreadFactory</span> <span class="keyword">implements</span> <span class="title">ThreadFactory</span> </span>&#123;    </span><br><span class="line">    </span><br><span class="line">        <span class="keyword">private</span> AtomicInteger count = <span class="keyword">new</span> AtomicInteger(<span class="number">0</span>);    </span><br><span class="line">            </span><br><span class="line">        <span class="meta">@Override</span>    </span><br><span class="line">        <span class="function"><span class="keyword">public</span> Thread <span class="title">newThread</span><span class="params">(Runnable r)</span> </span>&#123;    </span><br><span class="line">            Thread t = <span class="keyword">new</span> Thread(r);    </span><br><span class="line">            String threadName = CustomThreadPoolExecutor.class.getSimpleName() + count.addAndGet(<span class="number">1</span>);    </span><br><span class="line">            System.out.println(threadName);    </span><br><span class="line">            t.setName(threadName);    </span><br><span class="line">            <span class="keyword">return</span> t;    </span><br><span class="line">        &#125;    </span><br><span class="line">    &#125;    </span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">    <span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomRejectedExecutionHandler</span> <span class="keyword">implements</span> <span class="title">RejectedExecutionHandler</span> </span>&#123;    </span><br><span class="line">    </span><br><span class="line">        <span class="meta">@Override</span>    </span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">rejectedExecution</span><span class="params">(Runnable r, ThreadPoolExecutor executor)</span> </span>&#123;    </span><br><span class="line">            <span class="keyword">try</span> &#123;  </span><br><span class="line">                                <span class="comment">// 核心改造点，由blockingqueue的offer改成put阻塞方法  </span></span><br><span class="line">                executor.getQueue().put(r);  </span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;  </span><br><span class="line">                e.printStackTrace();  </span><br><span class="line">            &#125;  </span><br><span class="line">        &#125;    </span><br><span class="line">    &#125;    </span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">        </span><br><span class="line">    <span class="comment">// 测试构造的线程池    </span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;    </span><br><span class="line">          </span><br><span class="line">        CustomThreadPoolExecutor exec = <span class="keyword">new</span> CustomThreadPoolExecutor();    </span><br><span class="line">        <span class="comment">// 1.初始化    </span></span><br><span class="line">        exec.init();    </span><br><span class="line">            </span><br><span class="line">        ExecutorService pool = exec.getCustomThreadPoolExecutor();    </span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>; i&lt;<span class="number">100</span>; i++) &#123;    </span><br><span class="line">            System.out.println(<span class="string">"提交第"</span> + i + <span class="string">"个任务!"</span>);    </span><br><span class="line">            pool.execute(<span class="keyword">new</span> Runnable() &#123;    </span><br><span class="line">                <span class="meta">@Override</span>    </span><br><span class="line">                <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;    </span><br><span class="line">                    <span class="keyword">try</span> &#123;    </span><br><span class="line">                        System.out.println(<span class="string">"&gt;&gt;&gt;task is running====="</span>);   </span><br><span class="line">                        TimeUnit.SECONDS.sleep(<span class="number">10</span>);  </span><br><span class="line">                    &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;    </span><br><span class="line">                        e.printStackTrace();    </span><br><span class="line">                    &#125;    </span><br><span class="line">                &#125;    </span><br><span class="line">            &#125;);    </span><br><span class="line">        &#125;    </span><br><span class="line">            </span><br><span class="line">            </span><br><span class="line">        <span class="comment">// 2.销毁----此处不能销毁,因为任务没有提交执行完,如果销毁线程池,任务也就无法执行了    </span></span><br><span class="line">        <span class="comment">// exec.destory();    </span></span><br><span class="line">            </span><br><span class="line">        <span class="keyword">try</span> &#123;    </span><br><span class="line">            Thread.sleep(<span class="number">10000</span>);    </span><br><span class="line">        &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;    </span><br><span class="line">            e.printStackTrace();    </span><br><span class="line">        &#125;    </span><br><span class="line">    &#125;    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>解释：当提交任务被拒绝时，进入拒绝机制，我们实现拒绝方法，把任务重新用阻塞提交方法put提交，实现阻塞提交任务功能，防止队列过大，OOM，提交被拒绝方法在下面<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(Runnable command)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">if</span> (command == <span class="keyword">null</span>)  </span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();  </span><br><span class="line">  </span><br><span class="line">        <span class="keyword">int</span> c = ctl.get();  </span><br><span class="line">        <span class="keyword">if</span> (workerCountOf(c) &lt; corePoolSize) &#123;  </span><br><span class="line">            <span class="keyword">if</span> (addWorker(command, <span class="keyword">true</span>))  </span><br><span class="line">                <span class="keyword">return</span>;  </span><br><span class="line">            c = ctl.get();  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">if</span> (isRunning(c) &amp;&amp; workQueue.offer(command)) &#123;  </span><br><span class="line">            <span class="keyword">int</span> recheck = ctl.get();  </span><br><span class="line">            <span class="keyword">if</span> (! isRunning(recheck) &amp;&amp; remove(command))  </span><br><span class="line">                reject(command);  </span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (workerCountOf(recheck) == <span class="number">0</span>)  </span><br><span class="line">                addWorker(<span class="keyword">null</span>, <span class="keyword">false</span>);  </span><br><span class="line">        &#125;  </span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (!addWorker(command, <span class="keyword">false</span>))  </span><br><span class="line">            <span class="comment">// 进入拒绝机制， 我们把runnable任务拿出来，重新用阻塞操作put，来实现提交阻塞功能  </span></span><br><span class="line">            reject(command);  </span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure></p>
+<p><strong>总结：</strong> </p>
+<p>1、用ThreadPoolExecutor自定义线程池，看线程是的用途，如果任务量不大，可以用无界队列，如果任务量非常大，要用有界队列，防止OOM<br>2、如果任务量很大，还要求每个任务都处理成功，要对提交的任务进行阻塞提交，重写拒绝机制，改为阻塞提交。保证不抛弃一个任务<br>3、最大线程数一般设为2N+1最好，N是CPU核数<br>4、核心线程数，看应用，如果是任务，一天跑一次，设置为0，合适，因为跑完就停掉了，如果是常用线程池，看任务量，是保留一个核心还是几个核心线程数<br>5、如果要获取任务执行结果，用CompletionService，但是注意，获取任务的结果的要重新开一个线程获取，如果在主线程获取，就要等任务都提交后才获取，就会阻塞大量任务结果，队列过大OOM，所以最好异步开个线程获取结果</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://keaimo.com/2018/01/16/java-directbytebuffer/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -2240,166 +2448,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2017/12/25/percona-xtrabackup/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jack Peng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="笑傲江湖└JP┐">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/12/25/percona-xtrabackup/" itemprop="url">Percona XtraBackup</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-25T13:02:52+08:00">
-                2017-12-25
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/MySQL/" itemprop="url" rel="index">
-                    <span itemprop="name">MySQL</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Percona XtraBackup是一个相对完美的免费开源数据备份工具，支持在线无锁表同步复制和可并行高效率的安全备份恢复。</p>
-<h2 id="备份原理"><a href="#备份原理" class="headerlink" title="备份原理"></a>备份原理</h2><p>Percona XtraBackup 基于InnoDB引擎的故障恢复功能。它拷贝InnoDB的数据文件，但是数据文件内存的数据并不是一致的；但是通过 XtraBackup 执行故障恢复确保了数据的一致性。Percona XtraBackup 保证数据一致性 是通过InnoDB的redo log（也叫事务日志 transaction log）。redo log记录了InnoDB 数据的每次改变。当InnoDB（MySQL）启动，它检查数据文件和事务日志（redo / transaction log），然后执行如下两步:</p>
-<ol>
-<li>应用已经提交的事务</li>
-<li>回滚已经修改但是没有提交的事务</li>
-</ol>
-<p>Percona XtraBackup 备份过程如下：</p>
-<ol>
-<li>备份InnoDB引擎：<br>当 Percona XtraBackup 开始工作，它记录所有 LSN （ log sequence number ），然后拷贝所有数据文件。<br>拷贝数据文件的同时， Percona XtraBackup 的一个后台进程监测 事务日志（redo / transaction log），然后从事务日志中拷贝改变的部分。<br>由于事务日志（log/transaction log）写日志采取round-robin方式，短时间事务日志就能够被重用，所以Percona XtraBackup 必须一致保持监测事务日志并拷贝改变部分。<br>Percona XtraBackup 从执行开始，就必须记录每一条事务日志，不然无法保证一致性和完整性。</li>
-<li>备份其他存储引擎（如MyISAM）：<br>Percona XtraBackup 备份 InnoDB/XtraDB 数据文件和事务日志完毕后。使用 FLUSH TABLES WITH READ LOCK 锁，阻止对MyISAM的DML操作,（从MySQL 5.6开始），然后备份拷贝MyISAM等non-InnoDB的相关文件，如.frm, .MRG, .MYD, .MYI,.TRG, .TRN, .ARM, .ARZ, .CSM, .CSV, .par, 和 .opt 文件。</li>
-</ol>
-<p><code>注意，备份MyISAM时，执行FLUSH TABLES WITH READ LOCK ，并不会影响InnoDB。</code>.</p>
-<h2 id="安装与使用"><a href="#安装与使用" class="headerlink" title="安装与使用"></a>安装与使用</h2><p>官方网站：<code>https://www.percona.com/downloads/XtraBackup/LATEST/</code>，下载适合你的平台软件，然后安装，需要注意的是如果下载的是RPM包或者源码，需要手动解决依赖的相关问题(报错:<code>Transaction Check Error:</code>)，推荐使用Percona仓库安装：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">yum install http://www.percona.com/downloads/percona-release/redhat/0.1-4/percona-release-0.1-4.noarch.rpm</span><br><span class="line">yum list | grep percona</span><br><span class="line">yum install percona-xtrabackup-24</span><br><span class="line"><span class="comment"># 用于解压备份文件</span></span><br><span class="line">yum install qpress</span><br></pre></td></tr></table></figure></p>
-<p>全量备份：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 备份并压缩</span></span><br><span class="line">xtrabackup --backup --compress --target-dir=/backup_store/db_back/</span><br><span class="line"><span class="comment"># 解压，必须解压才能--prepare</span></span><br><span class="line">xtrabackup --backup --decompress --target-dir=/backup_store/db_back/</span><br><span class="line"><span class="comment"># prepare之前，数据文件是不一致的，因为它们在不同时间点被备份因此，--prepare会使所有数据文件的步调达成一致</span></span><br><span class="line">xtrabackup --prepare --target-dir=/backup_store/db_back/</span><br></pre></td></tr></table></figure></p>
-<p>增量备份：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure></p>
-<h2 id="基于XtraBackup搭建主从"><a href="#基于XtraBackup搭建主从" class="headerlink" title="基于XtraBackup搭建主从"></a>基于XtraBackup搭建主从</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#原有主数据库版本</span></span><br><span class="line">mysql -V</span><br><span class="line">mysql  Ver 14.14 Distrib 5.5.31, <span class="keyword">for</span> Linux (x86_64) using readline 5.1</span><br><span class="line"><span class="comment">#迁移从数据库版本</span></span><br><span class="line">mysql -V</span><br><span class="line">mysql  Ver 14.14 Distrib 5.6.25, <span class="keyword">for</span> linux-glibc2.5 (x86_64) using  EditLine wrapper</span><br><span class="line"><span class="comment">#检查数据库引擎</span></span><br><span class="line">show engines;</span><br><span class="line">+--------------------+---------+----------------------------------------------------------------+--------------+------+------------+</span><br><span class="line">| Engine             | Support | Comment                                                        | Transactions | XA   | Savepoints |</span><br><span class="line">+--------------------+---------+----------------------------------------------------------------+--------------+------+------------+</span><br><span class="line">| MRG_MYISAM         | YES     | Collection of identical MyISAM tables                          | NO           | NO   | NO         |</span><br><span class="line">| CSV                | YES     | CSV storage engine                                             | NO           | NO   | NO         |</span><br><span class="line">| MyISAM             | YES     | MyISAM storage engine                                          | NO           | NO   | NO         |</span><br><span class="line">| BLACKHOLE          | YES     | /dev/null storage engine (anything you write to it disappears) | NO           | NO   | NO         |</span><br><span class="line">| MEMORY             | YES     | Hash based, stored <span class="keyword">in</span> memory, useful <span class="keyword">for</span> temporary tables      | NO           | NO   | NO         |</span><br><span class="line">| InnoDB             | DEFAULT | Supports transactions, row-level locking, and foreign keys     | YES          | YES  | YES        |</span><br><span class="line">| ARCHIVE            | YES     | Archive storage engine                                         | NO           | NO   | NO         |</span><br><span class="line">| PERFORMANCE_SCHEMA | YES     | Performance Schema                                             | NO           | NO   | NO         |</span><br><span class="line">| FEDERATED          | NO      | Federated MySQL storage engine                                 | NULL         | NULL | NULL       |</span><br><span class="line">+--------------------+---------+----------------------------------------------------------------+--------------+------+------------+</span><br><span class="line"><span class="comment">#主从数据库同步注意点</span></span><br><span class="line">[mysqld]</span><br><span class="line"><span class="comment">#主从之间的id不能相同</span></span><br><span class="line">server-id</span><br><span class="line"><span class="comment">#启用二进制日志</span></span><br><span class="line"><span class="built_in">log</span>-bin</span><br><span class="line"><span class="comment">#一般在从库开启（可选）</span></span><br><span class="line">read_only</span><br><span class="line"><span class="comment">#推荐使用InnoDB并做好相关配置</span></span><br><span class="line"><span class="comment">#检查主从数据库状态</span></span><br><span class="line">mysql -S /tmp/mysql.sock -e <span class="string">"show global variables like 'server_id';"</span></span><br><span class="line">+---------------+-------+</span><br><span class="line">| Variable_name | Value |</span><br><span class="line">+---------------+-------+</span><br><span class="line">| server_id     | 1     |</span><br><span class="line">+---------------+-------+</span><br><span class="line">mysql -S /tmp/mysql.sock -e <span class="string">"show global variables like 'log_bin';"</span></span><br><span class="line">+---------------+-------+</span><br><span class="line">| Variable_name | Value |</span><br><span class="line">+---------------+-------+</span><br><span class="line">| log_bin       | ON    |</span><br><span class="line">+---------------+-------+</span><br></pre></td></tr></table></figure>
-<h3 id="备份和恢复"><a href="#备份和恢复" class="headerlink" title="备份和恢复"></a>备份和恢复</h3><p>通常一般都直接使用innobackupex，因为它能同时备份InnoDB和MyISAM引擎的表。重点关注Slave_IO_Running和Slave_SQL_Runningd的状态是否为YES。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#备份</span></span><br><span class="line">innobackupex --socket=/usr/<span class="built_in">local</span>/var/mysql2/mysql2.sock --user=root --password --defaults-file=/etc/mysqld_multi.cnf --parallel=4 --database=passport /tmp/backup</span><br><span class="line"><span class="comment">#保持事务一致性</span></span><br><span class="line">innobackupex --socket=/usr/<span class="built_in">local</span>/var/mysql2/mysql2.sock --user=root --password --defaults-file=/etc/mysqld_multi.cnf --database=passport --apply-log /tmp/backup/2015-08-05_16-08-14</span><br><span class="line"><span class="comment">#传输</span></span><br><span class="line">scp -r /tmp/backup/2015-08-05_16-08-14 10.10.16.24:/tmp/backup/ </span><br><span class="line"><span class="comment">#恢复</span></span><br><span class="line">innobackupex --socket=/tmp/mysql.sock --user=root --password --defaults-file=/app/<span class="built_in">local</span>/mysql/my.cnf --copy-back /tmp/backup/2015-08-05_16-08-14/</span><br><span class="line"><span class="comment">#还原权限</span></span><br><span class="line">chown -R mysql:mysql /app/data/mysql/data</span><br><span class="line">service mysqld start</span><br><span class="line">/app/<span class="built_in">local</span>/mysql/scripts/mysql_install_db --basedir=/app/<span class="built_in">local</span>/mysql --datadir=/app/data/mysql/data --no-defaults --skip-name-resolve --user=mysql</span><br><span class="line"><span class="comment">#主库授权同步帐号</span></span><br><span class="line">SELECT DISTINCT CONCAT(<span class="string">'User: '</span><span class="string">''</span>,user,<span class="string">''</span><span class="string">'@'</span><span class="string">''</span>,host,<span class="string">''</span><span class="string">';'</span>) AS query FROM mysql.user;</span><br><span class="line">GRANT REPLICATION SLAVE ON *.* TO <span class="string">'slave_passport'</span>@<span class="string">'10.10.16.24'</span> IDENTIFIED BY <span class="string">'slave_passport'</span>;</span><br><span class="line">FLUSH PRIVILEGES;</span><br><span class="line"><span class="comment">#从库开启同步</span></span><br><span class="line">cat /tmp/backup/2015-08-05_16-08-14/xtrabackup_binlog_info </span><br><span class="line">mysql-bin.002599    804497686</span><br><span class="line">CHANGE MASTER TO</span><br><span class="line">MASTER_HOST=<span class="string">'10.10.16.51'</span>,</span><br><span class="line">MASTER_USER=<span class="string">'slave_passport'</span>,</span><br><span class="line">MASTER_PASSWORD=<span class="string">'slave_passport'</span>,</span><br><span class="line">MASTER_PORT=3307,</span><br><span class="line">MASTER_LOG_FILE=<span class="string">'mysql-bin.002599'</span>,</span><br><span class="line">MASTER_LOG_POS=804497686;</span><br><span class="line"><span class="comment">#开启主从同步</span></span><br><span class="line">start slave;</span><br><span class="line"><span class="comment">#查看从库状态</span></span><br><span class="line">show slave status\ G</span><br><span class="line"><span class="comment">#从库的检查参数</span></span><br><span class="line">Slave_IO_Running=Yes</span><br><span class="line">Slave_SQL_Running=Yes</span><br><span class="line"><span class="comment">#主库的检查参数</span></span><br><span class="line">show master status \G</span><br><span class="line">+------------------+-----------+--------------+------------------+</span><br><span class="line">| File             | Position  | Binlog_Do_DB | Binlog_Ignore_DB |</span><br><span class="line">+------------------+-----------+--------------+------------------+</span><br><span class="line">| mysql-bin.002600 | 454769337 |              |                  |</span><br><span class="line">+------------------+-----------+--------------+------------------+</span><br><span class="line">1 row <span class="keyword">in</span> <span class="built_in">set</span> (0.00 sec)</span><br><span class="line">show processlist;</span><br><span class="line">Master has sent all binlog to slave; waiting <span class="keyword">for</span> binlog to be updated</span><br></pre></td></tr></table></figure></p>
-<h3 id="MySQL主从切换"><a href="#MySQL主从切换" class="headerlink" title="MySQL主从切换"></a>MySQL主从切换</h3><p>切换前断开主库访问连接观察进程状态，无写操作后再停止从库IO_THREAD进行切换。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#查看主库状态</span></span><br><span class="line">show processlist;</span><br><span class="line">Master has sent all binlog to slave; waiting <span class="keyword">for</span> binlog to be updated</span><br><span class="line">show master status \G</span><br><span class="line"><span class="comment">#从库停止 IO_THREAD 线程</span></span><br><span class="line">stop slave IO_THREAD;</span><br><span class="line">show processlist;</span><br><span class="line">Slave has <span class="built_in">read</span> all relay <span class="built_in">log</span>; waiting <span class="keyword">for</span> the slave I/O thread to update it</span><br><span class="line">show slave status \G</span><br><span class="line"><span class="comment">#从库切换为主库</span></span><br><span class="line">stop slave;</span><br><span class="line">reset master;</span><br><span class="line">reset slave all;</span><br><span class="line">show master status \G</span><br><span class="line"><span class="comment">#激活帐户</span></span><br><span class="line">SELECT DISTINCT CONCAT(<span class="string">'User: '</span><span class="string">''</span>,user,<span class="string">''</span><span class="string">'@'</span><span class="string">''</span>,host,<span class="string">''</span><span class="string">';'</span>) AS query FROM mysql.user;</span><br><span class="line">GRANT REPLICATION SLAVE ON *.* TO <span class="string">'slave_passport'</span>@<span class="string">'10.10.16.51'</span> IDENTIFIED BY <span class="string">'slave_passport'</span>;</span><br><span class="line">FLUSH PRIVILEGES;</span><br><span class="line"><span class="comment">#切换原有主库为从库</span></span><br><span class="line">reset master;</span><br><span class="line">reset slave all;</span><br><span class="line">CHANGE MASTER TO</span><br><span class="line">MASTER_HOST=<span class="string">'10.10.16.24'</span>,</span><br><span class="line">MASTER_USER=<span class="string">'slave_passport'</span>,</span><br><span class="line">MASTER_PASSWORD=<span class="string">'slave_passport'</span>,</span><br><span class="line">MASTER_PORT=3306,</span><br><span class="line">MASTER_LOG_FILE=<span class="string">'mysql-bin.000001'</span>,</span><br><span class="line">MASTER_LOG_POS=804497686;</span><br><span class="line"><span class="comment">#检查主库</span></span><br><span class="line">SHOW PROCESSLIST;</span><br><span class="line">show master status \G</span><br><span class="line"><span class="comment">#启动从库</span></span><br><span class="line">SHOW PROCESSLIST;</span><br><span class="line">start slave;</span><br><span class="line">show slave status \G</span><br></pre></td></tr></table></figure></p>
-<h3 id="常见问题"><a href="#常见问题" class="headerlink" title="常见问题"></a>常见问题</h3><p>Slave_SQL_Running:No<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#一般是事务回滚造成的</span></span><br><span class="line">stop slave;</span><br><span class="line"><span class="built_in">set</span> GLOBAL SQL_SLAVE_SKIP_COUNTER=1;</span><br><span class="line">start slave;</span><br></pre></td></tr></table></figure></p>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2454,7 +2502,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">25</span>
+                  <span class="site-state-item-count">26</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
