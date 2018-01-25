@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="介绍CQRS模式之前我们先了解一下传统的系统设计中CRUD存在的问题。 传统模式传统的CRUD方法有一些问题：  使用同一个对象实体来进行数据库读写可能会太粗糙，大多数情况下，比如编辑的时候可能只需要更新个别字段，但是却需要将整个对象都穿进去，有些字段其实是不需要更新的。在查询的时候在表现层可能只需要个别字段，但是需要查询和返回整个实体对象; 使用同一实体对象对同一数据进行读写操作的时候，可能会遇">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CQRS模式">
+<meta property="og:url" content="http://keaimo.com/2018/01/25/arch-cqrs/index.html">
+<meta property="og:site_name" content="笑傲江湖└JP┐">
+<meta property="og:description" content="介绍CQRS模式之前我们先了解一下传统的系统设计中CRUD存在的问题。 传统模式传统的CRUD方法有一些问题：  使用同一个对象实体来进行数据库读写可能会太粗糙，大多数情况下，比如编辑的时候可能只需要更新个别字段，但是却需要将整个对象都穿进去，有些字段其实是不需要更新的。在查询的时候在表现层可能只需要个别字段，但是需要查询和返回整个实体对象; 使用同一实体对象对同一数据进行读写操作的时候，可能会遇">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://keaimo.com/2018/01/25/arch-cqrs/cqrs1.png">
+<meta property="og:image" content="http://keaimo.com/2018/01/25/arch-cqrs/cqrs2.png">
+<meta property="og:updated_time" content="2018-01-25T09:24:47.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CQRS模式">
+<meta name="twitter:description" content="介绍CQRS模式之前我们先了解一下传统的系统设计中CRUD存在的问题。 传统模式传统的CRUD方法有一些问题：  使用同一个对象实体来进行数据库读写可能会太粗糙，大多数情况下，比如编辑的时候可能只需要更新个别字段，但是却需要将整个对象都穿进去，有些字段其实是不需要更新的。在查询的时候在表现层可能只需要个别字段，但是需要查询和返回整个实体对象; 使用同一实体对象对同一数据进行读写操作的时候，可能会遇">
+<meta name="twitter:image" content="http://keaimo.com/2018/01/25/arch-cqrs/cqrs1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://keaimo.com/2018/01/25/arch-cqrs/"/>
+
+
+
+
+
+  <title>CQRS模式 | 笑傲江湖└JP┐</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <!--<div class="headband"></div>-->
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">笑傲江湖└JP┐</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2018/01/25/arch-cqrs/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jack Peng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="笑傲江湖└JP┐">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">CQRS模式</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-25T15:38:52+08:00">
+                2018-01-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/系统设计/" itemprop="url" rel="index">
+                    <span itemprop="name">系统设计</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>介绍CQRS模式之前我们先了解一下传统的系统设计中CRUD存在的问题。</p>
+<h1 id="传统模式"><a href="#传统模式" class="headerlink" title="传统模式"></a>传统模式</h1><p>传统的CRUD方法有一些问题：</p>
+<ol>
+<li>使用同一个对象实体来进行数据库读写可能会太粗糙，大多数情况下，比如编辑的时候可能只需要更新个别字段，但是却需要将整个对象都穿进去，有些字段其实是不需要更新的。在查询的时候在表现层可能只需要个别字段，但是需要查询和返回整个实体对象;</li>
+<li>使用同一实体对象对同一数据进行读写操作的时候，可能会遇到资源竞争的情况，经常要处理的锁的问题，在写入数据的时候，需要加锁。读取数据的时候需要判断是否允许脏读。这样使得系统的逻辑性和复杂性增加，并且会对系统吞吐量的增长会产生影响;</li>
+<li>同步的，直接与数据库进行交互在大数据量同时访问的情况下可能会影响性能和响应性，并且可能会产生性能瓶颈.</li>
+<li>由于同一实体对象都会在读写操作中用到，所以对于安全和权限的管理会变得比较复杂.</li>
+</ol>
+<h1 id="CQRS"><a href="#CQRS" class="headerlink" title="CQRS"></a>CQRS</h1><p>CQRS最早来自于Betrand Meyer（Eiffel语言之父，开-闭原则OCP提出者）在 Object-Oriented Software Construction 这本书中提到的一种 命令查询分离 (Command Query Separation,CQS) 的概念。其基本思想在于，任何一个对象的方法可以分为两大类：</p>
+<ul>
+<li>命令(Command):不返回任何结果(void)，但会改变对象的状态。</li>
+<li>查询(Query):返回结果，但是不会改变对象的状态，对系统没有副作用。</li>
+</ul>
+<p>根据CQS的思想，任何一个方法都可以拆分为命令和查询两部分。</p>
+<p>CQRS模式（Command-Query Responsibility Segregation）是对CQS模式的进一步改进成的一种简单模式 。在讨论CQRS模式的细节之前，我们首先需要理解这个模式产生背后的两股推动力：协同操作和数据过时。</p>
+<p><strong>协同操作</strong>指的是，在某种场景下多个用户可能会针对同一个数据集进行读写操作，不论主观上这些用户是否真的期望与其他人进行协同。通常情况下会有一些规则来规定哪些用户可以进行哪些操作以及一个操作在何种场景下是允许的而在其他场景中就不被允许。我们会简单的举一些例子来说明。<code>注意：这里的用户可以是自然人，也可以是自动化的软件。</code></p>
+<p><strong>数据过时</strong>指的是，在协同操作的场景下，一个数据被展示给某个用户后，它可能就被其他用户修改了，—刚刚展示的数据就过时了。基本上所有使用了缓存的系统都遇到了数据过时的问题。通常情况下用缓存是为了解决系统的性能问题。这说明我们不能完全相信用户做出的决定，因为这些决定可能是基于已经过时的数据做出来的。</p>
+<p>标准的分层架构并未对上面的问题提出明确的方案。传统分层架构中，通常通过将所有数据放入统一的数据库中，以此作为一种解决协同操作的思路。但此时为解决性能而引进的缓存，却使数据过时成了个副作用，而且愈演愈烈。</p>
+<img src="/2018/01/25/arch-cqrs/cqrs1.png">
+<p>名为AC的盒子指的是自治组件。在讨论命令（Commands）的时候我们会描述它是如何自治的。但在此之前，我们先来看下查询（Queries）。</p>
+<h2 id="查询"><a href="#查询" class="headerlink" title="查询"></a>查询</h2><p>如果我们将要展示给用户的数据是过时的，那么是否真的有必要重新从数据库中去读取一遍？我们仅仅需要数据（没有任何行为约束规则），为什么非要将第三范式的数据转换成领域对象？又为什么要将领域对象转换成DTO来通过网络进行传输？要知道网络并不总是可靠的。我们又为什么要再把DTO转换成视图模型对象？</p>
+<p>简而言之，我们在基于一个假设：重用已有的代码会比为解决手头的这个问题新写点代码更简单。而基于此假设，我们做了很多无用的工作。我们不妨换个思路：</p>
+<blockquote>
+<p>我们为什么不新创建一个数据容器，并允许这个数据容器中的数据和数据库中有点不同步—。我的意思是，既然我们展示给用户的数据总是要过时的，那为什么不直接在数据容器中反映出来这个变化？后面我们会给出一个保持这个数据容器与数据库同步的方案。</p>
+</blockquote>
+<p>现在的问题是，这个数据容器中数据的正确结构应该是啥样的？直接和视图对象的结构一样怎么样？假设每个视图有一个对应结构的数据容器，那么客户端在展现数据的时候就可以简单的通过<code>Select * from MyViewTable</code>这种方式（或者在where语句中加个ID）来完成。如果有需要，你可以通过一个很薄的façade来包装查询的过程，或者用个存储过程，抑或是用个自动映射对象将数据映射到视图模型对象中。这样做的关键，是视图模型对象是网络友好的（<code>wire-friendly</code>），因此你不再需要将他转换成其他的东西。你甚至可以考虑将这个数据容器放在Web层。这就像Web层的缓存一样安全。然后只允许Web服务器进行SELECT操作，这样就OK了。</p>
+<h2 id="查询的数据容器"><a href="#查询的数据容器" class="headerlink" title="查询的数据容器"></a>查询的数据容器</h2><p>你可以使用传统的数据库作为查询的数据容器，但这不是唯一的选择。考虑下这个问题，实际上查询的schema和你的视图模型对象的结构是一样的。而在不同的模型视图对象之间通常也没有任何的联系，所以在不同的查询数据容器之间也不需要任何的关联。</p>
+<blockquote>
+<p>那么，你真的想要传统的数据库么？</p>
+</blockquote>
+<p>答案是否定的。但在实际过程中出于组织惯性，这却往往又是最好的选择。</p>
+<h2 id="分割查询"><a href="#分割查询" class="headerlink" title="分割查询"></a>分割查询</h2><p>反正现在查询是通过一个独立的数据容器而非数据库，同时也并没有假设数据容器中的数据必须100%和数据库一致的，那么你就可以轻松的添加更多的数据容器实例且不必为他们的数据一致性担忧。针对一个数据容器进行更新的机制同样可以被用到其他的数据容器上，我们稍后会看到这个。这样，我们就可以非常便捷的水平切割我们的查询了。同时，因为在查询时没有做过多的无用的数据转换，单次查询的速度也提升上来了。简单的就是快的。</p>
+<h1 id="数据修改"><a href="#数据修改" class="headerlink" title="数据修改"></a>数据修改</h1><p>因为我们的用户是基于过时的数据做出决策的，所以我们更加需要明确哪些操作是可以通过的而哪些不行。下面有个简单的例子：</p>
+<blockquote>
+<p>假设有一个正在和客户通电话的客户服务代理人。这位老兄正盯着电脑屏幕上的客户的信息看，同时修改客户的住址，修改称呼为先生/小姐，修改他的姓氏并表明他的婚姻状况为已婚，并将这个客户设置为“优质的”客户。然而这位老兄不知道的是，在他打开网页后，一个订单部门发出的信息显示这个客户并没有及时支付拖欠的订单——他欠债了。我们的客户服务代表提交了他的修改。</p>
+</blockquote>
+<p>我们是否应该接受这些修改？说实话，我们应该接受其中的部分，但不应该包括设置为“优质的”客户这部分，因为他欠帐了。但是要实现这些校验是个头疼的任务，我们需要对数据做一个差异比较，找到哪些部分被修改或者是过时了，搞清楚改变的含义，哪些数据是相互关联的（例如姓名的改变和称呼的改变），哪些是独立的，然后确定哪些修改违反了校验规则——不仅要比较用户提交的数据，还要和数据库中的数据比较，然后决定通过还是返回。</p>
+<p>不幸的是，对于我们的用户，提交的数据哪怕只有一部分没通过校验也会整体返回。此时，用户不得不刷新页面来获取最新的数据，然后重新修改重新提交，祈祷这次不要再因为一个乐观锁冲突而再次失败。</p>
+<p>当实体变的越来越大的时候，它所包含的字段也越来越多。此时也会有越来越多的用户在对实体进行协同操作。在任意给定的时间内，对该实体某些字段操作的可能性越大，触发锁冲突的可能性也就越大。</p>
+<p>如果在修改数据时，有方法能够让用户提供操作的准确目的和粒度就好了。而这就是命令解决的问题。</p>
+<h1 id="命令"><a href="#命令" class="headerlink" title="命令"></a>命令</h1><p>CQRS的一个核心元素，是对用户界面进行重新设计，来让我们能够分辨出用户操作的真实意图，例如设置一个客户为优质客户是不同于重置用户的住址或者修改用户的婚姻状态的操作。用类似Excel表格方式的界面是无法准确捕获用户意图的，就如上文所见。</p>
+<p>我们甚至可以考虑即使用户上一个命令尚未执行完成时也允许用户提交下一个新命令。我们可以用一个小部件放在页面旁边，用来展示命令的状态，通过异步的方式获取命令执行结果。如果命令成功了就显示通过，否则显示失败并出现红叉叉。用户通过双击失败的命令可以看到错误信息。</p>
+<p>请注意<strong>命令是发送而非发布</strong>，这是有区别的。命令是发送的，事件是发布的。当事件被发布后，发布者只是声明了一个状态，它的工作就此结束。至于接受者要拿事件做什么处理，发布者并不关心。</p>
+<h2 id="命令和校验"><a href="#命令和校验" class="headerlink" title="命令和校验"></a>命令和校验</h2><p>在考虑什么东西可能会让命令执行失败时，跳出来的一个元素是数据合法性校验。数据合法性校验和业务规则不同，它针对命令声明了一些上下文无关的要求。一个命令是合法的，抑或相反。与此相对，业务规则是上下文相关的。</p>
+<blockquote>
+<p>在我们上面提的例子中，用户提交的数据的数据合法性是通过的，它被拒绝的唯一原因是账单事件比提交操作早到达。假如账单事件没到，那么操作就通过了。</p>
+</blockquote>
+<p>这说明即便一个操作的合法性校验通过了，也可能有其他原因会拒绝掉。因此，数据合法性可以放在客户端完成。在客户端校验必填的数据都填了，格式是不是正确。服务器端仍然会校验所有的命令，对客户端采用不信任策略。</p>
+<h2 id="根据合法性校验重新审视界面和命令设计"><a href="#根据合法性校验重新审视界面和命令设计" class="headerlink" title="根据合法性校验重新审视界面和命令设计"></a>根据合法性校验重新审视界面和命令设计</h2><p>客户端在校验命令合法性的时候会去了解数据容器里的数据。举个例子，在提交一个用户住址修改的命令前，我们要检查数据容器中是否已存在这个街道数据。此时，我们会考虑将地址栏设计成为一个自动填充的输入组件，以此保证我们通过命令传输的地址是合法的。但是，为什么不能更近一步，干脆将街道的ID传过去而不是名称字符串呢？</p>
+<p>在服务器端看，也许不这么做的唯一理由是这样会因为数据被并发操作而导致命令执行失败，此时其他人将这个街道数据删除了但刚好还未同步到数据容器中。当然这个场景非常少见。</p>
+<h2 id="合法的命令执行失败的原因及处理方案"><a href="#合法的命令执行失败的原因及处理方案" class="headerlink" title="合法的命令执行失败的原因及处理方案"></a>合法的命令执行失败的原因及处理方案</h2><p>这个时候我们的客户端已经能够传输合法的命令，但是服务器还是可能会拒绝掉命令。出现这种场景的原因，最常见的就是其他人并行的修改了命令处理过程中需要使用的其他数据。</p>
+<p>在上面的CRM系统的例子里，命令执行失败仅仅是因为账单事件比操作早到达了。但“早”的概念甚至可能只有几毫秒。假如用户提早几毫秒按下了发送键呢？这点差距是否应该导致最终截然不同的业务结果？我们难道不该期望我们的系统在用户看来应该是“行为一致”的么？</p>
+<p>那么，假如账单事件确实晚来了一步，那么它是否应该撤销掉刚刚设置用户为优质用户的操作呢？不仅如此，是否还应该通知我们的用户，比如发个电子邮件给他？抑或，在账单事件早到达的情况下难道就不应该这么做么？还有如果我们已经有了一套完整的异步通知模型，我们是否还需要同步的在用户操作时返回错误呢？我的意思是，其实没啥区别，同步返回一样也就是告诉用户结果而已。</p>
+<p>所以，如果我们不在操作时同步返回错误信息（假设命令的数据是合法的），我们所需要做的可能就是在发送命令后告诉用户“谢谢操作。结果确认将稍后通过Email发出”。这样，我们就连在页面小挂件上告诉用户你有几个命令没执行完都省了。</p>
+<h2 id="命令和自治"><a href="#命令和自治" class="headerlink" title="命令和自治"></a>命令和自治</h2><p>在这个模型里，命令不需要马上被执行掉—，他们可以放在队列里异步执行。至于命令能够多快的被执行，这是服务层该关心的问题而非一个整体架构问题。而这，就是运行时自主处理命令节点的一个设计要素<strong>我们不需要和客户端保持链接</strong>。</p>
+<p>与此同时，我们也不应该在执行命令时显式的去操作查询用的数据容器，<strong>任何操作都应该交给自治组件组件完成</strong>，这也是自治定义的一部分。</p>
+<p>另一个要关心的问题应该是数据库宕掉或者遇到死锁时的处理方案。此时抛出的错误肯定不能直接扔到客户端去—，我们完全可以回滚并重试。当系统管理员把数据库恢复后，所有在队列里等待的命令都将顺利的执行，而用户也可以收到结果反馈，此时系统就健壮多了。</p>
+<p>另外，由于这个数据库不会再服务于查询的场景，它就可以为命令执行提供更好的性能支撑，比如保留更多用于写的行/页缓存数据在内存里。而当数据库既要负责查询又要负责写入的时候，内存里的数据也往往在支撑查询和支撑更新的缓存数据间来回切换。</p>
+<h2 id="自治组件"><a href="#自治组件" class="headerlink" title="自治组件"></a>自治组件</h2><p>虽然在上文的图中，所有的命令都集中到一个自治组件里，但实际上我们可以让每个命令被不同的自治组件来处理，且每个组件都有自己独立的等待队列。这个做法可以让我们轻而易举的发现哪个等待队列是最长的，从而发现系统的瓶颈。这对开发很友好，但对系统管理员而言则没那么友好。</p>
+<p>由于等待队列里有较多的命令，我们完全可以针对这些队列增加处理节点（使用服务总线的分发器完成），从而轻松的扩展系统性能较慢的处理部分。其他部分则完全不会浪费资源。</p>
+<h2 id="服务层"><a href="#服务层" class="headerlink" title="服务层"></a>服务层</h2><p>自治组件中用于处理命令的各种对象实际上就组成了我们的服务层。你之所以没有在CQRS中明显的看到这一层的原因，是因为它并非像常规的相关对象聚合在一起形成的层那样具有识别性。</p>
+<p>在传统的分层架构中并没有显示的声明一层对象间需要有各种依赖关系，甚至都没有暗示应该有这回事。然而，当我们以面向命令的视角去看整个服务层的时候，我们看到的是处理不同命令的各种对象。由于每个命令都是独立的，那么为什么处理命令的对象需要相互依赖呢？</p>
+<p>实际上应该<strong>尽量避免依赖</strong>，除非有明确的理由使用他们。保持处理命令的对象间相互独立对于我们来说非常有益。当我们升级系统时，每次根据一个命令来，而不需要将整个系统停下来，并让新的版本对老版本进行向前兼容。因此，尽量保持每个命令处理器在一个他自己相对的环境中，甚至是一套完全独立的解决方案中，以此引导用户不要已重用之名引入依赖关系（<code>这是个谬论</code>）。如果你的的确确想把它们全都放到一个流程里来处理同一个命令队列，那么你就要接受许多自治组件带来的优势的被抵消。</p>
+<h2 id="领域模型何去何从"><a href="#领域模型何去何从" class="headerlink" title="领域模型何去何从"></a>领域模型何去何从</h2><p>尽管在上面的图中领域模型就放在处理命令的自治组件的旁边，它实际上只是一个实现的细节。实际上并没有规定说所有的命令都需要通过一个领域模型来处理。实际上你可以使用业务脚本来处理一部分命令，表模块模式处理另一部分命令，或者是用领域模型。事件溯源是另一种实现方式。</p>
+<p>另一个需要说明的是现在领域模型不再需要支撑查询。那么问题来了：我们还是否需要在领域模型中存在那么多的关联关系呢？（你可能需要深入理解下）你真的需要在用户实体中持有一个订单集合？在哪个命令中我们需要对这个集合进行导航？哪种命令又需要一对多的数据关系？假如一对多是必需的，那么多对多实际上也就有需要。是多数命令其实只持有1到2个引用ID。</p>
+<p>任何需要通过循环处理子实体来计算的聚合操作实际上都可以通过提前处理并将数据作为属性存储在父实体中来实现。通过对所有的实体进行上面的预处理操作可以得到已经将ID替换为属性的完全独立的实体——子实体则持有父实体的ID，和数据库中一样。在这种模式下，命令可以完全通过一个领域模型来处理—，<strong>一个聚合的根对象就是一个一致性边界</strong>。</p>
+<h2 id="命令处理的持久化"><a href="#命令处理的持久化" class="headerlink" title="命令处理的持久化"></a>命令处理的持久化</h2><p>之前已经确认用于命令处理的数据库是不会用来做数据查询的，而绝大部分（如果不是所有）的命令都持有着他们要更新的行数据的ID，那么给领域模型对象里的每一个属性分配一个数据库列字段是否真的还有必要？如果我们把整个对象都序列化后存到一个字段里，然后另一个字段用来存ID会怎样？这种做法听起来有点像很多云服务提供商的K-V存储方式。在这种情况下，你是否有需要用对象关系映射来存储数据？</p>
+<p>当你需要强制某列数据的唯一性的时候，可以从每个数据行中拉出一列出来来实现。我并不是想让你在每个场景中都用这套方式，我只是想让你重新对一些最基本的假设和设计进行思考。我需要重申，<strong>你如何处理命令实际上是CQRS的一个实现细节</strong>。</p>
+<h2 id="保持查询数据容器的数据同步"><a href="#保持查询数据容器的数据同步" class="headerlink" title="保持查询数据容器的数据同步"></a>保持查询数据容器的数据同步</h2><p>在自治组件通过了一个命令的处理，将数据库中的数据进行更新后，接下来要做的就是发出事件，告诉全世界这件事。这个事件通常是命令执行的“过去式”：</p>
+<blockquote>
+<p>设置用户为优质的命令  –&gt;  用户已被设置为优质的事件</p>
+</blockquote>
+<p>发布事件这个动作和处理命令以及更新数据库应该放在同一个事务中完成。这种情况下，任何原因导致的命令提交失败都会使得最终的事件未被发布。事件发布应该是由你所使用的消息总线来默认实现的。如果你用了MQ来作为底层传输的实现，那么就需要使用事务型队列。</p>
+<p>用于收听事件并更新查询数据容器的自治组件实际上比较简单，它只需要将事件转换成持久化的视图模型结构。我的建议是每个视图模型类都有一个对应的事件处理自治组件。</p>
+<p>下面再来看一次所有结构的图：<br><img src="/2018/01/25/arch-cqrs/cqrs2.png"></p>
+<h2 id="使用场景的边界"><a href="#使用场景的边界" class="headerlink" title="使用场景的边界"></a>使用场景的边界</h2><p>尽管CQRS涉及了很多软件架构方式，它也并非站在食物链的顶端（各种通吃）。如果使用了CQRS，那么它应该是在一个有边界的上下文（领域驱动设计）或者一个业务组件（SOA）、一个高内聚的问题领域中的。一个业务组件发布出来的事件被其他的业务组件收听，然后收听的组件各自根据需要更新自己的查询数据容器。</p>
+<p>CQRS中各个业务组件的UI可以被揉到一个单独的应用中，给用户提供一个一站化的可以俯视领域中所有部分的复合视图。因此复合视图框架也往往很有必要。</p>
+<p><strong>CQRS是用来解决多用户协同操作的一种架构。它非常明确的考虑了数据过时和易变等特性，并以此创造出了一个更加简单和可扩展的架构方式</strong>。如果没有考虑用户界面的设计，就无法准确掌握用户的意图，自然也无法充分发挥CQRS的优势。当把客户端的数据合法性校验纳入考虑的时候，命令也就可能做出一些调整。在通盘考虑过命令和事件是如何处理的场景和顺序后，能够弱化错误及时返回必要性的通知模式也就自然而然的出来了。</p>
+<p>使用CQRS可以给项目带来一个更具可维护性和高性能的代码基础。这种简便和可扩展性并非来源于任何技术的“完美实践”，而是通过对业务需求细节的完全了解得来的。如果说有任何对于相似问题的多种解决方案被明显的放到一起使用，那就是数据读取器和领域模型，单向消息传递和同步调用。</p>
+<h1 id="CQRS与Event-Sourcing的关系"><a href="#CQRS与Event-Sourcing的关系" class="headerlink" title="CQRS与Event Sourcing的关系"></a>CQRS与Event Sourcing的关系</h1><p>在CQRS中，查询方面，直接通过方法查询数据库，然后通过DTO将数据返回。在操作(Command)方面，是通过发送Command实现，由CommandBus处理特定的Command，然后由Command将特定的Event发布到EventBus上，然后EventBus使用特定的Handler来处理事件，执行一些诸如，修改，删除，更新等操作。这里，所有与Command相关的操作都通过Event实现。这样我们可以通过记录Event来记录系统的运行历史记录，并且能够方便的回滚到某一历史状态。Event Sourcing就是用来进行存储和管理事件的。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/22/java-threadpoolexecutor/" rel="next" title="Java - ThreadPoolExecutor">
+                <i class="fa fa-chevron-left"></i> Java - ThreadPoolExecutor
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Jack Peng" />
+            
+              <p class="site-author-name" itemprop="name">Jack Peng</p>
+              <p class="site-description motion-element" itemprop="description">自知者明，自强者胜。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">27</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/cnjack-peng" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:cnjack.peng@gmail.com" target="_blank" title="E-Mail">
+                    
+                      <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://weibo.com/cnjackpeng" target="_blank" title="Weibo">
+                    
+                      <i class="fa fa-fw fa-weibo"></i>Weibo</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#传统模式"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x4F20;&#x7EDF;&#x6A21;&#x5F0F;" class="headerlink" title="&#x4F20;&#x7EDF;&#x6A21;&#x5F0F;"></a>&#x4F20;&#x7EDF;&#x6A21;&#x5F0F;</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CQRS"><span class="nav-number">2.</span> <span class="nav-text"><a href="#CQRS" class="headerlink" title="CQRS"></a>CQRS</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#查询"><span class="nav-number">2.1.</span> <span class="nav-text"><a href="#&#x67E5;&#x8BE2;" class="headerlink" title="&#x67E5;&#x8BE2;"></a>&#x67E5;&#x8BE2;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#查询的数据容器"><span class="nav-number">2.2.</span> <span class="nav-text"><a href="#&#x67E5;&#x8BE2;&#x7684;&#x6570;&#x636E;&#x5BB9;&#x5668;" class="headerlink" title="&#x67E5;&#x8BE2;&#x7684;&#x6570;&#x636E;&#x5BB9;&#x5668;"></a>&#x67E5;&#x8BE2;&#x7684;&#x6570;&#x636E;&#x5BB9;&#x5668;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分割查询"><span class="nav-number">2.3.</span> <span class="nav-text"><a href="#&#x5206;&#x5272;&#x67E5;&#x8BE2;" class="headerlink" title="&#x5206;&#x5272;&#x67E5;&#x8BE2;"></a>&#x5206;&#x5272;&#x67E5;&#x8BE2;</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据修改"><span class="nav-number">3.</span> <span class="nav-text"><a href="#&#x6570;&#x636E;&#x4FEE;&#x6539;" class="headerlink" title="&#x6570;&#x636E;&#x4FEE;&#x6539;"></a>&#x6570;&#x636E;&#x4FEE;&#x6539;</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#命令"><span class="nav-number">4.</span> <span class="nav-text"><a href="#&#x547D;&#x4EE4;" class="headerlink" title="&#x547D;&#x4EE4;"></a>&#x547D;&#x4EE4;</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#命令和校验"><span class="nav-number">4.1.</span> <span class="nav-text"><a href="#&#x547D;&#x4EE4;&#x548C;&#x6821;&#x9A8C;" class="headerlink" title="&#x547D;&#x4EE4;&#x548C;&#x6821;&#x9A8C;"></a>&#x547D;&#x4EE4;&#x548C;&#x6821;&#x9A8C;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#根据合法性校验重新审视界面和命令设计"><span class="nav-number">4.2.</span> <span class="nav-text"><a href="#&#x6839;&#x636E;&#x5408;&#x6CD5;&#x6027;&#x6821;&#x9A8C;&#x91CD;&#x65B0;&#x5BA1;&#x89C6;&#x754C;&#x9762;&#x548C;&#x547D;&#x4EE4;&#x8BBE;&#x8BA1;" class="headerlink" title="&#x6839;&#x636E;&#x5408;&#x6CD5;&#x6027;&#x6821;&#x9A8C;&#x91CD;&#x65B0;&#x5BA1;&#x89C6;&#x754C;&#x9762;&#x548C;&#x547D;&#x4EE4;&#x8BBE;&#x8BA1;"></a>&#x6839;&#x636E;&#x5408;&#x6CD5;&#x6027;&#x6821;&#x9A8C;&#x91CD;&#x65B0;&#x5BA1;&#x89C6;&#x754C;&#x9762;&#x548C;&#x547D;&#x4EE4;&#x8BBE;&#x8BA1;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#合法的命令执行失败的原因及处理方案"><span class="nav-number">4.3.</span> <span class="nav-text"><a href="#&#x5408;&#x6CD5;&#x7684;&#x547D;&#x4EE4;&#x6267;&#x884C;&#x5931;&#x8D25;&#x7684;&#x539F;&#x56E0;&#x53CA;&#x5904;&#x7406;&#x65B9;&#x6848;" class="headerlink" title="&#x5408;&#x6CD5;&#x7684;&#x547D;&#x4EE4;&#x6267;&#x884C;&#x5931;&#x8D25;&#x7684;&#x539F;&#x56E0;&#x53CA;&#x5904;&#x7406;&#x65B9;&#x6848;"></a>&#x5408;&#x6CD5;&#x7684;&#x547D;&#x4EE4;&#x6267;&#x884C;&#x5931;&#x8D25;&#x7684;&#x539F;&#x56E0;&#x53CA;&#x5904;&#x7406;&#x65B9;&#x6848;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#命令和自治"><span class="nav-number">4.4.</span> <span class="nav-text"><a href="#&#x547D;&#x4EE4;&#x548C;&#x81EA;&#x6CBB;" class="headerlink" title="&#x547D;&#x4EE4;&#x548C;&#x81EA;&#x6CBB;"></a>&#x547D;&#x4EE4;&#x548C;&#x81EA;&#x6CBB;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自治组件"><span class="nav-number">4.5.</span> <span class="nav-text"><a href="#&#x81EA;&#x6CBB;&#x7EC4;&#x4EF6;" class="headerlink" title="&#x81EA;&#x6CBB;&#x7EC4;&#x4EF6;"></a>&#x81EA;&#x6CBB;&#x7EC4;&#x4EF6;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#服务层"><span class="nav-number">4.6.</span> <span class="nav-text"><a href="#&#x670D;&#x52A1;&#x5C42;" class="headerlink" title="&#x670D;&#x52A1;&#x5C42;"></a>&#x670D;&#x52A1;&#x5C42;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#领域模型何去何从"><span class="nav-number">4.7.</span> <span class="nav-text"><a href="#&#x9886;&#x57DF;&#x6A21;&#x578B;&#x4F55;&#x53BB;&#x4F55;&#x4ECE;" class="headerlink" title="&#x9886;&#x57DF;&#x6A21;&#x578B;&#x4F55;&#x53BB;&#x4F55;&#x4ECE;"></a>&#x9886;&#x57DF;&#x6A21;&#x578B;&#x4F55;&#x53BB;&#x4F55;&#x4ECE;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#命令处理的持久化"><span class="nav-number">4.8.</span> <span class="nav-text"><a href="#&#x547D;&#x4EE4;&#x5904;&#x7406;&#x7684;&#x6301;&#x4E45;&#x5316;" class="headerlink" title="&#x547D;&#x4EE4;&#x5904;&#x7406;&#x7684;&#x6301;&#x4E45;&#x5316;"></a>&#x547D;&#x4EE4;&#x5904;&#x7406;&#x7684;&#x6301;&#x4E45;&#x5316;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#保持查询数据容器的数据同步"><span class="nav-number">4.9.</span> <span class="nav-text"><a href="#&#x4FDD;&#x6301;&#x67E5;&#x8BE2;&#x6570;&#x636E;&#x5BB9;&#x5668;&#x7684;&#x6570;&#x636E;&#x540C;&#x6B65;" class="headerlink" title="&#x4FDD;&#x6301;&#x67E5;&#x8BE2;&#x6570;&#x636E;&#x5BB9;&#x5668;&#x7684;&#x6570;&#x636E;&#x540C;&#x6B65;"></a>&#x4FDD;&#x6301;&#x67E5;&#x8BE2;&#x6570;&#x636E;&#x5BB9;&#x5668;&#x7684;&#x6570;&#x636E;&#x540C;&#x6B65;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用场景的边界"><span class="nav-number">4.10.</span> <span class="nav-text"><a href="#&#x4F7F;&#x7528;&#x573A;&#x666F;&#x7684;&#x8FB9;&#x754C;" class="headerlink" title="&#x4F7F;&#x7528;&#x573A;&#x666F;&#x7684;&#x8FB9;&#x754C;"></a>&#x4F7F;&#x7528;&#x573A;&#x666F;&#x7684;&#x8FB9;&#x754C;</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CQRS与Event-Sourcing的关系"><span class="nav-number">5.</span> <span class="nav-text"><a href="#CQRS&#x4E0E;Event-Sourcing&#x7684;&#x5173;&#x7CFB;" class="headerlink" title="CQRS&#x4E0E;Event Sourcing&#x7684;&#x5173;&#x7CFB;"></a>CQRS&#x4E0E;Event Sourcing&#x7684;&#x5173;&#x7CFB;</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jack Peng</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+<div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  访客数:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+  
+</body>
+</html>

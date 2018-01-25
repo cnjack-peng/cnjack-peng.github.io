@@ -87,7 +87,7 @@
 <meta property="og:description" content="基础知识2PC协议二阶段提交协议(Two-phaseCommit)是分布式系统中较为经典的处理数据一致性的解决方案。在大型的集群环境中，对于单体微服务本身而言虽然能够通过代码质量、Mock测试等方法来确保自身服务的可用性，但是无法能够保证其他服务的可用性。当一个全链路的端到端业务操作，常常会跨多个节点、多个应用，为了能够保证全局事务的ACID特性，需要引入一个协调组件(这里称之为TM)来控制所有服">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://keaimo.com/2018/01/15/distributed-transactions/2pc.png">
-<meta property="og:updated_time" content="2018-01-16T02:30:33.068Z">
+<meta property="og:updated_time" content="2018-01-25T06:30:10.833Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="分布式事务">
 <meta name="twitter:description" content="基础知识2PC协议二阶段提交协议(Two-phaseCommit)是分布式系统中较为经典的处理数据一致性的解决方案。在大型的集群环境中，对于单体微服务本身而言虽然能够通过代码质量、Mock测试等方法来确保自身服务的可用性，但是无法能够保证其他服务的可用性。当一个全链路的端到端业务操作，常常会跨多个节点、多个应用，为了能够保证全局事务的ACID特性，需要引入一个协调组件(这里称之为TM)来控制所有服">
@@ -419,7 +419,8 @@
 <p><strong>3PC存在的问题</strong></p>
 <p>在doCommit阶段，如果参与者无法及时接收到来自协调者的doCommit或者rebort请求时，会在等待超时之后，会继续进行事务的提交。所以，由于网络原因，协调者发送的abort响应没有及时被参与者接收到，那么参与者在等待超时之后执行了commit操作。这样就和其他接到abort命令并执行回滚的参与者之间存在数据不一致的情况。</p>
 <h2 id="最终一致"><a href="#最终一致" class="headerlink" title="最终一致"></a>最终一致</h2><p>最终一致依赖于可靠消息系统。</p>
-<h2 id="最大努力通知型"><a href="#最大努力通知型" class="headerlink" title="最大努力通知型"></a>最大努力通知型</h2><h2 id="TCC"><a href="#TCC" class="headerlink" title="TCC"></a>TCC</h2><h2 id="SAGA"><a href="#SAGA" class="headerlink" title="SAGA"></a>SAGA</h2>
+<h2 id="最大努力通知型"><a href="#最大努力通知型" class="headerlink" title="最大努力通知型"></a>最大努力通知型</h2><h2 id="TCC"><a href="#TCC" class="headerlink" title="TCC"></a>TCC</h2><p>TCC(Try-Confirm-Cancle)是一种处理分布式事务的解决方案。通过将操作分为Try、Confirm、Cancle三个步骤来控制分布式系统的一致性。</p>
+<h2 id="SAGA"><a href="#SAGA" class="headerlink" title="SAGA"></a>SAGA</h2>
       
     </div>
     
@@ -536,7 +537,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">26</span>
+                  <span class="site-state-item-count">27</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -547,7 +548,7 @@
               
               <div class="site-state-item site-state-categories">
                 
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">分类</span>
                 
               </div>

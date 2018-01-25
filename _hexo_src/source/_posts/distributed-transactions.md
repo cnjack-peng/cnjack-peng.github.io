@@ -91,4 +91,6 @@ categories: 软件开发
 
 ## TCC
 
+TCC(Try-Confirm-Cancle)是一种处理分布式事务的解决方案。通过将操作分为Try、Confirm、Cancle三个步骤来控制分布式系统的一致性。
+
 ## SAGA
