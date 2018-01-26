@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="LMAX是一种新型零售金融交易平台，它能够以很低的延迟(latency)产生大量交易(吞吐量). 这个系统是建立在JVM平台上，核心是一个业务逻辑处理器，它能够在一个线程里每秒处理6百万订单. 业务逻辑处理器完全是运行在内存中(in-memory)，使用事件源驱动方式(event sourcing). 业务逻辑处理器的核心是Disruptors，这是一个并发组件，能够在无锁的情况下实现网络的Qu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LMAX架构">
+<meta property="og:url" content="http://keaimo.com/2018/01/25/arch-lmax/index.html">
+<meta property="og:site_name" content="笑傲江湖└JP┐">
+<meta property="og:description" content="LMAX是一种新型零售金融交易平台，它能够以很低的延迟(latency)产生大量交易(吞吐量). 这个系统是建立在JVM平台上，核心是一个业务逻辑处理器，它能够在一个线程里每秒处理6百万订单. 业务逻辑处理器完全是运行在内存中(in-memory)，使用事件源驱动方式(event sourcing). 业务逻辑处理器的核心是Disruptors，这是一个并发组件，能够在无锁的情况下实现网络的Qu">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://keaimo.com/2018/01/25/arch-lmax/lmax1.png">
+<meta property="og:image" content="http://keaimo.com/2018/01/25/arch-lmax/lmax2.png">
+<meta property="og:image" content="http://keaimo.com/2018/01/25/arch-lmax/lmax3.png">
+<meta property="og:image" content="http://keaimo.com/2018/01/25/arch-lmax/lmax4.png">
+<meta property="og:updated_time" content="2018-01-26T08:55:43.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="LMAX架构">
+<meta name="twitter:description" content="LMAX是一种新型零售金融交易平台，它能够以很低的延迟(latency)产生大量交易(吞吐量). 这个系统是建立在JVM平台上，核心是一个业务逻辑处理器，它能够在一个线程里每秒处理6百万订单. 业务逻辑处理器完全是运行在内存中(in-memory)，使用事件源驱动方式(event sourcing). 业务逻辑处理器的核心是Disruptors，这是一个并发组件，能够在无锁的情况下实现网络的Qu">
+<meta name="twitter:image" content="http://keaimo.com/2018/01/25/arch-lmax/lmax1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Muse',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"always","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://keaimo.com/2018/01/25/arch-lmax/"/>
+
+
+
+
+
+  <title>LMAX架构 | 笑傲江湖└JP┐</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <!--<div class="headband"></div>-->
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">笑傲江湖└JP┐</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off"
+             placeholder="搜索..." spellcheck="false"
+             type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2018/01/25/arch-lmax/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jack Peng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="笑傲江湖└JP┐">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">LMAX架构</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-25T17:28:26+08:00">
+                2018-01-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/系统设计/" itemprop="url" rel="index">
+                    <span itemprop="name">系统设计</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>LMAX是一种新型零售金融交易平台，它能够以很低的延迟(latency)产生大量交易(吞吐量). 这个系统是建立在JVM平台上，核心是一个业务逻辑处理器，它能够在一个线程里每秒处理6百万订单. 业务逻辑处理器完全是运行在内存中(in-memory)，使用事件源驱动方式(event sourcing). 业务逻辑处理器的核心是Disruptors，这是一个并发组件，能够在无锁的情况下实现网络的Queue并发操作。他们的研究表明，现在的所谓高性能研究方向似乎和现代CPU设计是相左的。(JVM伪共享)</p>
+</blockquote>
+<p>过去几年我们不断提供这样声音：免费午餐已经结束。我们不再能期望在单个CPU上获得更快的性能，因此我们需要写使用多核处理的并发软件，不幸的是， 编写并发软件是很难的，锁和信号量是很难理解的和难以测试，这意味着我们要花更多时间在计算机上，而不是我们的领域问题。诸如各种并发模型，如Actors和软事务STM(Software Transactional Memory), 目的是更加容易使用，但是任然还是带来了bugs和复杂性.</p>
+<p>我很惊讶听到去年3月QCon上一个演讲， LMAX是一种新的零售的金融交易平台。它的业务创新是他的一个零售平台，允许任何人交易一系列的金融衍生产品。这样的平台需要非常低的延迟，非常快速的处理，因为市场变化很快，一个零售平台增加了复杂性，因为它必须为很多人做到这一点。所以结果是更多的用户，有很多的交易，所有这些都需要被快速处理。</p>
+<p>鉴于多核心思想的转变，这种苛刻的性能自然会提出一个明确的并行编程模型，实际上这是他们的出发点。但QCon引起人们注意的是，这不是他们最终的目标。事实上，他们提出仅仅使用一个线程处理所有的客户的所有的交易，在通用的硬件上达到了每秒处理6百万订单。</p>
+<p>通过低延迟处理大量交易，取得低延迟和高吞吐量，而且没有并发代码的复杂性，他们是怎么做到呢？现在LMAX已经产品化一段时间了，现在应该可以揭开其神秘而迷人的面纱了。</p>
+<p>结构如图：<br><img src="/2018/01/25/arch-lmax/lmax1.png" title="Figure 1: LMAX" alt="s architecture in three blobs"></p>
+<p>从最高层次看，架构有三个部分:</p>
+<ol>
+<li>业务逻辑处理器business logic processor;</li>
+<li>输入input disruptor;</li>
+<li>输出output disruptors;</li>
+</ol>
+<p>业务逻辑处理器处理所有的应用程序的业务逻辑，这是一个单线程的Java程序来响应方法调用并产生输出事件，因此这是一个简单的Java程序，不需要任何平台框架就可以运行（需要JVM），这就保证其很容易运行在测试环境中。</p>
+<p>Input Disruptor是用来处理输入消息的，输入消息从网络中接收，需要进行反序列化（unmarshaled），需要进行replicated避免单点故障，需要journaled来记录消息日志从而能够进行故障恢复。Output Disruptors用来处理输出消息，这些消息需要进行序列化以便于网络传输。Input Disruptor和output disruptor都是多线程的，因为他们设计到大量的IO操作，这些IO操作很慢而且相互独立。</p>
+<h1 id="业务逻辑处理器-Business-Logic-Processor"><a href="#业务逻辑处理器-Business-Logic-Processor" class="headerlink" title="业务逻辑处理器 Business Logic Processor"></a>业务逻辑处理器 Business Logic Processor</h1><h2 id="全部驻留在内存中-Keeping-it-all-in-memory"><a href="#全部驻留在内存中-Keeping-it-all-in-memory" class="headerlink" title="全部驻留在内存中 Keeping it all in memory"></a>全部驻留在内存中 Keeping it all in memory</h2><p>业务逻辑处理器按顺序（方法调用的形式）接受输入消息，然后运行其中的业务逻辑，并产生输出事件，整个操作都是在内存中，没有数据库或其他持久化存储。将所有数据驻留在内存中有两个重要好处：首先是快，没有IO，也没有事务，因为所有的处理都是按顺序执行的，第二个好处是简化编程，没有对象/关系数据库的映射，所有代码都可以使用Java对象模型编写，不必为映射到数据库做任何妥协。</p>
+<p>由于一切都在内存中处理，因此需要任职考虑的问题是万一Crash了怎么办？可伸缩性再好的系统也会受到很多其他因素的影响，比如掉电。处理这个问题的核心是“事件”(Event Sourcing )机制，这意味着业务逻辑处理器的当前状态完全可以通过处理输入事件来推导出来。只要输入事件保存在一个持久存储（这是输入Input Disruptor的作业之一）中，就可以通过重播事件来重新创建业务逻辑处理的当前状态。</p>
+<blockquote>
+<p>可以基于NOSQL处理事务性事件存储</p>
+</blockquote>
+<p>理解这个的一个好方法就是对于一个版本控制系统。版本控制系统处理一系列的提交，任何时候你都可以通过应用这些提交来构建一个工作拷贝。VCS比业务逻辑处理器更复杂，因为它们必须支持分支，而业务逻辑处理器是一个简单的序列。</p>
+<p>因此，从理论上讲，您总是可以通过重新处理所有事件来重建业务逻辑处理器的状态，但是实践中重建所有事件是耗时的，因此，正如版本控制系统一样，LMAX可以创建业务逻辑处理器状态的快照并从快照中恢复。在每天晚上系统不繁忙时构建快照，通过快照重新启动业务逻辑处理器的速度很快，一个完整的重新启动，包括重新启动JVM、加载最近的快照和重放一天事件，不到一分钟。</p>
+<p>如果业务逻辑处理器在下午2时崩溃，通过快照启动恢复的方式依然不够快。LMAX的方案是保持多个业务逻辑处理器同时运行，一个输入事件由多个业务处理器处理，但只有一个业务处理输出会被保留。如果一个处理器处理失败，则切换到另外一个，这种故障转移是使用事件驱动(Event Sourcing)的另外一个好处。</p>
+<p>通过事件复制机制（replicas），多个业务处理器可以在微秒间切换。除了每天晚上创建快照，它们还每天晚上重启业务逻辑处理器。复制机制（replicas）允许他们在没有停机的情况下这样做，因此系统将7x24小时全天候处理交易。</p>
+<p>事件机制的价值不仅体现在允许完全在内存中进行处理，对于系统诊断测试也是有相当大的优势。如果系统发生意外的行为，团队会将事件顺序复制到其开发环境中，并在那里重播。 这使得他们能够比在大多数环境中更容易地检查发生的事情。</p>
+<p>从基础诊断功能可扩展到业务诊断。有一些业务任务，如风险管理，需要大量的计算，而不需要处理订单。一个例子就是根据目前的交易仓位，获得风险状况前20位客户的名单。 团队通过复制域模型并在那里执行计算来处理这个问题，在那里它不会干扰核心订单处理。这些分析域模型可以具有不同的数据模型，将不同的数据集保存在内存中，并在不同的机器上运行。</p>
+<h2 id="性能优化-Tuning-performance"><a href="#性能优化-Tuning-performance" class="headerlink" title="性能优化 Tuning performance"></a>性能优化 Tuning performance</h2><p>到目前为止，我已经解释过，业务逻辑处理器速度的关键是在内存中顺序地执行所有的事情。只要做到这一点（并没有什么真正愚蠢的，并行就聪明吗？），开发人员就可以编写能够处理10K TPS的代码。然后他们发现只需要使用良好的代码和小方法就可以使其达到100K TPS的范围。当然，JVM Hotspot的缓存微调，让其更加优化也是必须的。</p>
+<p>再过一个数量级就更巧妙了一些。有几件事LMAX团队发现有助于提升性能。一个是编写java集合的自定义实现，这些实现被小心的设计为缓存友好。一个例子是使用原始的Java longs作为散列映射关键字，并带有一个专门编写的数组支持的Map实现（LongToObjectHashMap）。一般来说，他们发现数据结构的选择通常会造成很大的差别，大多数程序员只是抓住上次使用的List，而不是考虑哪种实现方式适合于这种场景。</p>
+<p>达到顶级性能的另一个技术是性能测试。我早就注意到，人们谈论很多技术来提高性能，但真正有效的一件事是测试它。即使是优秀的程序员也容易编写出性能差的应用，所以最好的程序员更喜欢使用性能分析器和编写测试用例。 LMAX团队还发现，将编写性能测试作为一项纪律能够更易提升应用性能。</p>
+<h2 id="编程模型-Programming-Model"><a href="#编程模型-Programming-Model" class="headerlink" title="编程模型 Programming Model"></a>编程模型 Programming Model</h2><p>Business logic processor的一个重要特点就是不和任何外部服务进行交互。因为调用外部服务的速度会比较慢，processor又是单线程的，因此外部服务会拖慢整个processor的速度。Processor只和event交互，要么接受一个event，要么产生一个event。怎么理解呢？举个例子就明白了，比如电商网站通过信用卡来订购商品。普通青年的做法就很直接，先获取订单信息，通过银联的外部服务来验证信用卡信息是否有效（这意味着信用卡号如果有问题，根本就不会生成订单），然后生成订单信息入库，这两步放在一个操作里。由于信用卡验证服务是一个外部服务，因此操作往往会被阻塞较长的一段时间。</p>
+<p>Lmax则另辟蹊径，它把整个操作分为两个，第一个操作是获取用户填写的订单。这个操作的结果是产生一个“信用卡验证请求”的事件。第二个操作是当它接受一个“信用卡验证成功响应”的事件，生成订单入库。Processor在完成第一个操作之后会接下来执行另外其他的事件，直到“信用卡验证成功响应”事件被插入input disruptor并被processor选取。至于lmax如何根据“信用卡验证请求”输出事件生成另外一个输入事件-“信用卡验证成功响应”，这则是通过output disruptor的多线程来完成的。因此可以看出lmax青睐单线程的态度并不固执，而是有自己的原则：IO密集型操作用多线程，CPU密集型用单线程。</p>
+<p>在这种事件驱动的异步风格下工作有些不寻常 - 尽管使用异步来提高应用程序的响应速度是一种熟悉的技术且它还有助于业务流程更具弹性，但您必须更加明确地考虑远程应用程序可能发生的不同情况。</p>
+<p>这个编程模型第二个特点在于错误处理 - 传统模式下会话和数据库事务提供了一个有用的错误处理能力。如果有什么出错，很容易抛出任何东西，这个会话能够被丢弃。如果一个错误发生在数据库端，你可以回滚事务。</p>
+<p>LMAX的内存结构在输入事件中是持久的，所以如果出现错误，不要让内存处于不一致的状态。但是没有自动回滚功能。因此，LMAX团队非常重视确保输入事件在进行内存中持久状态变化之前完全有效。他们发现测试是在投入生产之前消除这些问题的关键。</p>
+<h1 id="Input-and-Output-Disruptors"><a href="#Input-and-Output-Disruptors" class="headerlink" title="Input and Output Disruptors"></a>Input and Output Disruptors</h1><p>business logic processor是单线程工作的，，在processor可以正常进行工作之前还是有很多任务需要做的。Processor的输入本质上是网络消息，为了便于business logic processor处理，这些网络消息在送达processor之前需要进行反序列化（unmarshaled）。Event Sourcing的工作依赖于记录输入事件，因此输入消息的日志需要被持久化。</p>
+<img src="/2018/01/25/arch-lmax/lmax2.png" title="Figure 2: The activities done by the input disruptor (using UML activity diagram notation)">
+<p>如上图，由于replicator和journaler涉及到大量的IO，因此速度相对比较慢。而business logic processor的中心思想就是避免任何IO。这三个任务相对比较独立，它们必须在business logic processor处理消息之前完成，这些需要并发控制。</p>
+<p>为了处理并发，LMAX团队开发了<strong>disruptor</strong>组件，并开放了源代码。</p>
+<p>Disruptor可以看成一个事件监听或消息机制，在队列中一边生产者放入消息，另外一边消费者并行取出处理。当你进入这个队列内部查看，发现其实是一个真正的单个数据结构：一个<code>ring buffer</code>。 每个生产者和消费者都有一个序数计算器，以显示当前缓冲工作方式，每个生产者消费者写入自己次序计数器，能够读取对方的计数器，通过这种方式，生产者能够读取消费者的计算器确保其在没有锁的情况下使用，类似地消费者也要通过计数器在另外一个消费者完成后确保它一次只处理一次消息。</p>
+<img src="/2018/01/25/arch-lmax/lmax3.png" title="Figure 3: The input disruptor coordinates one producer and four consumers">
+<p>如上图，每个生产者/消费者都拥有一个序号，这个序号表示该生产者/消费者正在处理ring buffer的哪个slot。每个生产者/消费者都只能拥有自己序号的写权限，对于其它消费者/生产者的序号只能读取而不能更改。基于这种方法，生产者可以不断读取其它消费者的序号来检查生产者想要写入的slot是否被占用，这种方法实际上就是的lock-free，避免了加锁。类似的，一个消费者也可以通过观察其他消费者的序号来确保不会重复处理某些消息。</p>
+<p>Output disruptors也类似于此，只不过output disruptor的两个消费者marshaller和publisher必须是顺序执行的，也就是说ring buffer里的消息必须经过marshaller处理之后才能由publisher公布出去。Publisher发布出去的事件被组织成了若干个topics，每个事件只会被转发到订阅了该主题的receivers。</p>
+<p>disruptor不但适合一个生产者多个消费者，也适合多个生产者。在这种情况下它任然不需要加锁。</p>
+<p>disruptor设计的好处是如果遇到问题导致消费落后，消费者就能更容易地赶上。比如在15号solt有一个unmarshaler（反序列化）问题，而接受者在31号solt，它能够从16-30号一次性批量抓取，这种数据批读取能力加快消费者处理，降低整体延迟性。</p>
+<p>在Figure 3的例子中，journaler，replicator和un-marshaller各自只有一个实例，lmax在默认设置下的确是这样，但是lmax也可以运行多个组件实例，比如journaller组件可以运行两个实例，一个处理奇数slot，一个处理偶数slot。是否运行多个实例取决于IO操作的独立性和IO的阻塞时间。</p>
+<p>Ring buffer是很大的，input ring buffer拥有20 million个slot，每个output ring buffer也拥有4 million个slot。序号是一个64位的长整形。Ring Buffer的大小为2的整数次方，这样有利于做取余运算（sequence number % buffer size）把序号映射成slot号码。像很多其它的系统一样，disruptors每天深夜做定期的重启，这么做的主要原因是回收内存，尽可能降低在繁忙时段的昂贵的垃圾回收的可能性。</p>
+<p>Journaler的主要工作就是持久化存储所有的事件，这样便于当系统出现故障时可以从日志进行恢复。Lmax没有用数据库来作为持久化存储，而只是采用文件系统。它们把事件流写入磁盘，由于现代磁盘对于顺序存储的速度很快，而对随机存储的速度很慢，因此lmax的这种做法的性能并不会很差，即使没有用数据库。</p>
+<p>前面我提到lmax会运行多个实例节点组成一个cluster来支持快速failover。Replicator用来保持这些实例节点的同步。Lmax节点之间的所有通讯采用的IP广播，因此备用节点不需要知道主节点的IP地址。只有主节点运行一个replicator并侦听输入事件。Replicator负责广播这些input event给备用节点。一旦主节点发生宕机，主节点的心跳信号就会丢失，那么另一个备用节点就会变成主节点，接着这个新的主节点就会开始侦听输入事件，并启动自己的replcator。每个节点是一个完整的lmax实例，有自己的disruptor，自己的journaler，自己的un-marshaller。</p>
+<p>由于IP广播消息并不能确保消息的到达顺序。主节点负责决定广播消息的顺序。</p>
+<p>Un-marshaller用于把网络上的事件顺序转化成business logic processor可以调用的java对象。和其它的消费者有所不同，un-marshaller需要改变ring buffer中的数据。这里写（更改数据）时需要遵守一个原则，那就是每个对象的writable field只能允许众多并行消费者（也就是un-marshaller）之中的一个来写，这个原则的目的就是为了避免jvm的伪共享。</p>
+<img src="/2018/01/25/arch-lmax/lmax4.png" title="Figure 4: The LMAX architecture with the disruptors expanded">
+<p>Disruptor可以作为一个单独的组件被使用，而不只是用在lmax中，现在lmax已经开源了这个组件。作为一件金融交易软件公司，lmax的行为的确令人称道，也希望更多的公司愿意交流或分享自己的架构，毕竟技术是在交流中促进的。回过头来看，乐意开源或者愿意分享的公司（比如在infoQ中分享）往往技术上都比较领先。从个人来讲，技术人员也应该愿意进行分享，毕竟这是一个在业界建立自己声誉的好机会。</p>
+<h1 id="Queues-and-their-lack-of-mechanical-sympathy"><a href="#Queues-and-their-lack-of-mechanical-sympathy" class="headerlink" title="Queues and their lack of mechanical sympathy"></a>Queues and their lack of mechanical sympathy</h1><p>LMAX架构引起了人们的关注，因为这是一个与大多数人所想的高性能系统完全不同的实现方式。到目前为止，我已经谈到它是如何工作的，但是还没有深入研究它是以这种方式开发的。这个故事本身就很有趣，因为这个架构并不只是拿来演讲的。它是经过很长的时间，在团队意识到传统方案的缺陷后设计的替代方案。</p>
+<p>许多商业系统都有自己的核心架构，依赖于通过事务数据库协调的多个活动会话，LMAX团队也熟悉这些知识，并确信它不适用于LMAX。这个评估是建立在Betfair（成立LMAX的母公司）的经验基础之上的，这是一家体育博彩公司，它处理很多人的体育投赌事件，这是一个相当大的并发访问，锁竞争十分激烈，传统数据库几乎无法应付，这些让他们相信必须寻找另外一个途径来突破，他们现在接近目标了。</p>
+<p>他们最初的想法与大多数业界方案一样，为获得高性能是使用现在流行的并发编程。这意味着允许多线程并行处理多个订单。而这些线程必须互相通信。处理订单的条件等都需要进行线程间通信来确定。</p>
+<p>早期他们探索了Actor模型和SEDA。Actor模型依靠独立的活动对象和自己的线程通过队列相互通信。很多人发现这种并发模型要比基于锁定原语的事情更容易处理。</p>
+<p>该团队建立了一个Actor模型原型，进行性能测试，他们发现的是处理器会花费更多时间在管理队列，而不是去做真正应用逻辑，队列访问成了真正瓶颈。</p>
+<p>当追求性能达到这种程度，现代硬件构造原理成为很重要的必须了解的知识了，马丁汤普森喜欢用的一句话是“机制偏爱(mechanical sympathy)”，这词来自赛车驾驶，它反映的是赛车手对汽车有一种与生俱来的感觉，使他们能够感受到如何发挥它到最好状态。许多程序员包括我承认我也陷入这样一个阵营：不会认为编程如何与硬件等底层机制交互是值得研究的。</p>
+<p>现代的CPU延迟是影响性能的主导因素之一，在CPU如与内存的交互中，CPU具有多层次的缓存（一级二级），每级速度都明显加快。因此，如果要提高速度，将您的代码和数据加载到这些缓存中很重要。</p>
+<p>在某个层次, Actor模型能够帮助你，你可以把一个演员当作自己的对象，把代码和数据聚类在一起，这是缓存的一个自然单位。但Actor需要沟通，他们通过排队来进行沟通 - 而LMAX团队则认为这是干扰缓存的队列。(JVM伪分享的问题)。</p>
+<p>为什么队列干扰了缓存呢？解释是这样的: 为了将数据放入队列，你需要写入队列，类似地，为了从队列取出数据，你需要移除队列 - 也是一种写，客户端也许不只一次写入同样数据结构，处理写通常需要锁，但是如果锁使用了，会引起切换到底层系统的场景，当这个发生后，处理器会丢失它的缓存中的数据。</p>
+<p>他们得出的结论是为了够获得最好的缓存性能, 你需要设计一个CPU核写任何内存的设计，多个读是良好的，处理器会非常快，而队列失败在one-writer原则，队列不符合单写者原则。(JVM伪共享)</p>
+<p>这样的分析导致LMAX团队得出一系列结论，导致他们设计出disruptor, 能够遵循single-writer约束。 其次，它引发了探索单线程业务逻辑方法的想法，提出了一个单线程如果没有并发管理，可以走多快的问题。</p>
+<p>单个线程的本质是：确保你每个CPU核运行一个线程，缓存配合，尽可能的使用高速缓存而不是主内存。这就意味着代码和数据需要尽可能的一致访问，将代码和数据放在一起的小对象也可以作为一个单元在缓存之间进行交换，从而简化缓存管理并提高性能。</p>
+<p>LMAX体系结构的一个重要组成部分是使用性能测试。考虑和放弃基于Actor的方法来自对原型进行构建和性能测试。类似地，通过性能测试来实现提高各种组件性能很重要。<code>Mechanical sympathy</code>是非常有价值的 - 它有助于形成你能做出什么改进的假设，并且引导你向前迈进，而不是落后 - 最终的测试将给你令人信服的证据。</p>
+<p>然而，这种风格的性能测试并不是一个很好理解的话题。 LMAX团队经常强调，开发有意义的性能测试往往比开发产品代码更困难。除非考虑到CPU的高速缓存行为，否则测试低级并发组件是没有意义的。</p>
+<p>一个特别的经验是编写针对零组件的测试的重要性，以确保性能测试足够快以真正衡量真实组件正在做什么。编写快速的测试代码并不比编写快速生产代码容易，而且容易得到错误的结果，因为测试的速度并不像要测试的组件那么快。</p>
+<h1 id="Should-you-use-this-architecture-？"><a href="#Should-you-use-this-architecture-？" class="headerlink" title="Should you use this architecture ？"></a>Should you use this architecture ？</h1><p>乍一看，这个架构是非常小众的，驱动低延迟的交易系统，大多数应用并不需要6百万TPS。</p>
+<p>但是我对这个架构着迷的原因是它的设计，它移除了很多其他大多数编程系统的复杂性，传统围绕事务性的关系数据库会话并发模型并不简单，对象/关系数据库映射ORM工具Object/relational mapping tools能够帮助减轻这种麻烦，但是它不能解决全部问题，大多数企业性能微调还是要纠结于SQL.</p>
+<p>现在你能得到服务器更多的主内存，比我们过去这些老家伙得到的磁盘还要多，越来越多应用能够将他们的工作全部置于内存中，这样消除了复杂性和性能低问题. 事件源驱动（Event Sourcing）提供了一种内存（in-memory）系统的解决方案, 在单个线程运行业务解决了并发性能。LMAX的经验建议只要你需要少于几百万TPS，你就有足够的性能提升余地。</p>
+<p>这里也是相似于CQRS，一种事件驱动, in-memory风格的命令系统(尽管LMAX当前没有使用CQRS)</p>
+<p>那么是不是表示你不应该走上这条道路呢？对于像这样鲜为人知的技术来说，这总是一个棘手的问题，因为这个行业需要更多的时间去探索它的界限。</p>
+<p>一个例子是，一个领域模型，处理一个事务总是有可能改变如何处理另一个事务。对于彼此独立的事务来说，不太需要协调，因此使用并行运行的独立处理器变得更具吸引力。</p>
+<p>LMAX致力于研究事件如何改变世界。许多网站更多的是关于获取现有的信息存储，并将这些信息的各种组合呈现出来 - 例如媒体网站。这里的构建挑战往往集中在如何正确的使用缓存。</p>
+<p>LMAX另外一个特点是这是一个后台系统，有理由考虑如何在一个交互模型中应用它，比如日益增长的Web应用，当异步通讯在WEB应用越来越多时，这将改变我们的编程模型。</p>
+<p>对于大多数团队来说，这些变化需要一些习惯。大多数人倾向于用同步的方式来理解编程，而不习惯处理异步。然而，异步通信是提升响应速度的重要工具。看看在javascript世界中广泛使用地异步通信（使用AJAX和node.js）是否会鼓励更多的人了解异步编程。 LMAX团队发现，虽然花了一些时间来适应异步风格，但它很快变得自然而且容易。特别是在这种方法下，错误处理更容易。</p>
+<p>LMAX团队当然认为花力气协调事务性关系数据库的日子已经屈指可数。你可以使用一种更加容易方式编写程序而且比传统集中式中央数据库运行得更快，为什么视而不见呢？</p>
+<p>就我而言，我觉得这是一个非常令人兴奋的故事。我的大部分目标是专注于复杂的业务领域软件。像这样的架构提供了很好的问题分离，使人们可以专注于领域驱动设计，并保持很好的平台复杂性。领域对象和数据库之间的紧密耦合一直是一个恼人的方法 - 这样的方法提出了一个出路。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/25/arch-cqrs/" rel="next" title="CQRS模式">
+                <i class="fa fa-chevron-left"></i> CQRS模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Jack Peng" />
+            
+              <p class="site-author-name" itemprop="name">Jack Peng</p>
+              <p class="site-description motion-element" itemprop="description">自知者明，自强者胜。</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">28</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">分类</span>
+                
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">标签</span>
+                
+              </div>
+            
+
+          </nav>
+
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/cnjack-peng" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:cnjack.peng@gmail.com" target="_blank" title="E-Mail">
+                    
+                      <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://weibo.com/cnjackpeng" target="_blank" title="Weibo">
+                    
+                      <i class="fa fa-fw fa-weibo"></i>Weibo</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#业务逻辑处理器-Business-Logic-Processor"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x4E1A;&#x52A1;&#x903B;&#x8F91;&#x5904;&#x7406;&#x5668;-Business-Logic-Processor" class="headerlink" title="&#x4E1A;&#x52A1;&#x903B;&#x8F91;&#x5904;&#x7406;&#x5668; Business Logic Processor"></a>&#x4E1A;&#x52A1;&#x903B;&#x8F91;&#x5904;&#x7406;&#x5668; Business Logic Processor</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#全部驻留在内存中-Keeping-it-all-in-memory"><span class="nav-number">1.1.</span> <span class="nav-text"><a href="#&#x5168;&#x90E8;&#x9A7B;&#x7559;&#x5728;&#x5185;&#x5B58;&#x4E2D;-Keeping-it-all-in-memory" class="headerlink" title="&#x5168;&#x90E8;&#x9A7B;&#x7559;&#x5728;&#x5185;&#x5B58;&#x4E2D; Keeping it all in memory"></a>&#x5168;&#x90E8;&#x9A7B;&#x7559;&#x5728;&#x5185;&#x5B58;&#x4E2D; Keeping it all in memory</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#性能优化-Tuning-performance"><span class="nav-number">1.2.</span> <span class="nav-text"><a href="#&#x6027;&#x80FD;&#x4F18;&#x5316;-Tuning-performance" class="headerlink" title="&#x6027;&#x80FD;&#x4F18;&#x5316; Tuning performance"></a>&#x6027;&#x80FD;&#x4F18;&#x5316; Tuning performance</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#编程模型-Programming-Model"><span class="nav-number">1.3.</span> <span class="nav-text"><a href="#&#x7F16;&#x7A0B;&#x6A21;&#x578B;-Programming-Model" class="headerlink" title="&#x7F16;&#x7A0B;&#x6A21;&#x578B; Programming Model"></a>&#x7F16;&#x7A0B;&#x6A21;&#x578B; Programming Model</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Input-and-Output-Disruptors"><span class="nav-number">2.</span> <span class="nav-text"><a href="#Input-and-Output-Disruptors" class="headerlink" title="Input and Output Disruptors"></a>Input and Output Disruptors</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Queues-and-their-lack-of-mechanical-sympathy"><span class="nav-number">3.</span> <span class="nav-text"><a href="#Queues-and-their-lack-of-mechanical-sympathy" class="headerlink" title="Queues and their lack of mechanical sympathy"></a>Queues and their lack of mechanical sympathy</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Should-you-use-this-architecture-？"><span class="nav-number">4.</span> <span class="nav-text"><a href="#Should-you-use-this-architecture-&#xFF1F;" class="headerlink" title="Should you use this architecture &#xFF1F;"></a>Should you use this architecture &#xFF1F;</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jack Peng</span>
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+<div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  访客数:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+  
+</body>
+</html>

@@ -276,6 +276,226 @@
   
   
   <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2018/01/25/arch-lmax/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jack Peng">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="笑傲江湖└JP┐">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/25/arch-lmax/" itemprop="url">LMAX架构</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-25T17:28:26+08:00">
+                2018-01-25
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/系统设计/" itemprop="url" rel="index">
+                    <span itemprop="name">系统设计</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <blockquote>
+<p>LMAX是一种新型零售金融交易平台，它能够以很低的延迟(latency)产生大量交易(吞吐量). 这个系统是建立在JVM平台上，核心是一个业务逻辑处理器，它能够在一个线程里每秒处理6百万订单. 业务逻辑处理器完全是运行在内存中(in-memory)，使用事件源驱动方式(event sourcing). 业务逻辑处理器的核心是Disruptors，这是一个并发组件，能够在无锁的情况下实现网络的Queue并发操作。他们的研究表明，现在的所谓高性能研究方向似乎和现代CPU设计是相左的。(JVM伪共享)</p>
+</blockquote>
+<p>过去几年我们不断提供这样声音：免费午餐已经结束。我们不再能期望在单个CPU上获得更快的性能，因此我们需要写使用多核处理的并发软件，不幸的是， 编写并发软件是很难的，锁和信号量是很难理解的和难以测试，这意味着我们要花更多时间在计算机上，而不是我们的领域问题。诸如各种并发模型，如Actors和软事务STM(Software Transactional Memory), 目的是更加容易使用，但是任然还是带来了bugs和复杂性.</p>
+<p>我很惊讶听到去年3月QCon上一个演讲， LMAX是一种新的零售的金融交易平台。它的业务创新是他的一个零售平台，允许任何人交易一系列的金融衍生产品。这样的平台需要非常低的延迟，非常快速的处理，因为市场变化很快，一个零售平台增加了复杂性，因为它必须为很多人做到这一点。所以结果是更多的用户，有很多的交易，所有这些都需要被快速处理。</p>
+<p>鉴于多核心思想的转变，这种苛刻的性能自然会提出一个明确的并行编程模型，实际上这是他们的出发点。但QCon引起人们注意的是，这不是他们最终的目标。事实上，他们提出仅仅使用一个线程处理所有的客户的所有的交易，在通用的硬件上达到了每秒处理6百万订单。</p>
+<p>通过低延迟处理大量交易，取得低延迟和高吞吐量，而且没有并发代码的复杂性，他们是怎么做到呢？现在LMAX已经产品化一段时间了，现在应该可以揭开其神秘而迷人的面纱了。</p>
+<p>结构如图：<br><img src="/2018/01/25/arch-lmax/lmax1.png" title="Figure 1: LMAX" alt="s architecture in three blobs"></p>
+<p>从最高层次看，架构有三个部分:</p>
+<ol>
+<li>业务逻辑处理器business logic processor;</li>
+<li>输入input disruptor;</li>
+<li>输出output disruptors;</li>
+</ol>
+<p>业务逻辑处理器处理所有的应用程序的业务逻辑，这是一个单线程的Java程序来响应方法调用并产生输出事件，因此这是一个简单的Java程序，不需要任何平台框架就可以运行（需要JVM），这就保证其很容易运行在测试环境中。</p>
+<p>Input Disruptor是用来处理输入消息的，输入消息从网络中接收，需要进行反序列化（unmarshaled），需要进行replicated避免单点故障，需要journaled来记录消息日志从而能够进行故障恢复。Output Disruptors用来处理输出消息，这些消息需要进行序列化以便于网络传输。Input Disruptor和output disruptor都是多线程的，因为他们设计到大量的IO操作，这些IO操作很慢而且相互独立。</p>
+<h1 id="业务逻辑处理器-Business-Logic-Processor"><a href="#业务逻辑处理器-Business-Logic-Processor" class="headerlink" title="业务逻辑处理器 Business Logic Processor"></a>业务逻辑处理器 Business Logic Processor</h1><h2 id="全部驻留在内存中-Keeping-it-all-in-memory"><a href="#全部驻留在内存中-Keeping-it-all-in-memory" class="headerlink" title="全部驻留在内存中 Keeping it all in memory"></a>全部驻留在内存中 Keeping it all in memory</h2><p>业务逻辑处理器按顺序（方法调用的形式）接受输入消息，然后运行其中的业务逻辑，并产生输出事件，整个操作都是在内存中，没有数据库或其他持久化存储。将所有数据驻留在内存中有两个重要好处：首先是快，没有IO，也没有事务，因为所有的处理都是按顺序执行的，第二个好处是简化编程，没有对象/关系数据库的映射，所有代码都可以使用Java对象模型编写，不必为映射到数据库做任何妥协。</p>
+<p>由于一切都在内存中处理，因此需要任职考虑的问题是万一Crash了怎么办？可伸缩性再好的系统也会受到很多其他因素的影响，比如掉电。处理这个问题的核心是“事件”(Event Sourcing )机制，这意味着业务逻辑处理器的当前状态完全可以通过处理输入事件来推导出来。只要输入事件保存在一个持久存储（这是输入Input Disruptor的作业之一）中，就可以通过重播事件来重新创建业务逻辑处理的当前状态。</p>
+<blockquote>
+<p>可以基于NOSQL处理事务性事件存储</p>
+</blockquote>
+<p>理解这个的一个好方法就是对于一个版本控制系统。版本控制系统处理一系列的提交，任何时候你都可以通过应用这些提交来构建一个工作拷贝。VCS比业务逻辑处理器更复杂，因为它们必须支持分支，而业务逻辑处理器是一个简单的序列。</p>
+<p>因此，从理论上讲，您总是可以通过重新处理所有事件来重建业务逻辑处理器的状态，但是实践中重建所有事件是耗时的，因此，正如版本控制系统一样，LMAX可以创建业务逻辑处理器状态的快照并从快照中恢复。在每天晚上系统不繁忙时构建快照，通过快照重新启动业务逻辑处理器的速度很快，一个完整的重新启动，包括重新启动JVM、加载最近的快照和重放一天事件，不到一分钟。</p>
+<p>如果业务逻辑处理器在下午2时崩溃，通过快照启动恢复的方式依然不够快。LMAX的方案是保持多个业务逻辑处理器同时运行，一个输入事件由多个业务处理器处理，但只有一个业务处理输出会被保留。如果一个处理器处理失败，则切换到另外一个，这种故障转移是使用事件驱动(Event Sourcing)的另外一个好处。</p>
+<p>通过事件复制机制（replicas），多个业务处理器可以在微秒间切换。除了每天晚上创建快照，它们还每天晚上重启业务逻辑处理器。复制机制（replicas）允许他们在没有停机的情况下这样做，因此系统将7x24小时全天候处理交易。</p>
+<p>事件机制的价值不仅体现在允许完全在内存中进行处理，对于系统诊断测试也是有相当大的优势。如果系统发生意外的行为，团队会将事件顺序复制到其开发环境中，并在那里重播。 这使得他们能够比在大多数环境中更容易地检查发生的事情。</p>
+<p>从基础诊断功能可扩展到业务诊断。有一些业务任务，如风险管理，需要大量的计算，而不需要处理订单。一个例子就是根据目前的交易仓位，获得风险状况前20位客户的名单。 团队通过复制域模型并在那里执行计算来处理这个问题，在那里它不会干扰核心订单处理。这些分析域模型可以具有不同的数据模型，将不同的数据集保存在内存中，并在不同的机器上运行。</p>
+<h2 id="性能优化-Tuning-performance"><a href="#性能优化-Tuning-performance" class="headerlink" title="性能优化 Tuning performance"></a>性能优化 Tuning performance</h2><p>到目前为止，我已经解释过，业务逻辑处理器速度的关键是在内存中顺序地执行所有的事情。只要做到这一点（并没有什么真正愚蠢的，并行就聪明吗？），开发人员就可以编写能够处理10K TPS的代码。然后他们发现只需要使用良好的代码和小方法就可以使其达到100K TPS的范围。当然，JVM Hotspot的缓存微调，让其更加优化也是必须的。</p>
+<p>再过一个数量级就更巧妙了一些。有几件事LMAX团队发现有助于提升性能。一个是编写java集合的自定义实现，这些实现被小心的设计为缓存友好。一个例子是使用原始的Java longs作为散列映射关键字，并带有一个专门编写的数组支持的Map实现（LongToObjectHashMap）。一般来说，他们发现数据结构的选择通常会造成很大的差别，大多数程序员只是抓住上次使用的List，而不是考虑哪种实现方式适合于这种场景。</p>
+<p>达到顶级性能的另一个技术是性能测试。我早就注意到，人们谈论很多技术来提高性能，但真正有效的一件事是测试它。即使是优秀的程序员也容易编写出性能差的应用，所以最好的程序员更喜欢使用性能分析器和编写测试用例。 LMAX团队还发现，将编写性能测试作为一项纪律能够更易提升应用性能。</p>
+<h2 id="编程模型-Programming-Model"><a href="#编程模型-Programming-Model" class="headerlink" title="编程模型 Programming Model"></a>编程模型 Programming Model</h2><p>Business logic processor的一个重要特点就是不和任何外部服务进行交互。因为调用外部服务的速度会比较慢，processor又是单线程的，因此外部服务会拖慢整个processor的速度。Processor只和event交互，要么接受一个event，要么产生一个event。怎么理解呢？举个例子就明白了，比如电商网站通过信用卡来订购商品。普通青年的做法就很直接，先获取订单信息，通过银联的外部服务来验证信用卡信息是否有效（这意味着信用卡号如果有问题，根本就不会生成订单），然后生成订单信息入库，这两步放在一个操作里。由于信用卡验证服务是一个外部服务，因此操作往往会被阻塞较长的一段时间。</p>
+<p>Lmax则另辟蹊径，它把整个操作分为两个，第一个操作是获取用户填写的订单。这个操作的结果是产生一个“信用卡验证请求”的事件。第二个操作是当它接受一个“信用卡验证成功响应”的事件，生成订单入库。Processor在完成第一个操作之后会接下来执行另外其他的事件，直到“信用卡验证成功响应”事件被插入input disruptor并被processor选取。至于lmax如何根据“信用卡验证请求”输出事件生成另外一个输入事件-“信用卡验证成功响应”，这则是通过output disruptor的多线程来完成的。因此可以看出lmax青睐单线程的态度并不固执，而是有自己的原则：IO密集型操作用多线程，CPU密集型用单线程。</p>
+<p>在这种事件驱动的异步风格下工作有些不寻常 - 尽管使用异步来提高应用程序的响应速度是一种熟悉的技术且它还有助于业务流程更具弹性，但您必须更加明确地考虑远程应用程序可能发生的不同情况。</p>
+<p>这个编程模型第二个特点在于错误处理 - 传统模式下会话和数据库事务提供了一个有用的错误处理能力。如果有什么出错，很容易抛出任何东西，这个会话能够被丢弃。如果一个错误发生在数据库端，你可以回滚事务。</p>
+<p>LMAX的内存结构在输入事件中是持久的，所以如果出现错误，不要让内存处于不一致的状态。但是没有自动回滚功能。因此，LMAX团队非常重视确保输入事件在进行内存中持久状态变化之前完全有效。他们发现测试是在投入生产之前消除这些问题的关键。</p>
+<h1 id="Input-and-Output-Disruptors"><a href="#Input-and-Output-Disruptors" class="headerlink" title="Input and Output Disruptors"></a>Input and Output Disruptors</h1><p>business logic processor是单线程工作的，，在processor可以正常进行工作之前还是有很多任务需要做的。Processor的输入本质上是网络消息，为了便于business logic processor处理，这些网络消息在送达processor之前需要进行反序列化（unmarshaled）。Event Sourcing的工作依赖于记录输入事件，因此输入消息的日志需要被持久化。</p>
+<img src="/2018/01/25/arch-lmax/lmax2.png" title="Figure 2: The activities done by the input disruptor (using UML activity diagram notation)">
+<p>如上图，由于replicator和journaler涉及到大量的IO，因此速度相对比较慢。而business logic processor的中心思想就是避免任何IO。这三个任务相对比较独立，它们必须在business logic processor处理消息之前完成，这些需要并发控制。</p>
+<p>为了处理并发，LMAX团队开发了<strong>disruptor</strong>组件，并开放了源代码。</p>
+<p>Disruptor可以看成一个事件监听或消息机制，在队列中一边生产者放入消息，另外一边消费者并行取出处理。当你进入这个队列内部查看，发现其实是一个真正的单个数据结构：一个<code>ring buffer</code>。 每个生产者和消费者都有一个序数计算器，以显示当前缓冲工作方式，每个生产者消费者写入自己次序计数器，能够读取对方的计数器，通过这种方式，生产者能够读取消费者的计算器确保其在没有锁的情况下使用，类似地消费者也要通过计数器在另外一个消费者完成后确保它一次只处理一次消息。</p>
+<img src="/2018/01/25/arch-lmax/lmax3.png" title="Figure 3: The input disruptor coordinates one producer and four consumers">
+<p>如上图，每个生产者/消费者都拥有一个序号，这个序号表示该生产者/消费者正在处理ring buffer的哪个slot。每个生产者/消费者都只能拥有自己序号的写权限，对于其它消费者/生产者的序号只能读取而不能更改。基于这种方法，生产者可以不断读取其它消费者的序号来检查生产者想要写入的slot是否被占用，这种方法实际上就是的lock-free，避免了加锁。类似的，一个消费者也可以通过观察其他消费者的序号来确保不会重复处理某些消息。</p>
+<p>Output disruptors也类似于此，只不过output disruptor的两个消费者marshaller和publisher必须是顺序执行的，也就是说ring buffer里的消息必须经过marshaller处理之后才能由publisher公布出去。Publisher发布出去的事件被组织成了若干个topics，每个事件只会被转发到订阅了该主题的receivers。</p>
+<p>disruptor不但适合一个生产者多个消费者，也适合多个生产者。在这种情况下它任然不需要加锁。</p>
+<p>disruptor设计的好处是如果遇到问题导致消费落后，消费者就能更容易地赶上。比如在15号solt有一个unmarshaler（反序列化）问题，而接受者在31号solt，它能够从16-30号一次性批量抓取，这种数据批读取能力加快消费者处理，降低整体延迟性。</p>
+<p>在Figure 3的例子中，journaler，replicator和un-marshaller各自只有一个实例，lmax在默认设置下的确是这样，但是lmax也可以运行多个组件实例，比如journaller组件可以运行两个实例，一个处理奇数slot，一个处理偶数slot。是否运行多个实例取决于IO操作的独立性和IO的阻塞时间。</p>
+<p>Ring buffer是很大的，input ring buffer拥有20 million个slot，每个output ring buffer也拥有4 million个slot。序号是一个64位的长整形。Ring Buffer的大小为2的整数次方，这样有利于做取余运算（sequence number % buffer size）把序号映射成slot号码。像很多其它的系统一样，disruptors每天深夜做定期的重启，这么做的主要原因是回收内存，尽可能降低在繁忙时段的昂贵的垃圾回收的可能性。</p>
+<p>Journaler的主要工作就是持久化存储所有的事件，这样便于当系统出现故障时可以从日志进行恢复。Lmax没有用数据库来作为持久化存储，而只是采用文件系统。它们把事件流写入磁盘，由于现代磁盘对于顺序存储的速度很快，而对随机存储的速度很慢，因此lmax的这种做法的性能并不会很差，即使没有用数据库。</p>
+<p>前面我提到lmax会运行多个实例节点组成一个cluster来支持快速failover。Replicator用来保持这些实例节点的同步。Lmax节点之间的所有通讯采用的IP广播，因此备用节点不需要知道主节点的IP地址。只有主节点运行一个replicator并侦听输入事件。Replicator负责广播这些input event给备用节点。一旦主节点发生宕机，主节点的心跳信号就会丢失，那么另一个备用节点就会变成主节点，接着这个新的主节点就会开始侦听输入事件，并启动自己的replcator。每个节点是一个完整的lmax实例，有自己的disruptor，自己的journaler，自己的un-marshaller。</p>
+<p>由于IP广播消息并不能确保消息的到达顺序。主节点负责决定广播消息的顺序。</p>
+<p>Un-marshaller用于把网络上的事件顺序转化成business logic processor可以调用的java对象。和其它的消费者有所不同，un-marshaller需要改变ring buffer中的数据。这里写（更改数据）时需要遵守一个原则，那就是每个对象的writable field只能允许众多并行消费者（也就是un-marshaller）之中的一个来写，这个原则的目的就是为了避免jvm的伪共享。</p>
+<img src="/2018/01/25/arch-lmax/lmax4.png" title="Figure 4: The LMAX architecture with the disruptors expanded">
+<p>Disruptor可以作为一个单独的组件被使用，而不只是用在lmax中，现在lmax已经开源了这个组件。作为一件金融交易软件公司，lmax的行为的确令人称道，也希望更多的公司愿意交流或分享自己的架构，毕竟技术是在交流中促进的。回过头来看，乐意开源或者愿意分享的公司（比如在infoQ中分享）往往技术上都比较领先。从个人来讲，技术人员也应该愿意进行分享，毕竟这是一个在业界建立自己声誉的好机会。</p>
+<h1 id="Queues-and-their-lack-of-mechanical-sympathy"><a href="#Queues-and-their-lack-of-mechanical-sympathy" class="headerlink" title="Queues and their lack of mechanical sympathy"></a>Queues and their lack of mechanical sympathy</h1><p>LMAX架构引起了人们的关注，因为这是一个与大多数人所想的高性能系统完全不同的实现方式。到目前为止，我已经谈到它是如何工作的，但是还没有深入研究它是以这种方式开发的。这个故事本身就很有趣，因为这个架构并不只是拿来演讲的。它是经过很长的时间，在团队意识到传统方案的缺陷后设计的替代方案。</p>
+<p>许多商业系统都有自己的核心架构，依赖于通过事务数据库协调的多个活动会话，LMAX团队也熟悉这些知识，并确信它不适用于LMAX。这个评估是建立在Betfair（成立LMAX的母公司）的经验基础之上的，这是一家体育博彩公司，它处理很多人的体育投赌事件，这是一个相当大的并发访问，锁竞争十分激烈，传统数据库几乎无法应付，这些让他们相信必须寻找另外一个途径来突破，他们现在接近目标了。</p>
+<p>他们最初的想法与大多数业界方案一样，为获得高性能是使用现在流行的并发编程。这意味着允许多线程并行处理多个订单。而这些线程必须互相通信。处理订单的条件等都需要进行线程间通信来确定。</p>
+<p>早期他们探索了Actor模型和SEDA。Actor模型依靠独立的活动对象和自己的线程通过队列相互通信。很多人发现这种并发模型要比基于锁定原语的事情更容易处理。</p>
+<p>该团队建立了一个Actor模型原型，进行性能测试，他们发现的是处理器会花费更多时间在管理队列，而不是去做真正应用逻辑，队列访问成了真正瓶颈。</p>
+<p>当追求性能达到这种程度，现代硬件构造原理成为很重要的必须了解的知识了，马丁汤普森喜欢用的一句话是“机制偏爱(mechanical sympathy)”，这词来自赛车驾驶，它反映的是赛车手对汽车有一种与生俱来的感觉，使他们能够感受到如何发挥它到最好状态。许多程序员包括我承认我也陷入这样一个阵营：不会认为编程如何与硬件等底层机制交互是值得研究的。</p>
+<p>现代的CPU延迟是影响性能的主导因素之一，在CPU如与内存的交互中，CPU具有多层次的缓存（一级二级），每级速度都明显加快。因此，如果要提高速度，将您的代码和数据加载到这些缓存中很重要。</p>
+<p>在某个层次, Actor模型能够帮助你，你可以把一个演员当作自己的对象，把代码和数据聚类在一起，这是缓存的一个自然单位。但Actor需要沟通，他们通过排队来进行沟通 - 而LMAX团队则认为这是干扰缓存的队列。(JVM伪分享的问题)。</p>
+<p>为什么队列干扰了缓存呢？解释是这样的: 为了将数据放入队列，你需要写入队列，类似地，为了从队列取出数据，你需要移除队列 - 也是一种写，客户端也许不只一次写入同样数据结构，处理写通常需要锁，但是如果锁使用了，会引起切换到底层系统的场景，当这个发生后，处理器会丢失它的缓存中的数据。</p>
+<p>他们得出的结论是为了够获得最好的缓存性能, 你需要设计一个CPU核写任何内存的设计，多个读是良好的，处理器会非常快，而队列失败在one-writer原则，队列不符合单写者原则。(JVM伪共享)</p>
+<p>这样的分析导致LMAX团队得出一系列结论，导致他们设计出disruptor, 能够遵循single-writer约束。 其次，它引发了探索单线程业务逻辑方法的想法，提出了一个单线程如果没有并发管理，可以走多快的问题。</p>
+<p>单个线程的本质是：确保你每个CPU核运行一个线程，缓存配合，尽可能的使用高速缓存而不是主内存。这就意味着代码和数据需要尽可能的一致访问，将代码和数据放在一起的小对象也可以作为一个单元在缓存之间进行交换，从而简化缓存管理并提高性能。</p>
+<p>LMAX体系结构的一个重要组成部分是使用性能测试。考虑和放弃基于Actor的方法来自对原型进行构建和性能测试。类似地，通过性能测试来实现提高各种组件性能很重要。<code>Mechanical sympathy</code>是非常有价值的 - 它有助于形成你能做出什么改进的假设，并且引导你向前迈进，而不是落后 - 最终的测试将给你令人信服的证据。</p>
+<p>然而，这种风格的性能测试并不是一个很好理解的话题。 LMAX团队经常强调，开发有意义的性能测试往往比开发产品代码更困难。除非考虑到CPU的高速缓存行为，否则测试低级并发组件是没有意义的。</p>
+<p>一个特别的经验是编写针对零组件的测试的重要性，以确保性能测试足够快以真正衡量真实组件正在做什么。编写快速的测试代码并不比编写快速生产代码容易，而且容易得到错误的结果，因为测试的速度并不像要测试的组件那么快。</p>
+<h1 id="Should-you-use-this-architecture-？"><a href="#Should-you-use-this-architecture-？" class="headerlink" title="Should you use this architecture ？"></a>Should you use this architecture ？</h1><p>乍一看，这个架构是非常小众的，驱动低延迟的交易系统，大多数应用并不需要6百万TPS。</p>
+<p>但是我对这个架构着迷的原因是它的设计，它移除了很多其他大多数编程系统的复杂性，传统围绕事务性的关系数据库会话并发模型并不简单，对象/关系数据库映射ORM工具Object/relational mapping tools能够帮助减轻这种麻烦，但是它不能解决全部问题，大多数企业性能微调还是要纠结于SQL.</p>
+<p>现在你能得到服务器更多的主内存，比我们过去这些老家伙得到的磁盘还要多，越来越多应用能够将他们的工作全部置于内存中，这样消除了复杂性和性能低问题. 事件源驱动（Event Sourcing）提供了一种内存（in-memory）系统的解决方案, 在单个线程运行业务解决了并发性能。LMAX的经验建议只要你需要少于几百万TPS，你就有足够的性能提升余地。</p>
+<p>这里也是相似于CQRS，一种事件驱动, in-memory风格的命令系统(尽管LMAX当前没有使用CQRS)</p>
+<p>那么是不是表示你不应该走上这条道路呢？对于像这样鲜为人知的技术来说，这总是一个棘手的问题，因为这个行业需要更多的时间去探索它的界限。</p>
+<p>一个例子是，一个领域模型，处理一个事务总是有可能改变如何处理另一个事务。对于彼此独立的事务来说，不太需要协调，因此使用并行运行的独立处理器变得更具吸引力。</p>
+<p>LMAX致力于研究事件如何改变世界。许多网站更多的是关于获取现有的信息存储，并将这些信息的各种组合呈现出来 - 例如媒体网站。这里的构建挑战往往集中在如何正确的使用缓存。</p>
+<p>LMAX另外一个特点是这是一个后台系统，有理由考虑如何在一个交互模型中应用它，比如日益增长的Web应用，当异步通讯在WEB应用越来越多时，这将改变我们的编程模型。</p>
+<p>对于大多数团队来说，这些变化需要一些习惯。大多数人倾向于用同步的方式来理解编程，而不习惯处理异步。然而，异步通信是提升响应速度的重要工具。看看在javascript世界中广泛使用地异步通信（使用AJAX和node.js）是否会鼓励更多的人了解异步编程。 LMAX团队发现，虽然花了一些时间来适应异步风格，但它很快变得自然而且容易。特别是在这种方法下，错误处理更容易。</p>
+<p>LMAX团队当然认为花力气协调事务性关系数据库的日子已经屈指可数。你可以使用一种更加容易方式编写程序而且比传统集中式中央数据库运行得更快，为什么视而不见呢？</p>
+<p>就我而言，我觉得这是一个非常令人兴奋的故事。我的大部分目标是专注于复杂的业务领域软件。像这样的架构提供了很好的问题分离，使人们可以专注于领域驱动设计，并保持很好的平台复杂性。领域对象和数据库之间的紧密耦合一直是一个恼人的方法 - 这样的方法提出了一个出路。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
     <link itemprop="mainEntityOfPage" href="http://keaimo.com/2018/01/25/arch-cqrs/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -1200,7 +1420,7 @@
       
         
           
-            <h2 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h2><h2 id="2PC协议"><a href="#2PC协议" class="headerlink" title="2PC协议"></a>2PC协议</h2><p>二阶段提交协议(Two-phaseCommit)是分布式系统中较为经典的处理数据一致性的解决方案。在大型的集群环境中，对于单体微服务本身而言虽然能够通过代码质量、Mock测试等方法来确保自身服务的可用性，但是无法能够保证其他服务的可用性。当一个全链路的端到端业务操作，常常会跨多个节点、多个应用，为了能够保证全局事务的ACID特性，需要引入一个协调组件(这里称之为TM)来控制所有服务参与者(这里称之为RM)的操作结果，根据所有参与者的反馈结果来决定整个分布式事务究竟是提交还是回滚的结果。</p>
+            <h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><h1 id="2PC协议"><a href="#2PC协议" class="headerlink" title="2PC协议"></a>2PC协议</h1><p>二阶段提交协议(Two-phaseCommit)是分布式系统中较为经典的处理数据一致性的解决方案。在大型的集群环境中，对于单体微服务本身而言虽然能够通过代码质量、Mock测试等方法来确保自身服务的可用性，但是无法能够保证其他服务的可用性。当一个全链路的端到端业务操作，常常会跨多个节点、多个应用，为了能够保证全局事务的ACID特性，需要引入一个协调组件(这里称之为TM)来控制所有服务参与者(这里称之为RM)的操作结果，根据所有参与者的反馈结果来决定整个分布式事务究竟是提交还是回滚的结果。</p>
 <p><strong>第一阶段：称为准备(prepare)阶段</strong>。事务协调者向各个服务应用发送prepare请求，服务应用在得到请求后做预处理操作，预处理可能是做预检查，也可能是把请求临时存储，可以理解为是一种试探性地提交。下面是一般的步骤：</p>
 <blockquote>
 <ol>
@@ -1234,26 +1454,24 @@
 <li>第二个是挂了之后又恢复了，这时如果他有未执行完的事务操作，直接取消掉，然后询问协调者目前我应该怎么做，协调者就会比对自己的事务执行记录和该参与者的事务执行记录，告诉他应该怎么做来保持数据的一致性。</li>
 </ol>
 <p><strong> 情况三：参与者挂了，协调者也挂了 </strong></p>
-<p>这种情况比较复杂，我们分情况讨论。</p>
+<p>这种情况比较复杂，我们分情况讨论：</p>
 <ol>
 <li>协调者和参与者在第一阶段挂了。 由于这时还没有执行commit操作，新选出来的协调者可以询问各个参与者的情况，再决定是进行commit还是roolback。因为还没有commit，所以不会导致数据一致性问题。</li>
 <li>第二阶段协调者和参与者挂了，挂了的这个参与者在挂之前并没有接收到协调者的指令，或者接收到指令之后还没来的及做commit或者roolback操作。 这种情况下，当新的协调者被选出来之后，他同样是询问所有的参与者的情况。只要有机器执行了abort（roolback）操作或者第一阶段返回的信息是No的话，那就直接执行roolback操作。如果没有人执行abort操作，但是有机器执行了commit操作，那么就直接执行commit操作。这样，当挂掉的参与者恢复之后，只要按照协调者的指示进行事务的commit还是roolback操作就可以了。因为挂掉的机器并没有做commit或者roolback操作，而没有挂掉的机器们和新的协调者又执行了同样的操作，那么这种情况不会导致数据不一致现象。</li>
 <li>第二阶段协调者和参与者挂了，挂了的这个参与者在挂之前已经执行了操作。但是由于他挂了，没有人知道他执行了什么操作。这种情况下，新的协调者被选出来之后，如果他想负起协调者的责任的话他就只能按照之前那种情况来执行commit或者roolback操作。这样新的协调者和所有没挂掉的参与者就保持了数据的一致性，我们假定他们执行了commit。但是，这个时候，那个挂掉的参与者恢复了怎么办，因为他之前已经执行完了之前的事务，如果他执行的是commit那还好，和其他的机器保持一致了，万一他执行的是roolback操作那？这不就导致数据的不一致性了么？虽然这个时候可以再通过手段让他和协调者通信，再想办法把数据搞成一致的，但是，这段时间内他的数据状态已经是不一致的了。</li>
 </ol>
 <p>所以，2PC协议中，如果出现协调者和参与者都挂了的情况，有可能导致数据不一致。为了解决这个问题，衍生除了3PC。</p>
-<h2 id="3PC协议"><a href="#3PC协议" class="headerlink" title="3PC协议"></a>3PC协议</h2><p>3PC(Three-phaseCommit)最关键要解决的就是协调者和参与者同时挂掉的问题，所以3PC把2PC的准备阶段再次一分为二，这样三阶段提交就有<code>CanCommit</code>、<code>PreCommit</code>、<code>DoCommit</code>三个阶段。在第一阶段，只是询问所有参与者是否可可以执行事务操作，并不在本阶段执行事务操作。当协调者收到所有的参与者都返回YES时，在第二阶段才执行事务操作，然后在第三阶段在执行commit或者rollback。</p>
+<h1 id="3PC协议"><a href="#3PC协议" class="headerlink" title="3PC协议"></a>3PC协议</h1><p>3PC(Three-phaseCommit)最关键要解决的就是协调者和参与者同时挂掉的问题，所以3PC把2PC的准备阶段再次一分为二，这样三阶段提交就有<code>CanCommit</code>、<code>PreCommit</code>、<code>DoCommit</code>三个阶段。在第一阶段，只是询问所有参与者是否可可以执行事务操作，并不在本阶段执行事务操作。当协调者收到所有的参与者都返回YES时，在第二阶段才执行事务操作，然后在第三阶段在执行commit或者rollback。</p>
 <p>举一个生活中类似三阶段提交的例子：</p>
 <blockquote>
 <p>班长要组织全班同学聚餐，由于大家毕业多年，所以要逐个打电话敲定时间，时间初定10.1日。然后开始逐个打电话。<br>班长：小A，我们想定在10.1号聚会，你有时间嘛？有时间你就说YES，没有你就说NO，然后我还会再去问其他人，具体时间地点我会再通知你，这段时间你可先去干你自己的事儿，不用一直等着我。（协调者询问事务是否可以执行，这一步不会锁定资源）<br>小A：好的，我有时间。（参与者反馈）<br>班长：小B，我们想定在10.1号聚会……不用一直等我。<br>班长收集完大家的时间情况了，一看大家都有时间，那么就再次通知大家。（协调者接收到所有YES指令）<br>班长：小A，我们确定了10.1号聚餐，你要把这一天的时间空出来，这一天你不能再安排其他的事儿了。然后我会逐个通知其他同学，通知完之后我会再来和你确认一下，还有啊，如果我没有特意给你打电话，你就10.1号那天来聚餐就行了。对了，你确定能来是吧？（协调者发送事务执行指令，这一步锁住资源。如果由于网络原因参与者在后面没有收到协调者的命令，他也会执行commit）<br>小A顺手在自己的日历上把10.1号这一天圈上了，然后跟班长说，我可以去。（参与者执行事务操作，反馈状态）<br>班长：小B，我们觉得了10.1号聚餐……你就10.1号那天来聚餐就行了。<br>班长通知完一圈之后。所有同学都跟他说：”我已经把10.1号这天空出来了”。于是，他在10.1号这一天又挨个打了一遍电话告诉他们：嘿，现在你们可以出门拉。。。。（协调者收到所有参与者的ACK响应，通知所有参与者执行事务的commit）<br>小A，小B：我已经出门拉。（执行commit操作，反馈状态）</p>
 </blockquote>
-<p><strong>3PC为什么比2PC好？</strong></p>
-<p>直接分析协调者和参与者都挂的情况。第二阶段协调者和参与者挂了，挂了的这个参与者在挂之前已经执行了操作。但是由于他挂了，没有人知道他执行了什么操作。这种情况下，当新的协调者被选出来之后，他同样是询问所有的参与者的情况来觉得是commit还是roolback。这看上去和二阶段提交一样啊？他是怎么解决一致性问题的呢？看上去和二阶段提交的那种数据不一致的情况的现象是一样的，但仔细分析所有参与者的状态的话就会发现其实并不一样。我们假设挂掉的那台参与者执行的操作是commit。那么其他没挂的操作者的状态应该是什么？他们的状态要么是prepare-commit要么是commit。因为3PC的第三阶段一旦有机器执行了commit，那必然第一阶段大家都是同意commit。所以，这时，新选举出来的协调者一旦发现未挂掉的参与者中有人处于commit状态或者是prepare-commit的话，那就执行commit操作。否则就执行rollback操作。这样挂掉的参与者恢复之后就能和其他机器保持数据一致性了。（为了简单的让大家理解，笔者这里简化了新选举出来的协调者执行操作的具体细节，真实情况比我描述的要复杂）</p>
+<p><strong>3PC为什么比2PC好？</strong><br>直接分析协调者和参与者都挂的情况。第二阶段协调者和参与者挂了，挂了的这个参与者在挂之前已经执行了操作。但是由于他挂了，没有人知道他执行了什么操作。这种情况下，当新的协调者被选出来之后，他同样是询问所有的参与者的情况来觉得是commit还是roolback。这看上去和二阶段提交一样啊？他是怎么解决一致性问题的呢？看上去和二阶段提交的那种数据不一致的情况的现象是一样的，但仔细分析所有参与者的状态的话就会发现其实并不一样。我们假设挂掉的那台参与者执行的操作是commit。那么其他没挂的操作者的状态应该是什么？他们的状态要么是prepare-commit要么是commit。因为3PC的第三阶段一旦有机器执行了commit，那必然第一阶段大家都是同意commit。所以，这时，新选举出来的协调者一旦发现未挂掉的参与者中有人处于commit状态或者是prepare-commit的话，那就执行commit操作。否则就执行rollback操作。这样挂掉的参与者恢复之后就能和其他机器保持数据一致性了。（为了简单的让大家理解，笔者这里简化了新选举出来的协调者执行操作的具体细节，真实情况比我描述的要复杂）</p>
 <p>简单概括一下就是，如果挂掉的那台机器已经执行了commit，那么协调者可以从所有未挂掉的参与者的状态中分析出来，并执行commit。如果挂掉的那个参与者执行了rollback，那么协调者和其他的参与者执行的肯定也是rollback操作。所以，再多引入一个阶段之后，3PC解决了2PC中存在的那种由于协调者和参与者同时挂掉有可能导致的数据一致性问题。</p>
-<p><strong>3PC存在的问题</strong></p>
-<p>在doCommit阶段，如果参与者无法及时接收到来自协调者的doCommit或者rebort请求时，会在等待超时之后，会继续进行事务的提交。所以，由于网络原因，协调者发送的abort响应没有及时被参与者接收到，那么参与者在等待超时之后执行了commit操作。这样就和其他接到abort命令并执行回滚的参与者之间存在数据不一致的情况。</p>
-<h2 id="最终一致"><a href="#最终一致" class="headerlink" title="最终一致"></a>最终一致</h2><p>最终一致依赖于可靠消息系统。</p>
-<h2 id="最大努力通知型"><a href="#最大努力通知型" class="headerlink" title="最大努力通知型"></a>最大努力通知型</h2><h2 id="TCC"><a href="#TCC" class="headerlink" title="TCC"></a>TCC</h2><p>TCC(Try-Confirm-Cancle)是一种处理分布式事务的解决方案。通过将操作分为Try、Confirm、Cancle三个步骤来控制分布式系统的一致性。</p>
-<h2 id="SAGA"><a href="#SAGA" class="headerlink" title="SAGA"></a>SAGA</h2>
+<p><strong>3PC存在的问题</strong><br>在doCommit阶段，如果参与者无法及时接收到来自协调者的doCommit或者rebort请求时，会在等待超时之后，会继续进行事务的提交。所以，由于网络原因，协调者发送的abort响应没有及时被参与者接收到，那么参与者在等待超时之后执行了commit操作。这样就和其他接到abort命令并执行回滚的参与者之间存在数据不一致的情况。</p>
+<h1 id="最终一致"><a href="#最终一致" class="headerlink" title="最终一致"></a>最终一致</h1><p>最终一致依赖于可靠消息系统。</p>
+<h1 id="最大努力通知型"><a href="#最大努力通知型" class="headerlink" title="最大努力通知型"></a>最大努力通知型</h1><h1 id="TCC"><a href="#TCC" class="headerlink" title="TCC"></a>TCC</h1><p>TCC(Try-Confirm-Cancle)是一种处理分布式事务的解决方案。通过将操作分为Try、Confirm、Cancle三个步骤来控制分布式系统的一致性。</p>
+<h1 id="SAGA"><a href="#SAGA" class="headerlink" title="SAGA"></a>SAGA</h1>
           
         
       
@@ -2147,183 +2365,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://keaimo.com/2018/01/05/use-good-software/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jack Peng">
-      <meta itemprop="description" content="">
-      <meta itemprop="image" content="/images/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="笑傲江湖└JP┐">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/01/05/use-good-software/" itemprop="url">善用佳软</a></h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-05T10:57:29+08:00">
-                2018-01-05
-              </time>
-            
-
-            
-
-            
-          </span>
-
-          
-            <span class="post-category" >
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/日常工作/" itemprop="url" rel="index">
-                    <span itemprop="name">日常工作</span>
-                  </a>
-                </span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h2 id="屏幕录像"><a href="#屏幕录像" class="headerlink" title="屏幕录像"></a>屏幕录像</h2><table>
-<thead>
-<tr>
-<th>软件名称</th>
-<th>开源</th>
-<th>支持平台</th>
-<th>其他说明</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>FSCapture</td>
-<td>否</td>
-<td>windows</td>
-<td>自带视频录制功能</td>
-</tr>
-<tr>
-<td>Bandicam</td>
-<td>否</td>
-<td>windows</td>
-<td></td>
-</tr>
-<tr>
-<td><a href="https://obsproject.com" target="_blank" rel="noopener">Open Broadcaster Software (OBS)</a></td>
-<td>开源</td>
-<td>windows、mac、linux</td>
-<td></td>
-</tr>
-<tr>
-<td><a href="https://github.com/NickeManarin/ScreenToGif" target="_blank" rel="noopener">ScreenToGif</a></td>
-<td>开源</td>
-<td>windows</td>
-<td>GIF录制</td>
-</tr>
-</tbody>
-</table>
-
-          
-        
-      
-    </div>
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -2378,7 +2419,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">27</span>
+                  <span class="site-state-item-count">28</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
