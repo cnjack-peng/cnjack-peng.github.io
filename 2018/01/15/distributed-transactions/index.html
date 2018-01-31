@@ -79,18 +79,18 @@
 
 
 
-<meta name="description" content="基础知识2PC协议二阶段提交协议(Two-phaseCommit)是分布式系统中较为经典的处理数据一致性的解决方案。在大型的集群环境中，对于单体微服务本身而言虽然能够通过代码质量、Mock测试等方法来确保自身服务的可用性，但是无法能够保证其他服务的可用性。当一个全链路的端到端业务操作，常常会跨多个节点、多个应用，为了能够保证全局事务的ACID特性，需要引入一个协调组件(这里称之为TM)来控制所有服">
+<meta name="description" content="在OLTP系统领域，我们在很多业务场景下都会面临事务一致性方面的需求，例如最经典的Bob给Smith转账的案例。传统的企业开发，系统往往是以单体应用形式存在的，也没有横跨多个数据库。我们通常只需借助开发平台中特有数据访问技术和框架（例如Spring、JDBC、ADO.NET），结合关系型数据库自带的事务管理机制来实现事务性的需求。关系型数据库通常具有ACID特性：原子性（Atomicity）、一致">
 <meta property="og:type" content="article">
 <meta property="og:title" content="分布式事务">
 <meta property="og:url" content="http://keaimo.com/2018/01/15/distributed-transactions/index.html">
 <meta property="og:site_name" content="笑傲江湖└JP┐">
-<meta property="og:description" content="基础知识2PC协议二阶段提交协议(Two-phaseCommit)是分布式系统中较为经典的处理数据一致性的解决方案。在大型的集群环境中，对于单体微服务本身而言虽然能够通过代码质量、Mock测试等方法来确保自身服务的可用性，但是无法能够保证其他服务的可用性。当一个全链路的端到端业务操作，常常会跨多个节点、多个应用，为了能够保证全局事务的ACID特性，需要引入一个协调组件(这里称之为TM)来控制所有服">
+<meta property="og:description" content="在OLTP系统领域，我们在很多业务场景下都会面临事务一致性方面的需求，例如最经典的Bob给Smith转账的案例。传统的企业开发，系统往往是以单体应用形式存在的，也没有横跨多个数据库。我们通常只需借助开发平台中特有数据访问技术和框架（例如Spring、JDBC、ADO.NET），结合关系型数据库自带的事务管理机制来实现事务性的需求。关系型数据库通常具有ACID特性：原子性（Atomicity）、一致">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://keaimo.com/2018/01/15/distributed-transactions/2pc.png">
-<meta property="og:updated_time" content="2018-01-26T05:14:25.454Z">
+<meta property="og:updated_time" content="2018-01-29T09:05:22.115Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="分布式事务">
-<meta name="twitter:description" content="基础知识2PC协议二阶段提交协议(Two-phaseCommit)是分布式系统中较为经典的处理数据一致性的解决方案。在大型的集群环境中，对于单体微服务本身而言虽然能够通过代码质量、Mock测试等方法来确保自身服务的可用性，但是无法能够保证其他服务的可用性。当一个全链路的端到端业务操作，常常会跨多个节点、多个应用，为了能够保证全局事务的ACID特性，需要引入一个协调组件(这里称之为TM)来控制所有服">
+<meta name="twitter:description" content="在OLTP系统领域，我们在很多业务场景下都会面临事务一致性方面的需求，例如最经典的Bob给Smith转账的案例。传统的企业开发，系统往往是以单体应用形式存在的，也没有横跨多个数据库。我们通常只需借助开发平台中特有数据访问技术和框架（例如Spring、JDBC、ADO.NET），结合关系型数据库自带的事务管理机制来实现事务性的需求。关系型数据库通常具有ACID特性：原子性（Atomicity）、一致">
 <meta name="twitter:image" content="http://keaimo.com/2018/01/15/distributed-transactions/2pc.png">
 
 
@@ -367,7 +367,13 @@
       
 
       
-        <h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><h1 id="2PC协议"><a href="#2PC协议" class="headerlink" title="2PC协议"></a>2PC协议</h1><p>二阶段提交协议(Two-phaseCommit)是分布式系统中较为经典的处理数据一致性的解决方案。在大型的集群环境中，对于单体微服务本身而言虽然能够通过代码质量、Mock测试等方法来确保自身服务的可用性，但是无法能够保证其他服务的可用性。当一个全链路的端到端业务操作，常常会跨多个节点、多个应用，为了能够保证全局事务的ACID特性，需要引入一个协调组件(这里称之为TM)来控制所有服务参与者(这里称之为RM)的操作结果，根据所有参与者的反馈结果来决定整个分布式事务究竟是提交还是回滚的结果。</p>
+        <p>在OLTP系统领域，我们在很多业务场景下都会面临事务一致性方面的需求，例如最经典的Bob给Smith转账的案例。传统的企业开发，系统往往是以单体应用形式存在的，也没有横跨多个数据库。我们通常只需借助开发平台中特有数据访问技术和框架（例如Spring、JDBC、ADO.NET），结合关系型数据库自带的事务管理机制来实现事务性的需求。关系型数据库通常具有ACID特性：原子性（Atomicity）、一致性（Consistency）、隔离性（Isolation）、持久性（Durability）。</p>
+<p>而大型互联网平台往往是由一系列分布式系统构成的，开发语言平台和技术栈也相对比较杂，尤其是在SOA和微服务架构盛行的今天，一个看起来简单的功能，内部可能需要调用多个“服务”并操作多个数据库或分片来实现，情况往往会复杂很多。单一的技术手段和解决方案，已经无法应对和满足这些复杂的场景了。</p>
+<p>对分布式系统有过研究的读者，可能听说过“CAP定律”、“Base理论”等，非常巧的是，化学理论中ACID是酸、Base恰好是碱。这里笔者不对这些概念做过多的解释，有兴趣的读者可以查看相关参考资料。CAP定律如下图：</p>
+<p>在分布式系统中，同时满足“CAP定律”中的“一致性”、“可用性”和“分区容错性”三者是不可能的，这比现实中找对象需同时满足“高、富、帅”或“白、富、美”更加困难。在互联网领域的绝大多数的场景，都需要牺牲强一致性来换取系统的高可用性，系统往往只需要保证“最终一致性”，只要这个最终时间是在用户可以接受的范围内即可。</p>
+<p>分布式事务就是指事务的参与者、支持事务的服务器、资源服务器以及事务管理器分别位于不同的分布式系统的不同节点之上。简单的说，就是一次大的操作由不同的小操作组成，这些小的操作分布在不同的服务器上，且属于不同的应用，分布式事务需要保证这些小操作要么全部成功，要么全部 失败。本质上来说，分布式事务就是为了保证不同数据库的数据一致性。</p>
+<p>分布式事务可能由于分库分表、应用SOA化而被引入。</p>
+<h1 id="2PC协议"><a href="#2PC协议" class="headerlink" title="2PC协议"></a>2PC协议</h1><p>二阶段提交协议(Two-phaseCommit)是分布式系统中较为经典的处理数据一致性的解决方案。在大型的集群环境中，对于单体微服务本身而言虽然能够通过代码质量、Mock测试等方法来确保自身服务的可用性，但是无法能够保证其他服务的可用性。当一个全链路的端到端业务操作，常常会跨多个节点、多个应用，为了能够保证全局事务的ACID特性，需要引入一个协调组件(这里称之为TM)来控制所有服务参与者(这里称之为RM)的操作结果，根据所有参与者的反馈结果来决定整个分布式事务究竟是提交还是回滚的结果。</p>
 <p><strong>第一阶段：称为准备(prepare)阶段</strong>。事务协调者向各个服务应用发送prepare请求，服务应用在得到请求后做预处理操作，预处理可能是做预检查，也可能是把请求临时存储，可以理解为是一种试探性地提交。下面是一般的步骤：</p>
 <blockquote>
 <ol>
@@ -612,7 +618,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基础知识"><span class="nav-number">1.</span> <span class="nav-text"><a href="#&#x57FA;&#x7840;&#x77E5;&#x8BC6;" class="headerlink" title="&#x57FA;&#x7840;&#x77E5;&#x8BC6;"></a>&#x57FA;&#x7840;&#x77E5;&#x8BC6;</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2PC协议"><span class="nav-number">2.</span> <span class="nav-text"><a href="#2PC&#x534F;&#x8BAE;" class="headerlink" title="2PC&#x534F;&#x8BAE;"></a>2PC&#x534F;&#x8BAE;</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3PC协议"><span class="nav-number">3.</span> <span class="nav-text"><a href="#3PC&#x534F;&#x8BAE;" class="headerlink" title="3PC&#x534F;&#x8BAE;"></a>3PC&#x534F;&#x8BAE;</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#最终一致"><span class="nav-number">4.</span> <span class="nav-text"><a href="#&#x6700;&#x7EC8;&#x4E00;&#x81F4;" class="headerlink" title="&#x6700;&#x7EC8;&#x4E00;&#x81F4;"></a>&#x6700;&#x7EC8;&#x4E00;&#x81F4;</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#最大努力通知型"><span class="nav-number">5.</span> <span class="nav-text"><a href="#&#x6700;&#x5927;&#x52AA;&#x529B;&#x901A;&#x77E5;&#x578B;" class="headerlink" title="&#x6700;&#x5927;&#x52AA;&#x529B;&#x901A;&#x77E5;&#x578B;"></a>&#x6700;&#x5927;&#x52AA;&#x529B;&#x901A;&#x77E5;&#x578B;</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#TCC"><span class="nav-number">6.</span> <span class="nav-text"><a href="#TCC" class="headerlink" title="TCC"></a>TCC</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SAGA"><span class="nav-number">7.</span> <span class="nav-text"><a href="#SAGA" class="headerlink" title="SAGA"></a>SAGA</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#2PC协议"><span class="nav-number">1.</span> <span class="nav-text"><a href="#2PC&#x534F;&#x8BAE;" class="headerlink" title="2PC&#x534F;&#x8BAE;"></a>2PC&#x534F;&#x8BAE;</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3PC协议"><span class="nav-number">2.</span> <span class="nav-text"><a href="#3PC&#x534F;&#x8BAE;" class="headerlink" title="3PC&#x534F;&#x8BAE;"></a>3PC&#x534F;&#x8BAE;</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#最终一致"><span class="nav-number">3.</span> <span class="nav-text"><a href="#&#x6700;&#x7EC8;&#x4E00;&#x81F4;" class="headerlink" title="&#x6700;&#x7EC8;&#x4E00;&#x81F4;"></a>&#x6700;&#x7EC8;&#x4E00;&#x81F4;</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#最大努力通知型"><span class="nav-number">4.</span> <span class="nav-text"><a href="#&#x6700;&#x5927;&#x52AA;&#x529B;&#x901A;&#x77E5;&#x578B;" class="headerlink" title="&#x6700;&#x5927;&#x52AA;&#x529B;&#x901A;&#x77E5;&#x578B;"></a>&#x6700;&#x5927;&#x52AA;&#x529B;&#x901A;&#x77E5;&#x578B;</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#TCC"><span class="nav-number">5.</span> <span class="nav-text"><a href="#TCC" class="headerlink" title="TCC"></a>TCC</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SAGA"><span class="nav-number">6.</span> <span class="nav-text"><a href="#SAGA" class="headerlink" title="SAGA"></a>SAGA</span></a></li></ol></div>
             
 
           </div>
